@@ -1,208 +1,255 @@
 <div align="center">
 
-# Prisma Calendar
+# Periodic Planner
 
-![Downloads](https://img.shields.io/github/downloads/Real1tyy/Prisma-Calendar/total?label=Downloads&style=for-the-badge)
-![Release](https://img.shields.io/github/v/release/Real1tyy/Prisma-Calendar?label=Latest%20Release&style=for-the-badge)
-![Stars](https://img.shields.io/github/stars/Real1tyy/Prisma-Calendar?style=for-the-badge)
-![License](https://img.shields.io/github/license/Real1tyy/Prisma-Calendar?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge)
+![License](https://img.shields.io/github/license/Real1tyy/Periodic-Planner?style=for-the-badge)
 ![Obsidian](https://img.shields.io/badge/obsidian-plugin-purple.svg?style=for-the-badge)
 
-**The most powerful and flexible calendar plugin for Obsidian — fully configurable, reactive, and built for power users.**
+**Intelligent periodic note generation with hierarchical time allocation, budget tracking, and interconnected planning across daily, weekly, monthly, quarterly, and yearly timeframes.**
 
 ---
-
-## 🎬 Video Tutorials
-
-### Part 1: Feature Showcase — Core Capabilities
-<a href="https://www.youtube.com/watch?v=aULuB6petbU" target="_blank">
-  <img src="https://img.youtube.com/vi/aULuB6petbU/maxresdefault.jpg" alt="Prisma Calendar - Feature Showcase (Part 1)" style="width:100%;">
-</a>
-
-**Core Features Walkthrough**: This video covers many of the fundamental features of Prisma Calendar including event creation, editing, batch operations, undo/redo system, recurring events, color rules, and more. A comprehensive introduction to the essential tools that make Prisma Calendar powerful.
-
-### Part 2: Deep Dive — Intelligence & Automation
-<a href="https://www.youtube.com/watch?v=JCYGWltxQQ0" target="_blank">
-  <img src="https://img.youtube.com/vi/JCYGWltxQQ0/maxresdefault.jpg" alt="Prisma Calendar - Deep Dive (Part 2)" style="width:100%;">
-</a>
-
-**Advanced Features Deep Dive**: This Part 2 explores additional features that didn't make it into the first video: intelligent notifications, global event search, navigation tools, statistics and time-tracking insights, and filtering presets. Discover the advanced systems that bring even more power to your workflow.
 
 </div>
 
----
+## 🎯 Vision
 
-## 📸 Screenshots
-
-### Full Calendar View
-![Full Calendar View](docs-site/static/img/full_calendar.png)
-*Weekly calendar view with color-coded events, time grid, and powerful toolbar*
-
-### Batch Operations
-![Batch Selection Mode](docs-site/static/img/batch_select.png)
-*Select multiple events for bulk operations like delete, duplicate, move, or skip*
-
-### Event Creation & Editing
-<p align="center">
-<img src="docs-site/static/img/create_event_modal.png" alt="Create Event Modal" width="45%">
-<img src="docs-site/static/img/edit_event_modal.png" alt="Edit Event Modal" width="45%">
-</p>
-
-*Create and edit events with full frontmatter support, recurring event options, and built-in time tracker*
-
-### Weekly Statistics
-![Weekly Statistics](docs-site/static/img/weekly_stats_pie.png)
-*Visual time tracking with pie charts and detailed breakdown tables*
-
-### Settings
-![Settings Panel](docs-site/static/img/settings.png)
-*Fully configurable settings for each calendar with tabs for General, Properties, Calendar UI, Notifications, and Rules*
+Periodic Planner transforms your Obsidian vault into a **time-aware planning system**. It automatically generates interconnected periodic notes (daily, weekly, monthly, quarterly, yearly) and provides powerful time budgeting tools to help you allocate your most precious resource: **time**.
 
 ---
 
-## 📚 Documentation
+## ✨ Core Features
 
-**[View Full Documentation →](https://real1tyy.github.io/Prisma-Calendar/)**
+### 📅 **Automatic Periodic Note Generation**
 
-Quick Links:
-- [Installation](https://real1tyy.github.io/Prisma-Calendar/installation) • [Quickstart](https://real1tyy.github.io/Prisma-Calendar/quickstart) • [Configuration](https://real1tyy.github.io/Prisma-Calendar/configuration)
-- [Features Overview](https://real1tyy.github.io/Prisma-Calendar/features/overview) • [FAQ](https://real1tyy.github.io/Prisma-Calendar/faq) • [Troubleshooting](https://real1tyy.github.io/Prisma-Calendar/troubleshooting)
+The plugin automatically creates notes for each time period, always staying **one step ahead** by generating the next period's note in advance.
+
+- **Daily notes** → Generated for today and tomorrow
+- **Weekly notes** → Generated for this week and next
+- **Monthly notes** → Generated for this month and next
+- **Quarterly notes** → Generated for this quarter and next
+- **Yearly notes** → Generated for this year and next
+
+Each note is created in its designated folder with consistent naming conventions.
+
+### 🔗 **Interconnected Note Web**
+
+All periodic notes are intelligently linked through frontmatter properties:
+
+```yaml
+---
+# Daily Note Example (2025-01-15)
+previous: "[[2025-01-14]]"
+next: "[[2025-01-16]]"
+week: "[[2025-W03]]"
+month: "[[2025-01]]"
+quarter: "[[2025-Q1]]"
+year: "[[2025]]"
+---
+```
+
+**Navigation Links:**
+- `previous` / `next` → Navigate chronologically within the same period type
+- Hierarchical links → Jump from daily → weekly → monthly → quarterly → yearly
+
+This creates a powerful **navigable web of time** that lets you zoom in and out of your planning horizon effortlessly.
+
+### ⏱️ **Time Budget System**
+
+Define how many hours you have available and delegate them across categories:
+
+#### Yearly Time Pool
+```
+Total Hours/Year: 10,000 hours
+├── YouTube:          2,000 hours (20%)
+├── Business:         5,000 hours (50%)
+└── Health & Relationships: 3,000 hours (30%)
+```
+
+#### Cascading Allocation
+Time budgets flow down through the hierarchy:
+- **Yearly** → Define total category budgets
+- **Quarterly** → Allocate portions of yearly budgets (plugin tracks remaining)
+- **Monthly** → Allocate from quarterly budgets
+- **Weekly** → Allocate from monthly budgets
+- **Daily** → See available time and track actuals
+
+#### Smart Tracking
+- 🟢 **Within budget** → Green indicators
+- 🟡 **Approaching limit** → Yellow warnings
+- 🔴 **Over budget** → Red alerts with clear messaging
+
+### 📊 **Visual Statistics**
+
+- **Pie charts** → Category distribution at each time level
+- **Tables** → Detailed breakdown with allocated vs. remaining
+- **Progress bars** → Visual tracking of time consumption
+- **Trend analysis** → How your actual time compares to planned
+
+---
+
+## 🏗️ Architecture
+
+### Hierarchical Time Structure
+
+```
+Year (2025)
+├── Q1 (2025-Q1)
+│   ├── January (2025-01)
+│   │   ├── Week 1 (2025-W01)
+│   │   │   ├── 2025-01-01 (Wed)
+│   │   │   ├── 2025-01-02 (Thu)
+│   │   │   └── ...
+│   │   ├── Week 2 (2025-W02)
+│   │   └── ...
+│   ├── February (2025-02)
+│   └── March (2025-03)
+├── Q2 (2025-Q2)
+├── Q3 (2025-Q3)
+└── Q4 (2025-Q4)
+```
+
+### Frontmatter Properties
+
+| Property | Description | Example |
+|----------|-------------|---------|
+| `previous` | Link to previous period | `[[2025-01-14]]` |
+| `next` | Link to next period | `[[2025-01-16]]` |
+| `week` | Parent week (daily notes) | `[[2025-W03]]` |
+| `month` | Parent month | `[[2025-01]]` |
+| `quarter` | Parent quarter | `[[2025-Q1]]` |
+| `year` | Parent year | `[[2025]]` |
+| `hours_available` | Total hours in this period | `168` |
+| `time_allocations` | Category breakdown | YAML object |
+
+---
+
+## ⚙️ Configuration
+
+### Directory Settings
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| Daily Folder | Where daily notes are stored | `Periodic/Daily` |
+| Weekly Folder | Where weekly notes are stored | `Periodic/Weekly` |
+| Monthly Folder | Where monthly notes are stored | `Periodic/Monthly` |
+| Quarterly Folder | Where quarterly notes are stored | `Periodic/Quarterly` |
+| Yearly Folder | Where yearly notes are stored | `Periodic/Yearly` |
+
+### Time Settings
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| Hours per Week | Base weekly hour budget | `40` |
+| Override Monthly | Custom monthly hours (optional) | - |
+| Override Quarterly | Custom quarterly hours (optional) | - |
+| Override Yearly | Custom yearly hours (optional) | - |
+
+### Categories
+
+Define your time investment categories:
+
+```yaml
+categories:
+  - name: "Work"
+    color: "#3B82F6"
+  - name: "Health"
+    color: "#10B981"
+  - name: "Learning"
+    color: "#8B5CF6"
+  - name: "Relationships"
+    color: "#F59E0B"
+```
 
 ---
 
 ## 📦 Installation
 
-Prisma Calendar is currently **awaiting approval** for the Obsidian Community Plugin store. In the meantime, you can install it using one of these methods:
+### Coming Soon
 
-### 🎯 Recommended: BRAT (Beta Reviewers Auto-update Tool)
+Periodic Planner is currently in active development. Once ready, it will be available via:
 
-The easiest way to install and keep Prisma Calendar up to date:
-
-1. Install the [BRAT plugin](https://github.com/TfTHacker/obsidian42-brat) from Obsidian's Community Plugins
-2. Open BRAT settings (Settings → BRAT)
-3. Click **Add Beta Plugin**
-4. Enter this repository URL: `https://github.com/Real1tyy/Prisma-Calendar`
-5. Click **Add Plugin**
-6. Enable Prisma Calendar in Settings → Community Plugins
-
-**Benefits**: Automatic updates, smooth experience, one-click installation
-
-### 📥 Manual Installation from GitHub Releases
-
-1. Go to [Releases](https://github.com/Real1tyy/Prisma-Calendar/releases)
-2. Download the latest release assets:
-   - `main.js`
-   - `manifest.json`
-   - `styles.css`
-3. Create folder: `{VaultFolder}/.obsidian/plugins/prisma-calendar/`
-4. Move downloaded files into the folder
-5. Reload Obsidian (Ctrl/Cmd + R)
-6. Enable Prisma Calendar in Settings → Community Plugins
-
-**Note**: All releases are versioned and tagged for easy reference.
-
-### ✨ Coming Soon
-
-Once approved for the Community Plugin store, you'll be able to install Prisma Calendar directly from Settings → Community Plugins → Browse.
+1. **BRAT Plugin** (Beta testing)
+2. **Community Plugins** (After approval)
+3. **Manual installation** (From GitHub releases)
 
 ---
 
-## **Top 5 Killer Features**
+## 🗺️ Roadmap
 
-### **1️⃣ Flexibility — Fully Configurable Everything**
-Every aspect of Prisma Calendar is customizable. From frontmatter properties to calendar appearance and behavior, everything adapts to **your** workflow. You define the rules — Prisma Calendar follows.
+### Phase 1: Foundation ✅
+- [ ] Basic plugin structure
+- [ ] Settings management
+- [ ] Directory configuration
 
-- **Custom frontmatter mapping** - Use your own property names (`Start`, `Begin`, `Date` — your choice)
-- **Dynamic color rules** - JavaScript expressions for intelligent event coloring
-- **Filtering system** - Show/hide events based on any frontmatter property
-- **View customization** - Adjust time ranges, zoom levels, display density, and visual themes
-- **Multiple calendars** - Up to 10 isolated calendars, each with independent settings
+### Phase 2: Note Generation
+- [ ] Daily note generation
+- [ ] Weekly note generation
+- [ ] Monthly note generation
+- [ ] Quarterly note generation
+- [ ] Yearly note generation
+- [ ] Automatic "next period" generation
 
-### **2️⃣ Reactivity — No Restarts. Ever.**
-Change a setting → The calendar **immediately updates**. No more restarting Obsidian. Every parameter, toggle, or setting change is applied live, instantly reflecting in your workspace.
+### Phase 3: Interconnection
+- [ ] Previous/Next linking
+- [ ] Hierarchical linking (daily → weekly → monthly → quarterly → yearly)
+- [ ] Backlink population
 
-- **Instant feedback** - All settings changes apply in real-time
-- **Live recalculation** - Color rules, filters, and views update automatically
-- **Zero downtime** - Never interrupt your workflow with restarts
+### Phase 4: Time Budgeting
+- [ ] Category definition
+- [ ] Yearly time allocation modal
+- [ ] Quarterly allocation with tracking
+- [ ] Monthly allocation with tracking
+- [ ] Weekly allocation with tracking
 
-### **3️⃣ History & Memento System — Undo / Redo Like a Pro**
-Prisma Calendar keeps a complete memento history of your actions. Every move, edit, or deletion can be undone or redone instantly. Misclicked? Don't worry — we've got you covered.
+### Phase 5: Visualization
+- [ ] Pie chart statistics view
+- [ ] Table statistics view
+- [ ] Budget warnings and alerts
+- [ ] Progress tracking
 
-- **Command pattern architecture** - Every action is undoable
-- **Semantic undo** - See exactly what you're undoing ("Undo Create Event", "Undo Batch Delete")
-- **Full history** - Undo/redo across all calendar operations
-- **Safety net** - Experiment confidently knowing you can always revert
-
-### **4️⃣ Recurring Events — Smart, Linked, Isolated**
-Recurring events are built around a **source node** that defines frequency (daily, weekly, bi-weekly, etc.). Each instance is an independent Obsidian note, fully linked to its source — giving you both structure and freedom.
-
-- **Source node architecture** - One configuration file controls the entire series
-- **Real note generation** - Physical Obsidian notes, not just calendar entries
-- **Complete inheritance** - All frontmatter and content copied to instances
-- **Virtual previews** - See far-future instances without cluttering your vault
-- **Source navigation** - Jump between instances and their source with one click
-- **Calendar creation** - Create recurring events directly from the calendar interface with full frontmatter support
-
-### **5️⃣ Batch Operations — Work Fast, Think Big**
-Select multiple events and perform bulk actions: **clone, move, skip, delete, or open them** — all at once. Perfect for power users who value efficiency and speed.
-
-- **Multi-select mode** - Click to select multiple events
-- **Bulk operations** - Delete, duplicate, move, or clone selected events
-- **Skip functionality** - Mark events as skipped without deletion
-- **Batch open** - Open all selected event files in editor tabs
-- **Week shifting** - Move or clone entire sets of events forward/backward
+### Phase 6: Polish
+- [ ] Templates integration
+- [ ] Custom naming patterns
+- [ ] Command palette integration
+- [ ] Hotkey support
 
 ---
 
-## ✨ **Additional Powerful Features**
+## 💡 Use Cases
 
-### 📋 **Enhanced Event Interaction**
-- **Clickable frontmatter** - All frontmatter properties are interactive and linkable
-- **Enlarged previews** - Expanded view showing complete frontmatter and content
-- **Quick create button** - Create events instantly from the calendar interface
-- **Event skipping** - Skip recurring event instances without breaking the series
-- **Hover previews** - See note content without opening files
+### Personal Productivity
+- Plan your year with clear time investments
+- Track where your time actually goes
+- Balance work, health, and relationships
 
-### 🔗 **Recurring Event Management**
-- **Source button** - Navigate to source node from any recurring instance
-- **Instance dropdown** - View all physical instances of a recurring series
-- **Past filter** - Toggle past event visibility to reduce clutter
-- **Virtual event source preview** - Click virtual events to see their source configuration
-- **Atomic creation** - Recurring events created via calendar are instantly indexed
+### Goal Achievement
+- Allocate dedicated hours to learning
+- Track progress toward time-based goals
+- Adjust allocations based on priorities
 
-### 🗓️ **Multiple Isolated Calendars**
-- **Up to 10 separate calendars** with independent configuration
-- **Dedicated folders** - Each calendar scans its own directory tree
-- **Custom hotkeys** - Instant switching between calendars
-- **Clone & duplicate** - Copy calendars with all settings intact
+### Business Planning
+- Quarterly OKR time budgets
+- Project time allocation
+- Resource planning across time horizons
 
-### 📁 **Smart Event Management**
-- **Folder-based scanning** - Any note with frontmatter becomes an event
-- **Templater integration** - Scaffold consistent event metadata automatically
-- **Deep linking** - Click events to open notes, follow wikilinks
-- **Batch file operations** - Open multiple event files simultaneously
+---
 
-### 🎨 **Dynamic Visual Customization**
-- **JavaScript-powered color rules** - `fm.Priority === 'High' → #ef4444`
-- **Property-based filtering** - Show/hide events with complex expressions
-- **Frontmatter display** - Show extra frontmatter properties inside event chips
-- **Multiple view modes** - Month, week, day, list with customizable time ranges
-- **Zoom controls** - CTRL+scroll with configurable zoom levels (1-60 minutes)
+## 🤝 Contributing
 
-### ⚡ **Performance & UX**
-- **Debounced scanning** - Efficient file watching and processing
-- **Compact/comfortable** display density options
-- **Fast indexing** - Optimized for large vaults with many events
+Contributions are welcome! Please feel free to submit issues and pull requests.
 
-## Support & Sponsorship
+---
 
-If you find Prisma Calendar useful and want to support its ongoing development, please consider becoming a sponsor. Your contribution helps ensure continuous maintenance, bug fixes, and the introduction of new features.
+## 📄 License
 
--   [Sponsor on GitHub](https://github.com/sponsors/Real1tyy)
--   [Buy Me a Coffee](https://www.buymeacoffee.com/real1ty)
+MIT License - see [LICENSE](LICENSE) for details.
 
-Every contribution, no matter the size, is greatly appreciated!
+---
 
-## Contributing
+## ☕ Support
 
-MIT-licensed. PRs welcome!
+If you find Periodic Planner useful, consider supporting development:
+
+- [Sponsor on GitHub](https://github.com/sponsors/Real1tyy)
+- [Buy Me a Coffee](https://www.buymeacoffee.com/real1ty)
