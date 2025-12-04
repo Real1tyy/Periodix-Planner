@@ -6,6 +6,8 @@ import type { Category } from "../types";
 import { cls } from "../utils/css";
 
 export class CategorySettings {
+	private categoriesContainer: HTMLElement | null = null;
+
 	constructor(private settingsStore: SettingsStore) {}
 
 	display(containerEl: HTMLElement): void {
@@ -27,8 +29,8 @@ export class CategorySettings {
 		});
 
 		// List existing categories
-		const categoriesContainer = containerEl.createDiv({ cls: cls("categories-list") });
-		this.renderCategories(categoriesContainer);
+		this.categoriesContainer = containerEl.createDiv({ cls: cls("categories-list") });
+		this.renderCategories(this.categoriesContainer);
 	}
 
 	private renderCategories(containerEl: HTMLElement): void {
@@ -98,6 +100,11 @@ export class CategorySettings {
 			...s,
 			categories: [...s.categories, newCategory],
 		}));
+
+		// Refresh the categories list
+		if (this.categoriesContainer) {
+			this.renderCategories(this.categoriesContainer);
+		}
 	}
 
 	private editCategory(category: Category, containerEl: HTMLElement): void {

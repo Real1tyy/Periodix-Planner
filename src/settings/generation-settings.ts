@@ -1,5 +1,4 @@
 import { Setting } from "obsidian";
-import { SETTINGS_DEFAULTS } from "../constants";
 import type { SettingsStore } from "../core/settings-store";
 
 export class GenerationSettings {
@@ -44,20 +43,6 @@ export class GenerationSettings {
 							generation: {
 								...s.generation,
 								generatePeriodsAhead: value,
-							},
-						}));
-					});
-			})
-			.addExtraButton((btn) => {
-				btn
-					.setIcon("reset")
-					.setTooltip("Reset to default")
-					.onClick(async () => {
-						await this.settingsStore.updateSettings((s) => ({
-							...s,
-							generation: {
-								...s.generation,
-								generatePeriodsAhead: SETTINGS_DEFAULTS.GENERATE_PERIODS_AHEAD,
 							},
 						}));
 					});
