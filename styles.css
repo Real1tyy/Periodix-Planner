@@ -1,0 +1,126 @@
+/* Periodic Planner Settings Styles */
+/* Using periodic-planner- prefix for all classes */
+
+/* Tab Navigation */
+.periodic-planner-settings-tabs {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 20px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	padding-bottom: 8px;
+	flex-wrap: wrap;
+}
+
+.periodic-planner-tab {
+	padding: 8px 16px;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	font-size: 14px;
+	color: var(--text-muted);
+	border-radius: 4px;
+	transition: all 0.15s ease;
+}
+
+.periodic-planner-tab:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.periodic-planner-tab.periodic-planner-active {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+/* Settings Content Area */
+.periodic-planner-settings-content {
+	padding: 10px 0;
+}
+
+/* Category List */
+.periodic-planner-categories-list {
+	margin-top: 16px;
+}
+
+.periodic-planner-category-color {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	display: inline-block;
+	margin-right: 8px;
+	border: 1px solid var(--background-modifier-border);
+}
+
+.periodic-planner-category-edit {
+	background: var(--background-secondary);
+	padding: 12px;
+	border-radius: 8px;
+	margin: 8px 0;
+}
+
+/* Calculated Hours Info Box */
+.periodic-planner-calculated-hours {
+	background: var(--background-secondary);
+	padding: 12px 16px;
+	border-radius: 8px;
+	margin: 16px 0;
+	border-left: 3px solid var(--interactive-accent);
+}
+
+.periodic-planner-calculated-hours ul {
+	margin: 8px 0 0 0;
+	padding-left: 20px;
+}
+
+.periodic-planner-calculated-hours li {
+	margin: 4px 0;
+	color: var(--text-muted);
+}
+
+/* Budget Indicators */
+.periodic-planner-budget-green {
+	color: var(--color-green);
+}
+
+.periodic-planner-budget-yellow {
+	color: var(--color-yellow);
+}
+
+.periodic-planner-budget-red {
+	color: var(--color-red);
+}
+
+/* Period Type Badge */
+.periodic-planner-period-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 500;
+	text-transform: uppercase;
+}
+
+.periodic-planner-period-badge.periodic-planner-daily {
+	background: var(--color-blue);
+	color: white;
+}
+
+.periodic-planner-period-badge.periodic-planner-weekly {
+	background: var(--color-green);
+	color: white;
+}
+
+.periodic-planner-period-badge.periodic-planner-monthly {
+	background: var(--color-purple);
+	color: white;
+}
+
+.periodic-planner-period-badge.periodic-planner-quarterly {
+	background: var(--color-orange);
+	color: white;
+}
+
+.periodic-planner-period-badge.periodic-planner-yearly {
+	background: var(--color-red);
+	color: white;
+}
