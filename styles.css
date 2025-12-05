@@ -249,3 +249,462 @@
 	overflow: auto;
 	min-height: 0;
 }
+
+/* ===== Time Budget Block ===== */
+.periodic-planner-time-budget-block {
+	background: var(--background-secondary);
+	border-radius: 12px;
+	padding: 20px;
+	margin: 16px 0;
+}
+
+.periodic-planner-time-budget-error {
+	color: var(--text-error);
+	padding: 12px;
+	background: var(--background-modifier-error);
+	border-radius: 8px;
+}
+
+.periodic-planner-time-budget-warnings {
+	color: var(--text-warning);
+	padding: 8px 12px;
+	background: rgba(255, 193, 7, 0.1);
+	border-radius: 6px;
+	margin-bottom: 12px;
+	font-size: 13px;
+}
+
+.periodic-planner-time-budget-header {
+	margin-bottom: 20px;
+}
+
+.periodic-planner-time-budget-title {
+	margin: 0 0 12px 0;
+	font-size: 1.2em;
+	color: var(--text-normal);
+}
+
+.periodic-planner-time-budget-summary {
+	background: var(--background-primary);
+	border-radius: 8px;
+	padding: 16px;
+}
+
+.periodic-planner-stats-row {
+	display: flex;
+	gap: 24px;
+	margin-bottom: 12px;
+	flex-wrap: wrap;
+}
+
+.periodic-planner-stat-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.periodic-planner-stat-label {
+	font-size: 12px;
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.periodic-planner-stat-value {
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.periodic-planner-status-over,
+.periodic-planner-stat-value.periodic-planner-status-over,
+.periodic-planner-summary-value.periodic-planner-status-over {
+	color: var(--text-error);
+}
+
+.periodic-planner-status-warning,
+.periodic-planner-stat-value.periodic-planner-status-warning,
+.periodic-planner-summary-value.periodic-planner-status-warning {
+	color: var(--text-warning);
+}
+
+.periodic-planner-hidden {
+	display: none;
+}
+
+.periodic-planner-status-ok {
+	color: var(--color-green);
+}
+
+.periodic-planner-progress-bar-container {
+	height: 8px;
+	background: var(--background-modifier-border);
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.periodic-planner-progress-bar-fill {
+	height: 100%;
+	background: var(--interactive-accent);
+	border-radius: 4px;
+	transition: width 0.3s ease;
+}
+
+.periodic-planner-progress-bar-fill.periodic-planner-warning {
+	background: var(--text-warning);
+}
+
+.periodic-planner-progress-bar-fill.periodic-planner-over-budget {
+	background: var(--text-error);
+}
+
+.periodic-planner-time-budget-empty {
+	text-align: center;
+	padding: 24px;
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+/* Allocation Table */
+.periodic-planner-allocation-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 16px 0;
+}
+
+.periodic-planner-allocation-table th,
+.periodic-planner-allocation-table td {
+	padding: 10px 12px;
+	text-align: left;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.periodic-planner-allocation-table th {
+	font-size: 12px;
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-weight: 500;
+}
+
+.periodic-planner-allocation-table tr.periodic-planner-over-budget-row {
+	background: rgba(255, 0, 0, 0.05);
+}
+
+.periodic-planner-category-color-dot {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	margin-right: 8px;
+	vertical-align: middle;
+}
+
+/* Pie Chart */
+.periodic-planner-pie-chart-container {
+	max-width: 400px;
+	margin: 20px auto;
+}
+
+.periodic-planner-pie-chart-canvas {
+	max-width: 100%;
+}
+
+.periodic-planner-pie-chart-empty {
+	text-align: center;
+	padding: 40px;
+	color: var(--text-muted);
+}
+
+/* Edit Button */
+.periodic-planner-edit-button-container {
+	display: flex;
+	justify-content: center;
+	margin-top: 16px;
+}
+
+.periodic-planner-edit-allocations-btn {
+	padding: 10px 24px;
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.15s ease;
+}
+
+.periodic-planner-edit-allocations-btn:hover {
+	filter: brightness(1.1);
+}
+
+/* ===== Allocation Editor Modal ===== */
+.modal:has(.periodic-planner-allocation-editor-modal) {
+	width: 900px;
+	max-width: 95vw;
+	height: 85vh;
+	max-height: 800px;
+}
+
+.periodic-planner-allocation-editor-modal {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.periodic-planner-allocation-summary {
+	background: var(--background-secondary);
+	padding: 16px 24px;
+	border-radius: 8px;
+	margin-bottom: 16px;
+	display: flex;
+	justify-content: center;
+	gap: 32px;
+	flex-wrap: wrap;
+}
+
+.periodic-planner-summary-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	text-align: center;
+}
+
+.periodic-planner-summary-label {
+	color: var(--text-muted);
+	font-size: 13px;
+}
+
+.periodic-planner-summary-value {
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.periodic-planner-allocation-list {
+	flex: 1;
+	overflow-y: auto;
+	margin-bottom: 16px;
+}
+
+.periodic-planner-allocation-item {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 16px;
+	background: var(--background-secondary);
+	border-radius: 10px;
+	margin-bottom: 12px;
+}
+
+.periodic-planner-allocation-item.periodic-planner-over-budget {
+	border: 2px solid var(--text-error);
+	background: rgba(255, 0, 0, 0.05);
+}
+
+.periodic-planner-allocation-top-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.periodic-planner-category-color-dot-large {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.periodic-planner-allocation-info {
+	flex: 1;
+}
+
+.periodic-planner-allocation-name-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.periodic-planner-category-name {
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.periodic-planner-parent-budget-info {
+	font-size: 12px;
+	color: var(--text-muted);
+}
+
+.periodic-planner-parent-budget-info.periodic-planner-over-budget {
+	color: var(--text-error);
+}
+
+.periodic-planner-allocation-input-row {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.periodic-planner-allocation-input-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.periodic-planner-allocation-input {
+	width: 90px;
+	padding: 8px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background: var(--background-primary);
+	color: var(--text-normal);
+	font-size: 15px;
+}
+
+.periodic-planner-input-suffix {
+	color: var(--text-muted);
+	font-size: 13px;
+}
+
+.periodic-planner-quick-fill-container {
+	display: flex;
+	gap: 4px;
+	flex-shrink: 0;
+}
+
+.periodic-planner-quick-fill-btn {
+	padding: 4px 8px;
+	font-size: 11px;
+	font-weight: 500;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-primary);
+	color: var(--text-muted);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.periodic-planner-quick-fill-btn:hover {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.periodic-planner-quick-fill-btn:active {
+	transform: scale(0.95);
+}
+
+.periodic-planner-custom-percentage-container {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-left: 4px;
+	padding-left: 8px;
+	border-left: 1px solid var(--background-modifier-border);
+}
+
+.periodic-planner-custom-percentage-input {
+	width: 48px;
+	padding: 4px 6px;
+	font-size: 11px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-primary);
+	color: var(--text-normal);
+	text-align: center;
+}
+
+.periodic-planner-custom-percentage-input::placeholder {
+	color: var(--text-muted);
+}
+
+.periodic-planner-quick-fill-btn.periodic-planner-apply-btn {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.periodic-planner-quick-fill-btn.periodic-planner-apply-btn:hover {
+	filter: brightness(1.1);
+}
+
+.periodic-planner-percentage-container {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.periodic-planner-percentage-bar-wrapper {
+	flex: 1;
+	height: 12px;
+	background: var(--background-modifier-border);
+	border-radius: 6px;
+	overflow: hidden;
+	position: relative;
+}
+
+.periodic-planner-percentage-bar-wrapper.periodic-planner-draggable {
+	cursor: ew-resize;
+	transition: box-shadow 0.15s ease;
+}
+
+.periodic-planner-percentage-bar-wrapper.periodic-planner-draggable:hover {
+	box-shadow: 0 0 0 2px var(--interactive-accent-hover);
+}
+
+.periodic-planner-percentage-bar {
+	height: 100%;
+	border-radius: 6px;
+	transition: width 0.1s ease;
+	pointer-events: none;
+}
+
+.periodic-planner-dragging {
+	cursor: ew-resize !important;
+	user-select: none;
+}
+
+.periodic-planner-percentage-label {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--text-muted);
+	min-width: 50px;
+	text-align: right;
+}
+
+.periodic-planner-allocation-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	padding-top: 12px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.periodic-planner-action-btn {
+	padding: 8px 16px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: transparent;
+	color: var(--text-normal);
+	cursor: pointer;
+	font-size: 14px;
+}
+
+.periodic-planner-action-btn:hover {
+	background: var(--background-modifier-hover);
+}
+
+.periodic-planner-action-btn.periodic-planner-primary {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.periodic-planner-action-btn.periodic-planner-primary:hover {
+	filter: brightness(1.1);
+}
