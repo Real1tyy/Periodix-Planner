@@ -184,3 +184,68 @@
 	text-align: center;
 	padding: 20px;
 }
+
+/* Period Children Bases Modal */
+.modal:has(.periodic-planner-children-bases-modal) {
+	width: 85vw;
+	max-width: 1100px;
+	height: 80vh;
+	max-height: 750px;
+}
+
+.periodic-planner-children-bases-modal {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.periodic-planner-children-bases-modal h2 {
+	margin: 0 0 20px 0;
+	padding: 12px 0 16px 0;
+	border-bottom: 2px solid var(--interactive-accent);
+	font-size: 1.6em;
+	font-weight: 700;
+	text-align: center;
+	color: var(--text-normal);
+	flex-shrink: 0;
+}
+
+.periodic-planner-bases-view-selector {
+	display: flex;
+	gap: 6px;
+	margin-bottom: 16px;
+	padding: 8px 12px;
+	background: var(--background-secondary);
+	border-radius: 8px;
+	flex-wrap: wrap;
+	flex-shrink: 0;
+}
+
+.periodic-planner-bases-view-button {
+	padding: 10px 20px;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--text-muted);
+	border-radius: 6px;
+	transition: all 0.15s ease;
+}
+
+.periodic-planner-bases-view-button:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.periodic-planner-bases-view-button.periodic-planner-is-active {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.periodic-planner-bases-markdown-container {
+	flex: 1;
+	overflow: auto;
+	min-height: 0;
+}

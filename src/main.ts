@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { Notice, Plugin, TFile } from "obsidian";
-import { PeriodChildrenModal } from "./components/period-children-modal";
+import { PeriodChildrenBasesModal } from "./components/period-children-bases-modal";
 import type { PeriodType } from "./constants";
 import { AutoGenerator, formatAutoGenerationSummary } from "./core/auto-generator";
 import { PeriodIndex } from "./core/period-index";
@@ -140,10 +140,8 @@ export default class PeriodicPlannerPlugin extends Plugin {
 				const entry = this.periodIndex.getEntryForFile(file);
 				if (!entry || entry.periodType === "daily") return false;
 				if (!checking) {
-					const children = this.periodIndex.getChildren(entry);
-					new PeriodChildrenModal(this.app, entry, children, (selected) => {
-						void this.app.workspace.getLeaf().openFile(selected.file);
-					}).open();
+					const settings = this.settingsStore.currentSettings;
+					new PeriodChildrenBasesModal(this.app, entry, settings.directories, settings.properties).open();
 				}
 				return true;
 			},
