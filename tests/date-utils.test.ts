@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PERIOD_TYPES } from "../src/constants";
 import {
 	createPeriodInfo,
+	formatPeriodDateRange,
 	formatPeriodName,
 	getAncestorPeriodTypes,
 	getEndOfPeriod,
@@ -235,6 +236,43 @@ describe("Date Utilities", () => {
 		it("should return null for invalid name", () => {
 			const result = parsePeriodName("invalid", "dd-MM-yyyy");
 			expect(result).toBeNull();
+		});
+	});
+
+	describe("formatPeriodDateRange", () => {
+		it("should format daily period", () => {
+			const start = DateTime.fromISO("2025-06-15");
+			const end = DateTime.fromISO("2025-06-15");
+			const result = formatPeriodDateRange("daily", start, end);
+			expect(result).toBe("Sun, Jun 15");
+		});
+
+		it("should format weekly period", () => {
+			const start = DateTime.fromISO("2025-06-09");
+			const end = DateTime.fromISO("2025-06-15");
+			const result = formatPeriodDateRange("weekly", start, end);
+			expect(result).toBe("Jun 9 - Jun 15");
+		});
+
+		it("should format monthly period", () => {
+			const start = DateTime.fromISO("2025-06-01");
+			const end = DateTime.fromISO("2025-06-30");
+			const result = formatPeriodDateRange("monthly", start, end);
+			expect(result).toBe("June 2025");
+		});
+
+		it("should format quarterly period", () => {
+			const start = DateTime.fromISO("2025-04-01");
+			const end = DateTime.fromISO("2025-06-30");
+			const result = formatPeriodDateRange("quarterly", start, end);
+			expect(result).toBe("Q2 2025");
+		});
+
+		it("should format yearly period", () => {
+			const start = DateTime.fromISO("2025-01-01");
+			const end = DateTime.fromISO("2025-12-31");
+			const result = formatPeriodDateRange("yearly", start, end);
+			expect(result).toBe("2025");
 		});
 	});
 });

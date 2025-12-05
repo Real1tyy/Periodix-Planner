@@ -1,5 +1,28 @@
+import type { DateTime } from "luxon";
+import type { TFile } from "obsidian";
 import type { PeriodType } from "../constants";
 import type { TimeAllocation } from "./schemas";
+
+/**
+ * Indexed periodic note entry stored in memory
+ */
+export interface IndexedPeriodNote {
+	file: TFile;
+	periodType: PeriodType;
+	periodStart: DateTime;
+	periodEnd: DateTime;
+	noteName: string;
+}
+
+/**
+ * Children of a period organized by type
+ */
+export interface PeriodChildren {
+	days?: IndexedPeriodNote[];
+	weeks?: IndexedPeriodNote[];
+	months?: IndexedPeriodNote[];
+	quarters?: IndexedPeriodNote[];
+}
 
 /**
  * Represents links from a periodic note to its related periods

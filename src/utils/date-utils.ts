@@ -93,3 +93,20 @@ export function parsePeriodName(name: string, format: string): DateTime | null {
 	const parsed = DateTime.fromFormat(name, format);
 	return parsed.isValid ? parsed : null;
 }
+
+export function formatPeriodDateRange(periodType: PeriodType, periodStart: DateTime, periodEnd: DateTime): string {
+	switch (periodType) {
+		case "daily":
+			return periodStart.toFormat("EEE, MMM d");
+		case "weekly":
+			return `${periodStart.toFormat("MMM d")} - ${periodEnd.toFormat("MMM d")}`;
+		case "monthly":
+			return periodStart.toFormat("MMMM yyyy");
+		case "quarterly":
+			return `Q${periodStart.quarter} ${periodStart.year}`;
+		case "yearly":
+			return periodStart.toFormat("yyyy");
+		default:
+			return "";
+	}
+}
