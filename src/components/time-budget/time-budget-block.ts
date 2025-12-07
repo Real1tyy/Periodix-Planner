@@ -187,11 +187,11 @@ export class TimeBudgetBlockRenderer {
 			colorDot.style.backgroundColor = category.color;
 			nameCell.createSpan({ text: category.name });
 
-			row.createEl("td", { text: `${allocation.hours}h` });
+			row.createEl("td", { text: `${formatHours(allocation.hours)}h` });
 
 			const parentBudget = parentBudgets.get(allocation.categoryId);
 			if (parentBudget) {
-				row.createEl("td", { text: `${parentBudget.remaining}h remaining` });
+				row.createEl("td", { text: `${formatHours(parentBudget.remaining)}h remaining` });
 
 				const statusCell = row.createEl("td");
 				if (allocation.hours > parentBudget.remaining && parentBudget.remaining >= 0) {
