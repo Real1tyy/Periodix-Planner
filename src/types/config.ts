@@ -32,7 +32,7 @@ export const PERIOD_CONFIG: Record<PeriodType, PeriodConfig> = {
 		folderKey: "dailyFolder",
 		formatKey: "dailyFormat",
 		linkKey: null,
-		childrenKey: null,
+		childrenKey: "days",
 		parent: "weekly",
 		children: [],
 	},

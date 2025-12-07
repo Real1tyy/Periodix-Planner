@@ -1,199 +1,142 @@
-import { DateTime } from "luxon";
-import type { App, CachedMetadata, TFile } from "obsidian";
-import type { Observable, Subscription } from "rxjs";
-import type { PeriodType } from "../constants";
-import type { IndexedPeriodNote, PeriodChildren, PeriodicPlannerSettings } from "../types";
-import { ORDERED_PERIOD_TYPES, PERIOD_CONFIG } from "../types";
-import { getEndOfPeriod, getStartOfPeriod } from "../utils/date-utils";
+import type { TFile } from "obsidian";
+import type { Subscription } from "rxjs";
+import type { IndexedPeriodNote, PeriodChildren } from "../types";
+import { PERIOD_CONFIG } from "../types";
+import { resolveFilePath } from "../utils/frontmatter-utils";
+import type { PeriodicNoteIndexer } from "./periodic-note-indexer";
 
 export class PeriodIndex {
-	private settings: PeriodicPlannerSettings;
-	private subscription: Subscription;
-	private index: Map<PeriodType, IndexedPeriodNote[]> = new Map();
+	private eventsSubscription: Subscription | null = null;
+	private indexingCompleteSubscription: Subscription | null = null;
+	private notesByPath: Map<string, IndexedPeriodNote> = new Map();
+	private childrenCache: Map<string, PeriodChildren> = new Map();
 
-	constructor(
-		private app: App,
-		settings$: Observable<PeriodicPlannerSettings>
-	) {
-		this.settings = null!;
-		this.subscription = settings$.subscribe((settings) => {
-			this.settings = settings;
+	constructor(indexer: PeriodicNoteIndexer) {
+		this.eventsSubscription = indexer.events$.subscribe((event) => {
+			if (event.type === "note-indexed") {
+				this.addOrUpdateNote(event.note);
+			} else if (event.type === "note-deleted") {
+				this.removeNoteByPath(event.filePath);
+			}
 		});
 
-		for (const type of ORDERED_PERIOD_TYPES) {
-			this.index.set(type, []);
-		}
+		this.indexingCompleteSubscription = indexer.indexingComplete$.subscribe((isComplete) => {
+			if (isComplete) {
+				console.log("📊 Period Index - Indexing Complete");
+				console.log("Total notes indexed:", this.notesByPath.size);
+				console.log("Parent-child relationships:", this.childrenCache.size);
+				console.log("Children cache full content:");
+				console.log(JSON.stringify(this.getDebugSnapshot(), null, 2));
+			}
+		});
 	}
 
 	destroy(): void {
-		this.subscription.unsubscribe();
-		this.index.clear();
+		this.eventsSubscription?.unsubscribe();
+		this.eventsSubscription = null;
+		this.indexingCompleteSubscription?.unsubscribe();
+		this.indexingCompleteSubscription = null;
+		this.notesByPath.clear();
+		this.childrenCache.clear();
 	}
 
-	async buildIndex(): Promise<void> {
-		this.clearIndex();
-
-		const files = this.app.vault.getMarkdownFiles();
-		for (const file of files) {
-			await this.indexFile(file);
+	private getDebugSnapshot(): Record<string, unknown> {
+		const snapshot: Record<string, unknown> = {};
+		for (const [filePath, children] of this.childrenCache.entries()) {
+			snapshot[filePath] = {
+				days: children.days?.map((n) => ({ filePath: n.filePath, noteName: n.noteName })),
+				weeks: children.weeks?.map((n) => ({ filePath: n.filePath, noteName: n.noteName })),
+				months: children.months?.map((n) => ({ filePath: n.filePath, noteName: n.noteName })),
+				quarters: children.quarters?.map((n) => ({ filePath: n.filePath, noteName: n.noteName })),
+			};
 		}
-
-		this.sortAllEntries();
-	}
-
-	async indexFile(file: TFile): Promise<boolean> {
-		const cache = this.app.metadataCache.getFileCache(file);
-		if (!cache?.frontmatter) return false;
-
-		const entry = this.parseFileToEntry(file, cache);
-		if (!entry) return false;
-
-		const entries = this.index.get(entry.periodType);
-		if (entries) {
-			const existingIdx = entries.findIndex((e) => e.file.path === file.path);
-			if (existingIdx >= 0) {
-				entries[existingIdx] = entry;
-			} else {
-				entries.push(entry);
-			}
-		}
-
-		return true;
-	}
-
-	removeFile(file: TFile): void {
-		for (const entries of this.index.values()) {
-			const idx = entries.findIndex((e) => e.file.path === file.path);
-			if (idx >= 0) {
-				entries.splice(idx, 1);
-				return;
-			}
-		}
-	}
-
-	getEntriesByType(periodType: PeriodType): IndexedPeriodNote[] {
-		return this.index.get(periodType) ?? [];
-	}
-
-	findEntry(periodType: PeriodType, dt: DateTime): IndexedPeriodNote | undefined {
-		const entries = this.getEntriesByType(periodType);
-		const targetStart = getStartOfPeriod(dt, periodType);
-		return entries.find((e) => e.periodStart.equals(targetStart));
+		return snapshot;
 	}
 
 	getChildren(parent: IndexedPeriodNote): PeriodChildren {
-		const children: PeriodChildren = {};
-		const { periodType, periodStart, periodEnd } = parent;
-
-		const childTypes = this.getChildTypes(periodType);
-		for (const childType of childTypes) {
-			const childEntries = this.getEntriesByType(childType).filter(
-				(child) => child.periodStart >= periodStart && child.periodEnd <= periodEnd
-			);
-
-			switch (childType) {
-				case "daily":
-					children.days = childEntries;
-					break;
-				case "weekly":
-					children.weeks = childEntries;
-					break;
-				case "monthly":
-					children.months = childEntries;
-					break;
-				case "quarterly":
-					children.quarters = childEntries;
-					break;
-			}
-		}
-
-		return children;
+		return this.childrenCache.get(parent.filePath) ?? {};
 	}
 
-	getChildrenForDate(periodType: PeriodType, dt: DateTime): PeriodChildren {
-		const entry = this.findEntry(periodType, dt);
-		if (!entry) return {};
-		return this.getChildren(entry);
-	}
-
-	getPrevious(entry: IndexedPeriodNote): IndexedPeriodNote | undefined {
-		const entries = this.getEntriesByType(entry.periodType);
-		const idx = entries.findIndex((e) => e.file.path === entry.file.path);
-		return idx > 0 ? entries[idx - 1] : undefined;
-	}
-
-	getNext(entry: IndexedPeriodNote): IndexedPeriodNote | undefined {
-		const entries = this.getEntriesByType(entry.periodType);
-		const idx = entries.findIndex((e) => e.file.path === entry.file.path);
-		return idx >= 0 && idx < entries.length - 1 ? entries[idx + 1] : undefined;
-	}
-
-	getParent(entry: IndexedPeriodNote): IndexedPeriodNote | undefined {
-		const parentType = PERIOD_CONFIG[entry.periodType].parent;
-		if (!parentType) return undefined;
-		return this.findEntry(parentType, entry.periodStart);
+	getChildrenForFile(file: TFile): PeriodChildren | null {
+		return this.childrenCache.get(file.path) ?? null;
 	}
 
 	getEntryForFile(file: TFile): IndexedPeriodNote | undefined {
-		for (const entries of this.index.values()) {
-			const entry = entries.find((e) => e.file.path === file.path);
-			if (entry) return entry;
+		return this.notesByPath.get(file.path);
+	}
+
+	private addOrUpdateNote(note: IndexedPeriodNote): void {
+		const existingNote = this.notesByPath.get(note.filePath);
+		if (existingNote) {
+			this.removeFromParentsCaches(existingNote);
 		}
-		return undefined;
+
+		this.notesByPath.set(note.filePath, note);
+		this.addToParentsCaches(note);
 	}
 
-	private parseFileToEntry(file: TFile, cache: CachedMetadata): IndexedPeriodNote | null {
-		const fm = cache.frontmatter;
-		if (!fm) return null;
-
-		const periodTypeProp = this.settings.properties.periodTypeProp;
-		const periodStartProp = this.settings.properties.periodStartProp;
-		const periodEndProp = this.settings.properties.periodEndProp;
-
-		const periodType = fm[periodTypeProp] as PeriodType | undefined;
-		const periodStartStr = fm[periodStartProp] as string | undefined;
-		const periodEndStr = fm[periodEndProp] as string | undefined;
-
-		if (!periodType || !periodStartStr) return null;
-
-		const periodStart = DateTime.fromISO(periodStartStr);
-		if (!periodStart.isValid) return null;
-
-		const periodEnd = periodEndStr ? DateTime.fromISO(periodEndStr) : getEndOfPeriod(periodStart, periodType);
-
-		return {
-			file,
-			periodType,
-			periodStart,
-			periodEnd,
-			noteName: file.basename,
-		};
-	}
-
-	private getChildTypes(periodType: PeriodType): PeriodType[] {
-		switch (periodType) {
-			case "yearly":
-				return ["quarterly", "monthly", "weekly", "daily"];
-			case "quarterly":
-				return ["monthly", "weekly", "daily"];
-			case "monthly":
-				return ["weekly", "daily"];
-			case "weekly":
-				return ["daily"];
-			default:
-				return [];
+	private removeNoteByPath(filePath: string): void {
+		const note = this.notesByPath.get(filePath);
+		if (note) {
+			this.removeFromParentsCaches(note);
+			this.childrenCache.delete(filePath);
+			this.notesByPath.delete(filePath);
 		}
 	}
 
-	private clearIndex(): void {
-		for (const entries of this.index.values()) {
-			entries.length = 0;
+	private addToParentsCaches(note: IndexedPeriodNote): void {
+		const parentLinkPaths = this.getParentFilePathsFromLinks(note);
+
+		for (const { parentFilePath, childrenKey } of parentLinkPaths) {
+			let children = this.childrenCache.get(parentFilePath);
+			if (!children) {
+				children = {};
+				this.childrenCache.set(parentFilePath, children);
+			}
+
+			if (!children[childrenKey]) {
+				children[childrenKey] = [];
+			}
+
+			const exists = children[childrenKey]?.some((c) => c.filePath === note.filePath);
+			if (!exists) {
+				children[childrenKey]?.push(note);
+				children[childrenKey]?.sort((a, b) => a.periodStart.toMillis() - b.periodStart.toMillis());
+			}
 		}
 	}
 
-	private sortAllEntries(): void {
-		for (const entries of this.index.values()) {
-			entries.sort((a, b) => a.periodStart.toMillis() - b.periodStart.toMillis());
+	private removeFromParentsCaches(note: IndexedPeriodNote): void {
+		const parentLinkPaths = this.getParentFilePathsFromLinks(note);
+
+		for (const { parentFilePath, childrenKey } of parentLinkPaths) {
+			const children = this.childrenCache.get(parentFilePath);
+			if (children?.[childrenKey]) {
+				children[childrenKey] = children[childrenKey]?.filter((c) => c.filePath !== note.filePath);
+			}
 		}
+	}
+
+	private getParentFilePathsFromLinks(
+		note: IndexedPeriodNote
+	): Array<{ parentFilePath: string; childrenKey: keyof PeriodChildren }> {
+		const results: Array<{ parentFilePath: string; childrenKey: keyof PeriodChildren }> = [];
+		const childrenKey = PERIOD_CONFIG[note.periodType].childrenKey;
+		if (!childrenKey) return results;
+
+		const links = note.parentLinks;
+		const parentLinkKeys = ["parent", "week", "month", "quarter", "year"] as const;
+
+		for (const linkKey of parentLinkKeys) {
+			const linkValue = links[linkKey];
+			if (linkValue) {
+				results.push({
+					parentFilePath: resolveFilePath(linkValue),
+					childrenKey,
+				});
+			}
+		}
+
+		return results;
 	}
 }
