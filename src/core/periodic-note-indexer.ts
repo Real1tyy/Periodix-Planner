@@ -13,6 +13,7 @@ import {
 	type Subscription,
 } from "rxjs";
 import { debounceTime, filter, groupBy, map, mergeMap, switchMap, toArray } from "rxjs/operators";
+import { getHoursForPeriodType } from "src/utils";
 import { z } from "zod";
 import { parseAllocationBlock } from "../components/time-budget/allocation-parser";
 import { PERIOD_TYPES } from "../constants";
@@ -249,6 +250,10 @@ export class PeriodicNoteIndexer {
 		const parentLinks = extractParentLinksFromFrontmatter(frontmatter, props);
 		const categoryAllocations = await this.extractCategoryAllocations(file);
 
+		const rawHours: unknown = frontmatter[props.hoursAvailableProp];
+		const hoursAvailable =
+			typeof rawHours === "number" ? rawHours : getHoursForPeriodType(this.settings.timeBudget, result.data.periodType);
+
 		return {
 			file,
 			filePath: file.path,
@@ -257,6 +262,7 @@ export class PeriodicNoteIndexer {
 			periodEnd: result.data.periodEnd,
 			noteName: file.basename,
 			mtime: file.stat.mtime,
+			hoursAvailable,
 			parentLinks,
 			categoryAllocations,
 		};

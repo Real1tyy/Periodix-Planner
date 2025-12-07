@@ -39,6 +39,10 @@ export class PeriodIndex {
 		return this.notesByPath.get(file.path);
 	}
 
+	getEntryByPath(filePath: string): IndexedPeriodNote | undefined {
+		return this.notesByPath.get(filePath);
+	}
+
 	private addOrUpdateNote(note: IndexedPeriodNote): void {
 		const existingNote = this.notesByPath.get(note.filePath);
 		if (existingNote) {
