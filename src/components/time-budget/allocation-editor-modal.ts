@@ -201,9 +201,13 @@ export class AllocationEditorModal extends Modal {
 
 				if (isOver) {
 					addCls(budgetInfo, "over-budget");
-					budgetInfo.setText(`⚠️ ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h`);
+					budgetInfo.setText(
+						`⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${formatHours(remainingBudget)}h remaining)`
+					);
 				} else {
-					budgetInfo.setText(`${formatHours(remainingBudget)}h from parent`);
+					budgetInfo.setText(
+						`Parent: ${formatHours(parentBudget.total)}h total, ${formatHours(remainingBudget)}h remaining`
+					);
 				}
 
 				const checkboxContainer = topRow.createDiv({ cls: cls("fill-from-parent-container") });
@@ -448,9 +452,9 @@ export class AllocationEditorModal extends Modal {
 				removeCls(budgetInfo as HTMLElement, "over-budget");
 				if (isOver) {
 					addCls(budgetInfo as HTMLElement, "over-budget");
-					budgetInfo.textContent = `⚠️ ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h`;
+					budgetInfo.textContent = `⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${formatHours(remainingBudget)}h remaining)`;
 				} else {
-					budgetInfo.textContent = `${formatHours(remainingBudget)}h from parent`;
+					budgetInfo.textContent = `Parent: ${formatHours(parentBudget.total)}h total, ${formatHours(remainingBudget)}h remaining`;
 				}
 			}
 

@@ -1,11 +1,15 @@
-import type { App, TFile } from "obsidian";
+import type { TFile } from "obsidian";
 import type { PeriodType } from "../../constants";
 import type { PeriodIndex } from "../../core/period-index";
 import type { Category, IndexedPeriodNote, TimeAllocation } from "../../types";
-import type { CategoryBudgetInfo, ChildBudgetResult } from "./parent-budget-tracker";
+import { buildCategoryNameToIdMap, type CategoryBudgetInfo } from "./parent-budget-tracker";
+
+export interface ChildBudgetResult {
+	budgets: Map<string, CategoryBudgetInfo>;
+	totalChildrenAllocated: number;
+}
 
 export async function getChildBudgetsFromIndex(
-	_app: App,
 	file: TFile,
 	periodType: PeriodType,
 	currentAllocations: TimeAllocation[],
@@ -26,10 +30,7 @@ export async function getChildBudgetsFromIndex(
 		return emptyResult;
 	}
 
-	const categoryNameToId = new Map<string, string>();
-	for (const category of categories) {
-		categoryNameToId.set(category.name, category.id);
-	}
+	const categoryNameToId = buildCategoryNameToIdMap(categories);
 
 	const budgets = new Map<string, CategoryBudgetInfo>();
 	for (const allocation of currentAllocations) {

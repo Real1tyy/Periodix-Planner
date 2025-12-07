@@ -1,8 +1,9 @@
 import { type App, type MarkdownPostProcessorContext, TFile } from "obsidian";
 import type { PeriodType } from "../../constants";
-import type { Category, PeriodicPlannerSettings, TimeAllocation } from "../../types";
+import type { PeriodIndex } from "../../core/period-index";
+import type { Category, IndexedPeriodNote, PeriodicPlannerSettings, TimeAllocation } from "../../types";
 import { addCls, cls } from "../../utils/css";
-import { formatHours, getHoursForPeriodType, roundHours } from "../../utils/time-budget-utils";
+import { formatHours, roundHours } from "../../utils/time-budget-utils";
 import { AllocationEditorModal } from "./allocation-editor-modal";
 import {
 	getTotalAllocatedHours,
@@ -10,6 +11,7 @@ import {
 	resolveAllocations,
 	serializeAllocations,
 } from "./allocation-parser";
+import { getChildBudgetsFromIndex } from "./child-budget-calculator";
 import { EnlargedChartModal } from "./enlarged-chart-modal";
 import { getParentBudgets } from "./parent-budget-tracker";
 import { PieChartRenderer } from "./pie-chart-renderer";
@@ -19,41 +21,9 @@ export class TimeBudgetBlockRenderer {
 
 	constructor(
 		private app: App,
-		private settings: PeriodicPlannerSettings
+		private settings: PeriodicPlannerSettings,
+		private periodIndex: PeriodIndex
 	) {}
-
-	private async getFrontmatter(
-		file: TFile,
-		ctx: MarkdownPostProcessorContext
-	): Promise<Record<string, unknown> | null> {
-		const ctxFrontmatter = ctx.frontmatter as Record<string, unknown> | undefined;
-		if (ctxFrontmatter && Object.keys(ctxFrontmatter).length > 0) {
-			return ctxFrontmatter;
-		}
-
-		const cache = this.app.metadataCache.getFileCache(file);
-		if (cache?.frontmatter) {
-			return cache.frontmatter;
-		}
-
-		await new Promise<void>((resolve) => {
-			const handler = () => {
-				const updatedCache = this.app.metadataCache.getFileCache(file);
-				if (updatedCache?.frontmatter) {
-					this.app.metadataCache.off("resolved", handler);
-					resolve();
-				}
-			};
-			this.app.metadataCache.on("resolved", handler);
-			setTimeout(() => {
-				this.app.metadataCache.off("resolved", handler);
-				resolve();
-			}, 500);
-		});
-
-		const finalCache = this.app.metadataCache.getFileCache(file);
-		return finalCache?.frontmatter ?? null;
-	}
 
 	async render(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext): Promise<void> {
 		el.empty();
@@ -64,36 +34,39 @@ export class TimeBudgetBlockRenderer {
 			this.renderError(el, "Cannot find file");
 			return;
 		}
-
-		const frontmatter = await this.getFrontmatter(file, ctx);
-		if (!frontmatter) {
-			this.renderError(el, "Cannot read frontmatter");
+		const entry = await this.retryGetEntryForFile(file);
+		if (!entry) {
+			this.renderError(el, "This note is not indexed yet. Please wait for indexing to complete.");
 			return;
 		}
 
-		const rawPeriodType: unknown = frontmatter[this.settings.properties.periodTypeProp];
-		const periodType = typeof rawPeriodType === "string" ? (rawPeriodType as PeriodType) : undefined;
-
-		if (!periodType) {
-			this.renderError(el, "This note is not a periodic note (missing Period Type)");
-			return;
-		}
+		const { periodType, hoursAvailable: totalHours } = entry;
 
 		const parsed = parseAllocationBlock(source);
-		const { resolved: allocations, unresolved } = resolveAllocations(parsed.allocations, this.settings.categories);
+		const { unresolved, resolved: allocations } = resolveAllocations(parsed.allocations, this.settings.categories);
 
 		if (unresolved.length > 0) {
 			this.renderWarnings(el, unresolved);
 		}
 
-		const rawHours: unknown = frontmatter[this.settings.properties.hoursAvailableProp];
-		const totalHours =
-			typeof rawHours === "number" ? rawHours : getHoursForPeriodType(this.settings.timeBudget, periodType);
-
-		const parentBudgets = await getParentBudgets(this.app, file, periodType, this.settings);
+		const parentBudgets = await getParentBudgets(entry, this.settings, this.periodIndex);
+		const childBudgets = await getChildBudgetsFromIndex(
+			file,
+			periodType,
+			allocations,
+			this.periodIndex,
+			this.settings.categories
+		);
 
 		this.renderHeader(el, totalHours, allocations);
-		this.renderAllocationTable(el, allocations, this.settings.categories, parentBudgets.budgets);
+		this.renderAllocationTable(
+			el,
+			allocations,
+			this.settings.categories,
+			periodType,
+			parentBudgets.budgets,
+			childBudgets.budgets
+		);
 		this.renderPieChart(el, allocations, this.settings.categories);
 		this.renderEditButton(el, file, periodType, allocations, totalHours, parentBudgets.budgets, ctx);
 	}
@@ -156,7 +129,9 @@ export class TimeBudgetBlockRenderer {
 		el: HTMLElement,
 		allocations: TimeAllocation[],
 		categories: Category[],
-		parentBudgets: Map<string, { total: number; remaining: number }>
+		periodType: PeriodType,
+		parentBudgets: Map<string, { total: number; remaining: number }>,
+		childBudgets: Map<string, { total: number; allocated: number; remaining: number }>
 	): void {
 		if (allocations.length === 0) {
 			const emptyEl = el.createDiv({ cls: cls("time-budget-empty") });
@@ -164,13 +139,17 @@ export class TimeBudgetBlockRenderer {
 			return;
 		}
 
+		const showParent = periodType !== "yearly";
+		const showChild = periodType !== "daily";
+
 		const table = el.createEl("table", { cls: cls("allocation-table") });
 
 		const thead = table.createEl("thead");
 		const headerRow = thead.createEl("tr");
 		headerRow.createEl("th", { text: "Category" });
 		headerRow.createEl("th", { text: "Hours" });
-		headerRow.createEl("th", { text: "Parent budget" });
+		if (showParent) headerRow.createEl("th", { text: "Parent budget" });
+		if (showChild) headerRow.createEl("th", { text: "Child allocated" });
 		headerRow.createEl("th", { text: "Status" });
 
 		const tbody = table.createEl("tbody");
@@ -189,20 +168,41 @@ export class TimeBudgetBlockRenderer {
 
 			row.createEl("td", { text: `${formatHours(allocation.hours)}h` });
 
-			const parentBudget = parentBudgets.get(allocation.categoryId);
-			if (parentBudget) {
-				row.createEl("td", { text: `${formatHours(parentBudget.remaining)}h remaining` });
-
-				const statusCell = row.createEl("td");
-				if (allocation.hours > parentBudget.remaining && parentBudget.remaining >= 0) {
-					statusCell.createSpan({ text: "⚠️ Over budget", cls: cls("status-over") });
-					addCls(row, "over-budget-row");
+			if (showParent) {
+				const parentBudget = parentBudgets.get(allocation.categoryId);
+				if (parentBudget) {
+					row.createEl("td", { text: `${formatHours(parentBudget.remaining)}h remaining` });
 				} else {
-					statusCell.createSpan({ text: "✓", cls: cls("status-ok") });
+					row.createEl("td", { text: "—" });
 				}
-			} else {
-				row.createEl("td", { text: "—" });
-				row.createEl("td", { text: "—" });
+			}
+
+			if (showChild) {
+				const childBudget = childBudgets.get(allocation.categoryId);
+				if (childBudget) {
+					row.createEl("td", { text: `${formatHours(childBudget.allocated)}h / ${formatHours(childBudget.total)}h` });
+				} else {
+					row.createEl("td", { text: "—" });
+				}
+			}
+
+			const statusCell = row.createEl("td");
+			const parentBudget = parentBudgets.get(allocation.categoryId);
+			const childBudget = childBudgets.get(allocation.categoryId);
+
+			let hasIssue = false;
+			if (showParent && parentBudget && allocation.hours > parentBudget.remaining && parentBudget.remaining >= 0) {
+				statusCell.createSpan({ text: "⚠️ Over parent", cls: cls("status-over") });
+				addCls(row, "over-budget-row");
+				hasIssue = true;
+			} else if (showChild && childBudget && childBudget.allocated > childBudget.total) {
+				statusCell.createSpan({ text: "⚠️ Children over", cls: cls("status-over") });
+				addCls(row, "over-budget-row");
+				hasIssue = true;
+			}
+
+			if (!hasIssue) {
+				statusCell.createSpan({ text: "✓", cls: cls("status-ok") });
 			}
 		}
 	}
@@ -275,6 +275,25 @@ export class TimeBudgetBlockRenderer {
 		);
 
 		await this.app.vault.modify(file, updatedContent);
+	}
+
+	private async retryGetEntryForFile(
+		file: TFile,
+		maxRetries: number = 3,
+		delayMs: number = 50
+	): Promise<IndexedPeriodNote | undefined> {
+		for (let attempt = 0; attempt < maxRetries; attempt++) {
+			const entry = this.periodIndex.getEntryForFile(file);
+			if (entry) {
+				return entry;
+			}
+
+			if (attempt < maxRetries - 1) {
+				await new Promise((resolve) => setTimeout(resolve, delayMs));
+			}
+		}
+
+		return undefined;
 	}
 
 	destroy(): void {
