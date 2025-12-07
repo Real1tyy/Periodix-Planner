@@ -351,7 +351,7 @@ export class AllocationEditorModal extends Modal {
 			const clampedPercent = Math.max(0, Math.min(100, percentValue));
 			const useParent = this.fillFromParent.get(categoryId) ?? false;
 			const parentBudget = this.parentBudgets.get(categoryId);
-			const baseAmount = useParent && parentBudget ? parentBudget.allocated : this.totalHoursAvailable;
+			const baseAmount = useParent && parentBudget ? parentBudget.total : this.totalHoursAvailable;
 			const newValue = roundHours((clampedPercent / 100) * baseAmount);
 			this.applyValue(categoryId, newValue, input);
 			customInput.value = "";
@@ -368,7 +368,7 @@ export class AllocationEditorModal extends Modal {
 	private calculatePresetValue(preset: number | "max", categoryId: string): number {
 		const useParent = this.fillFromParent.get(categoryId) ?? false;
 		const parentBudget = this.parentBudgets.get(categoryId);
-		const baseAmount = useParent && parentBudget ? parentBudget.allocated : this.totalHoursAvailable;
+		const baseAmount = useParent && parentBudget ? parentBudget.total : this.totalHoursAvailable;
 
 		if (preset === "max") {
 			if (useParent && parentBudget) {
