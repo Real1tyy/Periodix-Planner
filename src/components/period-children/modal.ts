@@ -1,8 +1,8 @@
 import { type App, Modal } from "obsidian";
-import { PERIOD_TYPE_LABELS } from "../constants";
-import type { IndexedPeriodNote, PeriodChildren } from "../types";
-import { cls } from "../utils/css";
-import { formatPeriodDateRange } from "../utils/date-utils";
+import { PERIOD_TYPE_LABELS } from "../../constants";
+import type { IndexedPeriodNote, PeriodChildren } from "../../types";
+import { cls } from "../../utils/css";
+import { formatPeriodDateRange } from "../../utils/date-utils";
 
 export class PeriodChildrenModal extends Modal {
 	constructor(

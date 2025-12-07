@@ -1,8 +1,8 @@
 import { type App, Component, MarkdownRenderer, Modal } from "obsidian";
-import { PERIOD_TYPE_LABELS, type PeriodType } from "../constants";
-import { type DirectorySettings, ORDERED_PERIOD_TYPES, PERIOD_CONFIG, type PropertySettings } from "../types";
-import type { IndexedPeriodNote } from "../types/period";
-import { addCls, cls, removeCls } from "../utils/css";
+import { PERIOD_TYPE_LABELS, type PeriodType } from "../../constants";
+import { type DirectorySettings, ORDERED_PERIOD_TYPES, PERIOD_CONFIG, type PropertySettings } from "../../types";
+import type { IndexedPeriodNote } from "../../types/period";
+import { addCls, cls, removeCls } from "../../utils/css";
 
 type ChildPeriodType = Exclude<PeriodType, "yearly">;
 

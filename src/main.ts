@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { Notice, Plugin, TFile } from "obsidian";
-import { PeriodChildrenBasesModal } from "./components/period-children-bases-modal";
+import { PeriodChildrenBasesModal } from "./components/period-children/bases-modal";
 import { TimeBudgetBlockRenderer } from "./components/time-budget";
 import type { PeriodType } from "./constants";
 import { AutoGenerator, formatAutoGenerationSummary } from "./core/auto-generator";
