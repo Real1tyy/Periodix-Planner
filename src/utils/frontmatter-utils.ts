@@ -57,3 +57,46 @@ export function extractParentLinksFromFrontmatter(
 export function resolveFilePath(linkPath: string): string {
 	return linkPath.endsWith(".md") ? linkPath : `${linkPath}.md`;
 }
+
+export interface ParsedWikiLink {
+	fullPath: string;
+	fileName: string;
+	alias: string | null;
+}
+
+export function createWikiLink(fullPath: string, alias: string): string {
+	const cleanPath = fullPath.replace(/\.md$/, "");
+	return `[[${cleanPath}|${alias}]]`;
+}
+
+export function parseWikiLink(link: string): ParsedWikiLink | null {
+	if (typeof link !== "string") return null;
+
+	const match = link.match(/\[\[([^\]]+)\]\]/);
+	if (!match) return null;
+
+	const content = match[1];
+	const pipeIndex = content.indexOf("|");
+
+	let fullPath: string;
+	let alias: string | null;
+
+	if (pipeIndex >= 0) {
+		fullPath = content.slice(0, pipeIndex).trim();
+		alias = content.slice(pipeIndex + 1).trim() || null;
+	} else {
+		fullPath = content.trim();
+		alias = null;
+	}
+
+	if (!fullPath) return null;
+
+	const pathParts = fullPath.split("/");
+	const fileName = pathParts[pathParts.length - 1] || fullPath;
+
+	return {
+		fullPath: fullPath.replace(/\.md$/, ""),
+		fileName: fileName.replace(/\.md$/, ""),
+		alias,
+	};
+}

@@ -2,11 +2,13 @@ import type { CachedMetadata } from "obsidian";
 import { describe, expect, it } from "vitest";
 import type { PropertySettings } from "../src/types";
 import {
+	createWikiLink,
 	extractLinkTarget,
 	extractParentLinksFromFrontmatter,
 	getLinkFromFrontmatter,
 	getParentLinkFromFrontmatter,
 	getPeriodTypeFromFrontmatter,
+	parseWikiLink,
 	resolveFilePath,
 } from "../src/utils/frontmatter-utils";
 
@@ -250,5 +252,163 @@ describe("resolveFilePath", () => {
 
 	it("handles paths with folders and .md extension", () => {
 		expect(resolveFilePath("folder/2024-W49.md")).toBe("folder/2024-W49.md");
+	});
+});
+
+describe("createWikiLink", () => {
+	it("creates wiki link with full path and alias", () => {
+		expect(createWikiLink("Journal/Daily Reflections/04-12-2025", "04-12-2025")).toBe(
+			"[[Journal/Daily Reflections/04-12-2025|04-12-2025]]"
+		);
+	});
+
+	it("removes .md extension from path", () => {
+		expect(createWikiLink("Journal/Daily Reflections/04-12-2025.md", "04-12-2025")).toBe(
+			"[[Journal/Daily Reflections/04-12-2025|04-12-2025]]"
+		);
+	});
+
+	it("handles simple path without folders", () => {
+		expect(createWikiLink("2025-01-01", "January 1")).toBe("[[2025-01-01|January 1]]");
+	});
+
+	it("handles nested folder paths", () => {
+		expect(createWikiLink("Yearly/2025/Quarterly/Q1-2025", "Q1 2025")).toBe(
+			"[[Yearly/2025/Quarterly/Q1-2025|Q1 2025]]"
+		);
+	});
+
+	it("handles alias with special characters", () => {
+		expect(createWikiLink("Notes/My Note", "Note with | pipe")).toBe("[[Notes/My Note|Note with | pipe]]");
+	});
+});
+
+describe("parseWikiLink", () => {
+	it("parses wiki link with full path and alias", () => {
+		const result = parseWikiLink("[[Journal/Daily Reflections/04-12-2025|04-12-2025]]");
+		expect(result).toEqual({
+			fullPath: "Journal/Daily Reflections/04-12-2025",
+			fileName: "04-12-2025",
+			alias: "04-12-2025",
+		});
+	});
+
+	it("parses wiki link without alias", () => {
+		const result = parseWikiLink("[[Journal/Daily Reflections/04-12-2025]]");
+		expect(result).toEqual({
+			fullPath: "Journal/Daily Reflections/04-12-2025",
+			fileName: "04-12-2025",
+			alias: null,
+		});
+	});
+
+	it("removes .md extension from path and filename", () => {
+		const result = parseWikiLink("[[Journal/Daily Reflections/04-12-2025.md|04-12-2025]]");
+		expect(result).toEqual({
+			fullPath: "Journal/Daily Reflections/04-12-2025",
+			fileName: "04-12-2025",
+			alias: "04-12-2025",
+		});
+	});
+
+	it("extracts filename from nested path", () => {
+		const result = parseWikiLink("[[Yearly/2025/Quarterly/Q1-2025|Q1 2025]]");
+		expect(result).toEqual({
+			fullPath: "Yearly/2025/Quarterly/Q1-2025",
+			fileName: "Q1-2025",
+			alias: "Q1 2025",
+		});
+	});
+
+	it("handles simple path without folders", () => {
+		const result = parseWikiLink("[[2025-01-01|January 1]]");
+		expect(result).toEqual({
+			fullPath: "2025-01-01",
+			fileName: "2025-01-01",
+			alias: "January 1",
+		});
+	});
+
+	it("handles link with empty alias", () => {
+		const result = parseWikiLink("[[Journal/Daily Reflections/04-12-2025|]]");
+		expect(result).toEqual({
+			fullPath: "Journal/Daily Reflections/04-12-2025",
+			fileName: "04-12-2025",
+			alias: null,
+		});
+	});
+
+	it("handles link with whitespace-only alias", () => {
+		const result = parseWikiLink("[[Journal/Daily Reflections/04-12-2025|   ]]");
+		expect(result).toEqual({
+			fullPath: "Journal/Daily Reflections/04-12-2025",
+			fileName: "04-12-2025",
+			alias: null,
+		});
+	});
+
+	it("returns null for non-wiki link string", () => {
+		expect(parseWikiLink("plain text")).toBeNull();
+	});
+
+	it("returns null for empty string", () => {
+		expect(parseWikiLink("")).toBeNull();
+	});
+
+	it("returns null for invalid wiki link format", () => {
+		expect(parseWikiLink("[[incomplete")).toBeNull();
+	});
+
+	it("returns null for non-string input", () => {
+		expect(parseWikiLink(null as unknown as string)).toBeNull();
+		expect(parseWikiLink(undefined as unknown as string)).toBeNull();
+		expect(parseWikiLink(123 as unknown as string)).toBeNull();
+	});
+
+	it("handles link with pipe in alias", () => {
+		const result = parseWikiLink("[[Notes/My Note|Note with | pipe]]");
+		expect(result).toEqual({
+			fullPath: "Notes/My Note",
+			fileName: "My Note",
+			alias: "Note with | pipe",
+		});
+	});
+
+	it("handles root-level file", () => {
+		const result = parseWikiLink("[[root-file|Root File]]");
+		expect(result).toEqual({
+			fullPath: "root-file",
+			fileName: "root-file",
+			alias: "Root File",
+		});
+	});
+
+	it("trims whitespace from path and alias", () => {
+		const result = parseWikiLink("[[  Journal/Note  |  Alias  ]]");
+		expect(result).toEqual({
+			fullPath: "Journal/Note",
+			fileName: "Note",
+			alias: "Alias",
+		});
+	});
+});
+
+describe("extractLinkTarget with full path links", () => {
+	it("extracts full path from link with alias", () => {
+		expect(extractLinkTarget("[[Journal/Daily Reflections/04-12-2025|04-12-2025]]")).toBe(
+			"Journal/Daily Reflections/04-12-2025"
+		);
+	});
+
+	it("extracts full path from nested link", () => {
+		expect(extractLinkTarget("[[Yearly/2025/Quarterly/Q1-2025|Q1 2025]]")).toBe(
+			"Yearly/2025/Quarterly/Q1-2025"
+		);
+	});
+
+	it("extracts path even when .md extension is present", () => {
+		expect(extractLinkTarget("[[Journal/Daily Reflections/04-12-2025.md|04-12-2025]]")).toBe(
+			"Journal/Daily Reflections/04-12-2025.md"
+		);
 	});
 });
