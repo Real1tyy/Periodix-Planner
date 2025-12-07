@@ -1,7 +1,8 @@
 import type { TFile } from "obsidian";
 import type { PeriodIndex } from "../../core/period-index";
-import type { Category, IndexedPeriodNote, PeriodicPlannerSettings } from "../../types";
+import type { Category, IndexedPeriodNote, PeriodicPlannerSettings, TimeAllocation } from "../../types";
 import { resolveFilePath } from "../../utils/frontmatter-utils";
+import { calculateChildAllocatedForNode } from "./child-budget-calculator";
 
 export interface CategoryBudgetInfo {
 	categoryId: string;
@@ -41,18 +42,36 @@ export async function getParentBudgets(
 	}
 
 	const categoryNameToId = buildCategoryNameToIdMap(settings.categories);
+	const parentAllocations: TimeAllocation[] = [];
+	for (const [categoryName, hours] of parentNote.categoryAllocations) {
+		const categoryId = categoryNameToId.get(categoryName);
+		if (categoryId) {
+			parentAllocations.push({ categoryId, hours });
+		}
+	}
+
+	const childAllocatedBudgets = await calculateChildAllocatedForNode(
+		parentNote.file,
+		parentNote.periodType,
+		parentAllocations,
+		periodIndex,
+		settings.categories
+	);
+
 	const budgets = new Map<string, CategoryBudgetInfo>();
 	let totalAllocatedInParent = 0;
 
 	for (const [categoryName, hours] of parentNote.categoryAllocations) {
 		const categoryId = categoryNameToId.get(categoryName);
 		if (categoryId) {
-			totalAllocatedInParent += hours;
+			const childAllocated = childAllocatedBudgets.get(categoryId);
+			const allocated = childAllocated?.allocated ?? 0;
+			totalAllocatedInParent += allocated;
 			budgets.set(categoryId, {
 				categoryId,
 				total: hours,
-				allocated: 0,
-				remaining: hours,
+				allocated,
+				remaining: hours - allocated,
 			});
 		}
 	}

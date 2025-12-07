@@ -13,7 +13,7 @@ import {
 } from "./allocation-parser";
 import { getChildBudgetsFromIndex } from "./child-budget-calculator";
 import { EnlargedChartModal } from "./enlarged-chart-modal";
-import { getParentBudgets } from "./parent-budget-tracker";
+import { CategoryBudgetInfo, getParentBudgets } from "./parent-budget-tracker";
 import { PieChartRenderer } from "./pie-chart-renderer";
 
 export class TimeBudgetBlockRenderer {
@@ -58,13 +58,7 @@ export class TimeBudgetBlockRenderer {
 			this.settings.categories
 		);
 
-		this.renderHeader(
-			el,
-			totalHours,
-			allocations,
-			periodType,
-			childBudgets.totalChildrenAllocated
-		);
+		this.renderHeader(el, totalHours, allocations, periodType, childBudgets.totalChildrenAllocated);
 		this.renderAllocationTable(
 			el,
 			allocations,
@@ -163,8 +157,8 @@ export class TimeBudgetBlockRenderer {
 		allocations: TimeAllocation[],
 		categories: Category[],
 		periodType: PeriodType,
-		parentBudgets: Map<string, { total: number; remaining: number }>,
-		childBudgets: Map<string, { total: number; allocated: number; remaining: number }>,
+		parentBudgets: Map<string, CategoryBudgetInfo>,
+		childBudgets: Map<string, CategoryBudgetInfo>,
 		totalHours: number
 	): void {
 		if (allocations.length === 0) {
@@ -208,7 +202,10 @@ export class TimeBudgetBlockRenderer {
 			if (showParent) {
 				const parentBudget = parentBudgets.get(allocation.categoryId);
 				if (parentBudget) {
-					row.createEl("td", { text: `${formatHours(parentBudget.remaining)}h remaining` });
+					const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
+					row.createEl("td", {
+						text: `${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${parentPercentage.toFixed(1)}%)`,
+					});
 				} else {
 					row.createEl("td", { text: "—" });
 				}

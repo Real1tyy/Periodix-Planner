@@ -203,15 +203,16 @@ export class AllocationEditorModal extends Modal {
 				const parentBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("parent-budget-info") });
 				const remainingBudget = parentBudget.remaining;
 				const isOver = currentHours > remainingBudget && remainingBudget >= 0;
+				const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
 
 				if (isOver) {
 					addCls(parentBudgetInfo, "over-budget");
 					parentBudgetInfo.setText(
-						`⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${formatHours(remainingBudget)}h remaining)`
+						`⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${parentPercentage.toFixed(1)}%)`
 					);
 				} else {
 					parentBudgetInfo.setText(
-						`Parent: ${formatHours(parentBudget.total)}h total, ${formatHours(remainingBudget)}h remaining`
+						`Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${parentPercentage.toFixed(1)}%)`
 					);
 				}
 
@@ -470,13 +471,14 @@ export class AllocationEditorModal extends Modal {
 				if (parentBudgetInfo && parentBudget) {
 					const remainingBudget = parentBudget.remaining;
 					const isOver = currentHours > remainingBudget && remainingBudget >= 0;
+					const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
 
 					removeCls(parentBudgetInfo as HTMLElement, "over-budget");
 					if (isOver) {
 						addCls(parentBudgetInfo as HTMLElement, "over-budget");
-						parentBudgetInfo.textContent = `⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${formatHours(remainingBudget)}h remaining)`;
+						parentBudgetInfo.textContent = `⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${parentPercentage.toFixed(1)}%)`;
 					} else {
-						parentBudgetInfo.textContent = `Parent: ${formatHours(parentBudget.total)}h total, ${formatHours(remainingBudget)}h remaining`;
+						parentBudgetInfo.textContent = `Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${parentPercentage.toFixed(1)}%)`;
 					}
 				}
 

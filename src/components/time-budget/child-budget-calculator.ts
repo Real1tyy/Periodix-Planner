@@ -16,38 +16,33 @@ function getDirectChildrenKey(periodType: PeriodType): keyof import("../../types
 	return PERIOD_CONFIG[directChildType].childrenKey;
 }
 
-export async function getChildBudgetsFromIndex(
+export async function calculateChildAllocatedForNode(
 	file: TFile,
 	periodType: PeriodType,
-	currentAllocations: TimeAllocation[],
+	allocations: TimeAllocation[],
 	periodIndex: PeriodIndex,
 	categories: Category[]
-): Promise<ChildBudgetResult> {
-	const emptyResult: ChildBudgetResult = {
-		budgets: new Map(),
-		totalChildrenAllocated: 0,
-	};
+): Promise<Map<string, CategoryBudgetInfo>> {
+	const budgets = new Map<string, CategoryBudgetInfo>();
 
 	if (periodType === "daily") {
-		return emptyResult;
+		return budgets;
 	}
 
 	const children = periodIndex.getChildrenForFile(file);
 	if (!children) {
-		return emptyResult;
+		return budgets;
 	}
 
 	const directChildrenKey = getDirectChildrenKey(periodType);
 	if (!directChildrenKey) {
-		return emptyResult;
+		return budgets;
 	}
 
 	const directChildren = children[directChildrenKey] ?? [];
-
 	const categoryNameToId = buildCategoryNameToIdMap(categories);
 
-	const budgets = new Map<string, CategoryBudgetInfo>();
-	for (const allocation of currentAllocations) {
+	for (const allocation of allocations) {
 		budgets.set(allocation.categoryId, {
 			categoryId: allocation.categoryId,
 			total: allocation.hours,
@@ -68,8 +63,23 @@ export async function getChildBudgetsFromIndex(
 		}
 	}
 
-	const totalChildrenAllocated = Array.from(budgets.values()).reduce((sum, budget) => {
+	for (const budget of budgets.values()) {
 		budget.remaining = budget.total - budget.allocated;
+	}
+
+	return budgets;
+}
+
+export async function getChildBudgetsFromIndex(
+	file: TFile,
+	periodType: PeriodType,
+	currentAllocations: TimeAllocation[],
+	periodIndex: PeriodIndex,
+	categories: Category[]
+): Promise<ChildBudgetResult> {
+	const budgets = await calculateChildAllocatedForNode(file, periodType, currentAllocations, periodIndex, categories);
+
+	const totalChildrenAllocated = Array.from(budgets.values()).reduce((sum, budget) => {
 		return sum + budget.allocated;
 	}, 0);
 
