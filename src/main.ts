@@ -227,6 +227,12 @@ export default class PeriodicPlannerPlugin extends Plugin {
 		this.registerNavigationCommand("go-to-next", "Go to next period", "nextProp");
 		this.registerNavigationCommand("go-to-parent", "Go to parent period", "parentProp");
 
+		this.registerOpenCurrentCommand("open-daily", "Open today's daily note", "daily");
+		this.registerOpenCurrentCommand("open-weekly", "Open current weekly note", "weekly");
+		this.registerOpenCurrentCommand("open-monthly", "Open current monthly note", "monthly");
+		this.registerOpenCurrentCommand("open-quarterly", "Open current quarterly note", "quarterly");
+		this.registerOpenCurrentCommand("open-yearly", "Open current yearly note", "yearly");
+
 		this.addCommand({
 			id: "show-children",
 			name: "Show child periods",
@@ -268,6 +274,31 @@ export default class PeriodicPlannerPlugin extends Plugin {
 				return true;
 			},
 		});
+	}
+
+	private registerOpenCurrentCommand(id: string, name: string, periodType: PeriodType): void {
+		this.addCommand({
+			id,
+			name,
+			callback: async () => {
+				await this.openCurrentPeriod(periodType);
+			},
+		});
+	}
+
+	private async openCurrentPeriod(periodType: PeriodType): Promise<void> {
+		const result = await this.autoGenerator.generateSingleNote(DateTime.now(), periodType);
+		if (result.success) {
+			const file = this.app.vault.getAbstractFileByPath(result.filePath);
+			if (file instanceof TFile) {
+				await openNoteFile(this.app, file);
+				if (!result.alreadyExists) {
+					await this.periodIndex.indexFile(file);
+				}
+			}
+		} else {
+			new Notice(`Failed to open note: ${result.error}`);
+		}
 	}
 
 	private async navigateOrCreate(linkTarget: string, periodType: PeriodType): Promise<void> {
