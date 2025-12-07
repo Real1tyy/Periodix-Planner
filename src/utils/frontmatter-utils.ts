@@ -59,6 +59,12 @@ export function resolveFilePath(linkPath: string): string {
 	return linkPath.endsWith(".md") ? linkPath : `${linkPath}.md`;
 }
 
+export function extractFilenameFromPath(filePath: string): string {
+	const pathWithoutExt = filePath.replace(/\.md$/, "");
+	const parts = pathWithoutExt.split("/");
+	return parts[parts.length - 1] || pathWithoutExt;
+}
+
 export interface ParsedWikiLink {
 	fullPath: string;
 	fileName: string;

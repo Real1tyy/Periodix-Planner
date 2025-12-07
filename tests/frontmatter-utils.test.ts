@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { PropertySettings } from "../src/types";
 import {
 	createWikiLink,
+	extractFilenameFromPath,
 	extractLinkTarget,
 	extractParentLinksFromFrontmatter,
 	getLinkFromFrontmatter,
@@ -401,14 +402,34 @@ describe("extractLinkTarget with full path links", () => {
 	});
 
 	it("extracts full path from nested link", () => {
-		expect(extractLinkTarget("[[Yearly/2025/Quarterly/Q1-2025|Q1 2025]]")).toBe(
-			"Yearly/2025/Quarterly/Q1-2025"
-		);
+		expect(extractLinkTarget("[[Yearly/2025/Quarterly/Q1-2025|Q1 2025]]")).toBe("Yearly/2025/Quarterly/Q1-2025");
 	});
 
 	it("extracts path even when .md extension is present", () => {
 		expect(extractLinkTarget("[[Journal/Daily Reflections/04-12-2025.md|04-12-2025]]")).toBe(
 			"Journal/Daily Reflections/04-12-2025.md"
 		);
+	});
+});
+
+describe("extractFilenameFromPath", () => {
+	it("extracts filename from full path", () => {
+		expect(extractFilenameFromPath("Journal/Daily Reflections/09-12-2025")).toBe("09-12-2025");
+	});
+
+	it("extracts filename from path with .md extension", () => {
+		expect(extractFilenameFromPath("Journal/Daily Reflections/09-12-2025.md")).toBe("09-12-2025");
+	});
+
+	it("handles simple filename without path", () => {
+		expect(extractFilenameFromPath("09-12-2025")).toBe("09-12-2025");
+	});
+
+	it("handles nested folder paths", () => {
+		expect(extractFilenameFromPath("Yearly/2025/Quarterly/Q1-2025")).toBe("Q1-2025");
+	});
+
+	it("handles root-level file", () => {
+		expect(extractFilenameFromPath("root-file.md")).toBe("root-file");
 	});
 });

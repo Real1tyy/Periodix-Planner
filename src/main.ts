@@ -13,6 +13,7 @@ import { PERIOD_CONFIG } from "./types";
 import { createPeriodInfo, getAncestorPeriodTypes, getNextPeriod, getPreviousPeriod } from "./utils/date-utils";
 import {
 	assignPeriodPropertiesToFrontmatter,
+	extractFilenameFromPath,
 	getActiveFileCache,
 	getLinkFromFrontmatter,
 	getPeriodTypeFromFrontmatter,
@@ -254,8 +255,9 @@ export default class PeriodicPlannerPlugin extends Plugin {
 	}
 
 	private parseLinkToDateTime(linkTarget: string, periodType: PeriodType): DateTime | null {
+		const filename = extractFilenameFromPath(linkTarget);
 		const format = this.settingsStore.currentSettings.naming[PERIOD_CONFIG[periodType].formatKey];
-		const parsed = DateTime.fromFormat(linkTarget, format);
+		const parsed = DateTime.fromFormat(filename, format);
 		return parsed.isValid ? parsed : null;
 	}
 
