@@ -1,7 +1,7 @@
 import { type App, Modal } from "obsidian";
 import type { Category, TimeAllocation } from "../../types";
 import { addCls, cls, removeCls } from "../../utils/css";
-import { formatHours, roundHours } from "../../utils/time-budget-utils";
+import { formatHours, roundHours, sortCategoriesByName } from "../../utils/time-budget-utils";
 import type { CategoryBudgetInfo } from "./parent-budget-tracker";
 
 const DEBOUNCE_MS = 300;
@@ -32,9 +32,12 @@ export class AllocationEditorModal extends Modal {
 		initialAllocations: TimeAllocation[],
 		private totalHoursAvailable: number,
 		private parentBudgets: Map<string, CategoryBudgetInfo>,
+		private childBudgets: Map<string, CategoryBudgetInfo>,
 		_periodLabel: string
 	) {
 		super(app);
+
+		console.log("AllocationEditorModal constructor - childBudgets:", Array.from(childBudgets.entries()));
 
 		for (const allocation of initialAllocations) {
 			this.allocations.set(allocation.categoryId, allocation.hours);
@@ -178,7 +181,9 @@ export class AllocationEditorModal extends Modal {
 		this.percentageBarRefs.clear();
 		this.percentageLabelRefs.clear();
 
-		for (const category of this.categories) {
+		const sortedCategories = sortCategoriesByName(this.categories);
+
+		for (const category of sortedCategories) {
 			const currentHours = this.allocations.get(category.id) ?? 0;
 			const parentBudget = this.parentBudgets.get(category.id);
 			const percentage = this.totalHoursAvailable > 0 ? (currentHours / this.totalHoursAvailable) * 100 : 0;
@@ -194,18 +199,20 @@ export class AllocationEditorModal extends Modal {
 
 			topRow.createSpan({ text: category.name, cls: cls("category-name") });
 
+			const budgetInfoContainer = topRow.createDiv({ cls: cls("budget-info-container") });
+
 			if (parentBudget) {
-				const budgetInfo = topRow.createSpan({ cls: cls("parent-budget-info") });
+				const parentBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("parent-budget-info") });
 				const remainingBudget = parentBudget.remaining;
 				const isOver = currentHours > remainingBudget && remainingBudget >= 0;
 
 				if (isOver) {
-					addCls(budgetInfo, "over-budget");
-					budgetInfo.setText(
+					addCls(parentBudgetInfo, "over-budget");
+					parentBudgetInfo.setText(
 						`⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${formatHours(remainingBudget)}h remaining)`
 					);
 				} else {
-					budgetInfo.setText(
+					parentBudgetInfo.setText(
 						`Parent: ${formatHours(parentBudget.total)}h total, ${formatHours(remainingBudget)}h remaining`
 					);
 				}
@@ -229,6 +236,26 @@ export class AllocationEditorModal extends Modal {
 					checkbox.checked = !checkbox.checked;
 					this.fillFromParent.set(category.id, checkbox.checked);
 				});
+			}
+
+			const childBudget = this.childBudgets.get(category.id);
+			console.log(`[buildAllocationList] Category ${category.id} - childBudget:`, childBudget);
+			if (childBudget) {
+				console.log(`[buildAllocationList] Category ${category.id} - childBudget.allocated:`, childBudget.allocated);
+				const allocated = childBudget.allocated ?? 0;
+				const total = childBudget.total ?? 0;
+				const percentage = total > 0 ? (allocated / total) * 100 : 0;
+				console.log(
+					`[buildAllocationList] Creating child budget info for category ${category.id} with ${allocated}h (${percentage.toFixed(1)}%)`
+				);
+				const childBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("child-budget-info") });
+				childBudgetInfo.setText(`Child allocated: ${formatHours(allocated)}h (${percentage.toFixed(1)}%)`);
+			} else {
+				console.log(`[buildAllocationList] No child budget found for category ${category.id}`);
+			}
+
+			if (!parentBudget && !childBudget) {
+				budgetInfoContainer.remove();
 			}
 
 			const inputRow = item.createDiv({ cls: cls("allocation-input-row") });
@@ -436,7 +463,9 @@ export class AllocationEditorModal extends Modal {
 	private updateAllocationItemStates(): void {
 		if (!this.allocationListEl) return;
 
-		for (const category of this.categories) {
+		const sortedCategories = sortCategoriesByName(this.categories);
+
+		for (const category of sortedCategories) {
 			const currentHours = this.allocations.get(category.id) ?? 0;
 			const parentBudget = this.parentBudgets.get(category.id);
 			const percentage = this.totalHoursAvailable > 0 ? (currentHours / this.totalHoursAvailable) * 100 : 0;
@@ -444,17 +473,34 @@ export class AllocationEditorModal extends Modal {
 
 			if (!item) continue;
 
-			const budgetInfo = item.querySelector(`.${cls("parent-budget-info")}`);
-			if (budgetInfo && parentBudget) {
-				const remainingBudget = parentBudget.remaining;
-				const isOver = currentHours > remainingBudget && remainingBudget >= 0;
+			const budgetInfoContainer = item.querySelector(`.${cls("budget-info-container")}`);
+			if (budgetInfoContainer) {
+				const parentBudgetInfo = budgetInfoContainer.querySelector(`.${cls("parent-budget-info")}`);
+				if (parentBudgetInfo && parentBudget) {
+					const remainingBudget = parentBudget.remaining;
+					const isOver = currentHours > remainingBudget && remainingBudget >= 0;
 
-				removeCls(budgetInfo as HTMLElement, "over-budget");
-				if (isOver) {
-					addCls(budgetInfo as HTMLElement, "over-budget");
-					budgetInfo.textContent = `⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${formatHours(remainingBudget)}h remaining)`;
-				} else {
-					budgetInfo.textContent = `Parent: ${formatHours(parentBudget.total)}h total, ${formatHours(remainingBudget)}h remaining`;
+					removeCls(parentBudgetInfo as HTMLElement, "over-budget");
+					if (isOver) {
+						addCls(parentBudgetInfo as HTMLElement, "over-budget");
+						parentBudgetInfo.textContent = `⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${formatHours(remainingBudget)}h remaining)`;
+					} else {
+						parentBudgetInfo.textContent = `Parent: ${formatHours(parentBudget.total)}h total, ${formatHours(remainingBudget)}h remaining`;
+					}
+				}
+
+				const childBudget = this.childBudgets.get(category.id);
+				let childBudgetInfo = budgetInfoContainer.querySelector(`.${cls("child-budget-info")}`) as HTMLElement | null;
+				if (childBudget) {
+					const allocated = childBudget.allocated ?? 0;
+					const total = childBudget.total ?? 0;
+					const percentage = total > 0 ? (allocated / total) * 100 : 0;
+					if (!childBudgetInfo) {
+						childBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("child-budget-info") });
+					}
+					childBudgetInfo.textContent = `Child allocated: ${formatHours(allocated)}h (${percentage.toFixed(1)}%)`;
+				} else if (childBudgetInfo) {
+					childBudgetInfo.remove();
 				}
 			}
 

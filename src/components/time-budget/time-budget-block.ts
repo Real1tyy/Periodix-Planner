@@ -3,7 +3,7 @@ import type { PeriodType } from "../../constants";
 import type { PeriodIndex } from "../../core/period-index";
 import type { Category, IndexedPeriodNote, PeriodicPlannerSettings, TimeAllocation } from "../../types";
 import { addCls, cls } from "../../utils/css";
-import { formatHours, roundHours } from "../../utils/time-budget-utils";
+import { formatHours, roundHours, sortAllocationsByCategoryName } from "../../utils/time-budget-utils";
 import { AllocationEditorModal } from "./allocation-editor-modal";
 import {
 	getTotalAllocatedHours,
@@ -13,7 +13,7 @@ import {
 } from "./allocation-parser";
 import { getChildBudgetsFromIndex } from "./child-budget-calculator";
 import { EnlargedChartModal } from "./enlarged-chart-modal";
-import { getParentBudgets } from "./parent-budget-tracker";
+import { CategoryBudgetInfo, getParentBudgets } from "./parent-budget-tracker";
 import { PieChartRenderer } from "./pie-chart-renderer";
 
 export class TimeBudgetBlockRenderer {
@@ -58,17 +58,27 @@ export class TimeBudgetBlockRenderer {
 			this.settings.categories
 		);
 
-		this.renderHeader(el, totalHours, allocations);
+		this.renderHeader(el, totalHours, allocations, periodType, childBudgets.budgets);
 		this.renderAllocationTable(
 			el,
 			allocations,
 			this.settings.categories,
 			periodType,
 			parentBudgets.budgets,
-			childBudgets.budgets
+			childBudgets.budgets,
+			totalHours
 		);
 		this.renderPieChart(el, allocations, this.settings.categories);
-		this.renderEditButton(el, file, periodType, allocations, totalHours, parentBudgets.budgets, ctx);
+		this.renderEditButton(
+			el,
+			file,
+			periodType,
+			allocations,
+			totalHours,
+			parentBudgets.budgets,
+			childBudgets.budgets,
+			ctx
+		);
 	}
 
 	private renderError(el: HTMLElement, message: string): void {
@@ -82,7 +92,13 @@ export class TimeBudgetBlockRenderer {
 		warningEl.createSpan({ text: unresolvedCategories.join(", ") });
 	}
 
-	private renderHeader(el: HTMLElement, totalHours: number, allocations: TimeAllocation[]): void {
+	private renderHeader(
+		el: HTMLElement,
+		totalHours: number,
+		allocations: TimeAllocation[],
+		periodType: PeriodType,
+		childBudgets: Map<string, CategoryBudgetInfo>
+	): void {
 		const header = el.createDiv({ cls: cls("time-budget-header") });
 
 		const title = header.createEl("h3", { text: "Time budget" });
@@ -100,10 +116,28 @@ export class TimeBudgetBlockRenderer {
 		this.createStatItem(
 			statsRow,
 			"Allocated",
-			`${formatHours(totalAllocated)}h`,
+			`${formatHours(totalAllocated)}h (${percentage.toFixed(1)}%)`,
 			percentage > 100 ? "over" : undefined
 		);
 		this.createStatItem(statsRow, "Remaining", `${formatHours(remaining)}h`, remaining < 0 ? "over" : undefined);
+
+		const showChild = periodType !== "daily";
+		if (showChild) {
+			let totalChildAllocated = 0;
+			for (const allocation of allocations) {
+				const childBudget = childBudgets.get(allocation.categoryId);
+				if (childBudget) {
+					totalChildAllocated += childBudget.allocated;
+				}
+			}
+			const totalChildAllocatedHours = roundHours(totalChildAllocated);
+			const childAllocatedPercentage = totalHours > 0 ? (totalChildAllocated / totalHours) * 100 : 0;
+			this.createStatItem(
+				statsRow,
+				"Child Allocated",
+				`${formatHours(totalChildAllocatedHours)}h (${childAllocatedPercentage.toFixed(1)}%)`
+			);
+		}
 
 		const progressBar = summary.createDiv({ cls: cls("progress-bar-container") });
 		const progressFill = progressBar.createDiv({ cls: cls("progress-bar-fill") });
@@ -131,7 +165,8 @@ export class TimeBudgetBlockRenderer {
 		categories: Category[],
 		periodType: PeriodType,
 		parentBudgets: Map<string, { total: number; remaining: number }>,
-		childBudgets: Map<string, { total: number; allocated: number; remaining: number }>
+		childBudgets: Map<string, { total: number; allocated: number; remaining: number }>,
+		totalHours: number
 	): void {
 		if (allocations.length === 0) {
 			const emptyEl = el.createDiv({ cls: cls("time-budget-empty") });
@@ -155,7 +190,9 @@ export class TimeBudgetBlockRenderer {
 		const tbody = table.createEl("tbody");
 		const categoryMap = new Map(categories.map((c) => [c.id, c]));
 
-		for (const allocation of allocations) {
+		const sortedAllocations = sortAllocationsByCategoryName(allocations, categories);
+
+		for (const allocation of sortedAllocations) {
 			const category = categoryMap.get(allocation.categoryId);
 			if (!category) continue;
 
@@ -166,7 +203,8 @@ export class TimeBudgetBlockRenderer {
 			colorDot.style.backgroundColor = category.color;
 			nameCell.createSpan({ text: category.name });
 
-			row.createEl("td", { text: `${formatHours(allocation.hours)}h` });
+			const percentage = totalHours > 0 ? (allocation.hours / totalHours) * 100 : 0;
+			row.createEl("td", { text: `${formatHours(allocation.hours)}h (${percentage.toFixed(1)}%)` });
 
 			if (showParent) {
 				const parentBudget = parentBudgets.get(allocation.categoryId);
@@ -180,7 +218,10 @@ export class TimeBudgetBlockRenderer {
 			if (showChild) {
 				const childBudget = childBudgets.get(allocation.categoryId);
 				if (childBudget) {
-					row.createEl("td", { text: `${formatHours(childBudget.allocated)}h / ${formatHours(childBudget.total)}h` });
+					const childPercentage = childBudget.total > 0 ? (childBudget.allocated / childBudget.total) * 100 : 0;
+					row.createEl("td", {
+						text: `${formatHours(childBudget.allocated)}h / ${formatHours(childBudget.total)}h (${childPercentage.toFixed(1)}%)`,
+					});
 				} else {
 					row.createEl("td", { text: "—" });
 				}
@@ -222,6 +263,7 @@ export class TimeBudgetBlockRenderer {
 		currentAllocations: TimeAllocation[],
 		totalHours: number,
 		parentBudgets: Map<string, { total: number; allocated: number; remaining: number; categoryId: string }>,
+		childBudgets: Map<string, { categoryId: string; total: number; allocated: number; remaining: number }>,
 		ctx: MarkdownPostProcessorContext
 	): void {
 		const buttonContainer = el.createDiv({ cls: cls("edit-button-container") });
@@ -232,12 +274,14 @@ export class TimeBudgetBlockRenderer {
 		});
 
 		editBtn.addEventListener("click", () => {
+			console.log("Opening edit modal - childBudgets:", Array.from(childBudgets.entries()));
 			const modal = new AllocationEditorModal(
 				this.app,
 				this.settings.categories,
 				currentAllocations,
 				totalHours,
 				parentBudgets,
+				childBudgets,
 				`${periodType.charAt(0).toUpperCase() + periodType.slice(1)}: ${file.basename}`
 			);
 

@@ -1,5 +1,5 @@
 import type { PeriodType } from "../constants";
-import type { TimeBudgetSettings } from "../types";
+import type { Category, TimeAllocation, TimeBudgetSettings } from "../types";
 
 export function roundHours(hours: number): number {
 	return Math.round(hours * 100) / 100;
@@ -116,4 +116,25 @@ export function createAllocationSummary(
 		percentage,
 		status,
 	};
+}
+
+/**
+ * Sorts categories alphabetically by name
+ */
+export function sortCategoriesByName(categories: Category[]): Category[] {
+	return [...categories].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Sorts time allocations by their category name
+ */
+export function sortAllocationsByCategoryName(allocations: TimeAllocation[], categories: Category[]): TimeAllocation[] {
+	const categoryMap = new Map(categories.map((c) => [c.id, c]));
+	return [...allocations].sort((a, b) => {
+		const categoryA = categoryMap.get(a.categoryId);
+		const categoryB = categoryMap.get(b.categoryId);
+		const nameA = categoryA?.name ?? "";
+		const nameB = categoryB?.name ?? "";
+		return nameA.localeCompare(nameB);
+	});
 }

@@ -282,6 +282,7 @@
 	margin: 0 0 12px 0;
 	font-size: 1.2em;
 	color: var(--text-normal);
+	text-align: center;
 }
 
 .periodic-planner-time-budget-summary {
@@ -295,6 +296,7 @@
 	gap: 24px;
 	margin-bottom: 12px;
 	flex-wrap: wrap;
+	justify-content: center;
 }
 
 .periodic-planner-stat-item {
@@ -398,6 +400,29 @@
 	border-radius: 50%;
 	margin-right: 8px;
 	vertical-align: middle;
+}
+
+.periodic-planner-allocation-table-summary {
+	background: var(--background-secondary);
+	font-weight: 600;
+	border-top: 2px solid var(--background-modifier-border);
+}
+
+.periodic-planner-allocation-table-summary td {
+	padding-top: 12px;
+	padding-bottom: 12px;
+}
+
+.periodic-planner-summary-label {
+	color: var(--text-muted);
+	font-size: 13px;
+}
+
+.periodic-planner-allocation-table-summary .periodic-planner-summary-label {
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-size: 12px;
+	font-weight: 600;
 }
 
 /* Pie Chart */
@@ -521,11 +546,6 @@
 	text-align: center;
 }
 
-.periodic-planner-summary-label {
-	color: var(--text-muted);
-	font-size: 13px;
-}
-
 .periodic-planner-summary-value {
 	font-weight: 600;
 	font-size: 15px;
@@ -589,14 +609,29 @@
 	margin-bottom: 8px;
 }
 
+.periodic-planner-budget-info-container {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-left: auto;
+	align-items: flex-end;
+	min-width: 0;
+}
+
 .periodic-planner-parent-budget-info {
 	font-size: 13px;
 	color: var(--text-muted);
-	margin-left: auto;
+	white-space: nowrap;
 }
 
 .periodic-planner-parent-budget-info.periodic-planner-over-budget {
 	color: var(--text-error);
+}
+
+.periodic-planner-child-budget-info {
+	font-size: 13px;
+	color: var(--text-muted);
+	white-space: nowrap;
 }
 
 .periodic-planner-fill-from-parent-container {

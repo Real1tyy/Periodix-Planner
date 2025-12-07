@@ -1,6 +1,7 @@
 import { ArcElement, Chart, type ChartConfiguration, Legend, PieController, Tooltip } from "chart.js";
 import type { Category, TimeAllocation } from "../../types";
 import { addCls, cls } from "../../utils/css";
+import { sortAllocationsByCategoryName } from "../../utils/time-budget-utils";
 
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 
@@ -17,7 +18,9 @@ export function preparePieChartData(allocations: TimeAllocation[], categories: C
 	const values: number[] = [];
 	const colors: string[] = [];
 
-	for (const allocation of allocations) {
+	const sortedAllocations = sortAllocationsByCategoryName(allocations, categories);
+
+	for (const allocation of sortedAllocations) {
 		const category = categoryMap.get(allocation.categoryId);
 		if (category && allocation.hours > 0) {
 			labels.push(category.name);
