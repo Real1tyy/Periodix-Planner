@@ -741,7 +741,7 @@
 }
 
 .periodic-planner-dragging {
-	cursor: ew-resize !important;
+	cursor: ew-resize;
 	user-select: none;
 }
 
