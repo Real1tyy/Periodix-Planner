@@ -13,7 +13,7 @@ import {
 } from "./allocation-parser";
 import { getChildBudgetsFromIndex } from "./child-budget-calculator";
 import { EnlargedChartModal } from "./enlarged-chart-modal";
-import { CategoryBudgetInfo, getParentBudgets } from "./parent-budget-tracker";
+import { type CategoryBudgetInfo, getParentBudgets } from "./parent-budget-tracker";
 import { PieChartRenderer } from "./pie-chart-renderer";
 
 export class TimeBudgetBlockRenderer {
