@@ -20,8 +20,7 @@ export const SETTINGS_DEFAULTS = {
 
 	// ===== Time Budget Settings =====
 	HOURS_PER_WEEK: 40, // Default productive hours per week
-	HOURS_PER_DAY: 8, // Calculated from weekly if not overridden
-	// Monthly/Quarterly/Yearly are calculated from weekly unless overridden
+	// Daily/Monthly/Quarterly/Yearly are calculated from weekly unless overridden
 
 	// ===== Frontmatter Property Names - space-cased values =====
 	// Navigation properties
@@ -37,7 +36,6 @@ export const SETTINGS_DEFAULTS = {
 
 	// Time budget properties (values with spaces)
 	HOURS_AVAILABLE_PROP: "Hours Available",
-	TIME_ALLOCATIONS_PROP: "Time Allocations",
 	HOURS_SPENT_PROP: "Hours Spent",
 
 	// Period metadata (values with spaces)

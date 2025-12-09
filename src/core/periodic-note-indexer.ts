@@ -65,6 +65,7 @@ export class PeriodicNoteIndexer {
 	private settings: PeriodicPlannerSettings;
 	private fileSub: Subscription | null = null;
 	private settingsSubscription: Subscription | null = null;
+	private app: App;
 	private vault: Vault;
 	private metadataCache: MetadataCache;
 	private scanEventsSubject = new Subject<IndexerEvent>();
@@ -74,6 +75,7 @@ export class PeriodicNoteIndexer {
 	public readonly indexingComplete$: Observable<boolean>;
 
 	constructor(app: App, settingsStore: BehaviorSubject<PeriodicPlannerSettings>) {
+		this.app = app;
 		this.vault = app.vault;
 		this.metadataCache = app.metadataCache;
 		this.settings = settingsStore.value;
@@ -253,6 +255,15 @@ export class PeriodicNoteIndexer {
 		const rawHours: unknown = frontmatter[props.hoursAvailableProp];
 		const hoursAvailable =
 			typeof rawHours === "number" ? rawHours : getHoursForPeriodType(this.settings.timeBudget, result.data.periodType);
+
+		const totalHoursSpent = Array.from(categoryAllocations.values()).reduce((sum, hours) => sum + hours, 0);
+		const roundedHoursSpent = Math.round(totalHoursSpent * 10) / 10;
+
+		await this.app.fileManager.processFrontMatter(file, (fm) => {
+			if (props.hoursSpentProp) {
+				fm[props.hoursSpentProp] = roundedHoursSpent;
+			}
+		});
 
 		return {
 			file,

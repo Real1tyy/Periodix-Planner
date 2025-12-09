@@ -97,14 +97,6 @@ export class PropertySettings {
 
 		this.addPropertySetting(
 			containerEl,
-			"Time allocations property",
-			"Property name for category time allocations",
-			"timeAllocationsProp",
-			SETTINGS_DEFAULTS.TIME_ALLOCATIONS_PROP
-		);
-
-		this.addPropertySetting(
-			containerEl,
 			"Hours spent property",
 			"Property name for actual hours spent",
 			"hoursSpentProp",

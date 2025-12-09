@@ -75,7 +75,6 @@ export const PropertySettingsSchema = z.object({
 
 	// Time budget properties
 	hoursAvailableProp: z.string().default(SETTINGS_DEFAULTS.HOURS_AVAILABLE_PROP),
-	timeAllocationsProp: z.string().default(SETTINGS_DEFAULTS.TIME_ALLOCATIONS_PROP),
 	hoursSpentProp: z.string().default(SETTINGS_DEFAULTS.HOURS_SPENT_PROP),
 
 	// Period metadata
