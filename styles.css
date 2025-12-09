@@ -666,28 +666,33 @@
 .periodic-planner-category-name {
 	font-weight: 600;
 	font-size: 15px;
+	flex-shrink: 0;
 }
 
 .periodic-planner-allocation-top-row {
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 16px;
 	margin-bottom: 8px;
+	flex-wrap: wrap;
 }
 
 .periodic-planner-budget-info-container {
 	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	margin-left: auto;
-	align-items: flex-end;
+	flex-direction: row;
+	gap: 16px;
+	flex: 1;
+	align-items: center;
 	min-width: 0;
+	flex-wrap: wrap;
+	justify-content: flex-end;
 }
 
 .periodic-planner-parent-budget-info {
-	font-size: 13px;
+	font-size: 14px;
 	color: var(--text-muted);
 	white-space: nowrap;
+	flex-shrink: 0;
 }
 
 .periodic-planner-parent-budget-info.periodic-planner-over-budget {
@@ -695,15 +700,17 @@
 }
 
 .periodic-planner-child-budget-info {
-	font-size: 13px;
+	font-size: 14px;
 	color: var(--text-muted);
 	white-space: nowrap;
+	flex-shrink: 0;
 }
 
 .periodic-planner-fill-from-parent-container {
 	display: flex;
 	align-items: center;
 	gap: 6px;
+	flex-shrink: 0;
 }
 
 .periodic-planner-fill-from-parent-checkbox {
@@ -712,7 +719,7 @@
 }
 
 .periodic-planner-fill-from-parent-label {
-	font-size: 12px;
+	font-size: 14px;
 	color: var(--text-muted);
 	cursor: pointer;
 	user-select: none;
