@@ -561,7 +561,7 @@
 
 .periodic-planner-allocation-summary {
 	background: var(--background-secondary);
-	padding: 16px 24px;
+	padding: 11px 16px;
 	border-radius: 8px;
 	margin-bottom: 16px;
 }
@@ -571,14 +571,15 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
-	margin-bottom: 12px;
+	margin-bottom: 8px;
 }
 
 .periodic-planner-summary-stats {
 	display: flex;
 	justify-content: center;
-	gap: 32px;
-	flex-wrap: wrap;
+	gap: 24px;
+	flex-wrap: nowrap;
+	align-items: center;
 }
 
 .periodic-planner-undo-redo-btn {
@@ -608,11 +609,12 @@
 	align-items: center;
 	gap: 8px;
 	text-align: center;
+	white-space: nowrap;
 }
 
 .periodic-planner-summary-value {
 	font-weight: 600;
-	font-size: 15px;
+	font-size: 20px;
 }
 
 .periodic-planner-allocation-list {
