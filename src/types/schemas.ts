@@ -1,10 +1,6 @@
 import { z } from "zod";
-import { SETTINGS_DEFAULTS } from "../constants";
-
-// ===== Color Validation =====
-export const ColorSchema = z
-	.string()
-	.regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Must be a valid hex color (e.g., #3B82F6)");
+import { PERIOD_TYPES, SETTINGS_DEFAULTS } from "../constants";
+import { ColorSchema, DateTimeSchema } from "../utils/validation-utils";
 
 // ===== Category Schema =====
 export const CategorySchema = z.object({
@@ -25,6 +21,20 @@ export const TimeAllocationSchema = z.object({
 });
 
 export type TimeAllocation = z.infer<typeof TimeAllocationSchema>;
+
+export const FrontmatterSchema = z.object({
+	periodType: z.enum([
+		PERIOD_TYPES.DAILY,
+		PERIOD_TYPES.WEEKLY,
+		PERIOD_TYPES.MONTHLY,
+		PERIOD_TYPES.QUARTERLY,
+		PERIOD_TYPES.YEARLY,
+	]),
+	periodStart: DateTimeSchema,
+	periodEnd: DateTimeSchema,
+});
+
+export type Frontmatter = z.infer<typeof FrontmatterSchema>;
 
 // ===== Directory Settings Schema =====
 export const DirectorySettingsSchema = z.object({

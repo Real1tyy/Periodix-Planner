@@ -1,4 +1,3 @@
-import { DateTime } from "luxon";
 import { type App, type MetadataCache, type TAbstractFile, TFile, type Vault } from "obsidian";
 import {
 	type BehaviorSubject,
@@ -14,37 +13,12 @@ import {
 } from "rxjs";
 import { debounceTime, filter, groupBy, map, mergeMap, switchMap, toArray } from "rxjs/operators";
 import { getHoursForPeriodType } from "src/utils";
-import { z } from "zod";
 import { parseAllocationBlock } from "../components/time-budget/allocation-parser";
-import { PERIOD_TYPES } from "../constants";
 import type { IndexedPeriodNote, PeriodicPlannerSettings } from "../types";
+import { FrontmatterSchema } from "../types/schemas";
 import { extractParentLinksFromFrontmatter } from "../utils/frontmatter-utils";
 
 const SCAN_CONCURRENCY = 10;
-
-const DateTimeSchema = z.string().transform((val, ctx) => {
-	const dt = DateTime.fromISO(val);
-	if (!dt.isValid) {
-		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
-			message: "Invalid ISO datetime",
-		});
-		return z.NEVER;
-	}
-	return dt;
-});
-
-const FrontmatterSchema = z.object({
-	periodType: z.enum([
-		PERIOD_TYPES.DAILY,
-		PERIOD_TYPES.WEEKLY,
-		PERIOD_TYPES.MONTHLY,
-		PERIOD_TYPES.QUARTERLY,
-		PERIOD_TYPES.YEARLY,
-	]),
-	periodStart: DateTimeSchema,
-	periodEnd: DateTimeSchema,
-});
 
 export type IndexerEvent =
 	| {
