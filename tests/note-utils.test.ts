@@ -2,8 +2,8 @@ import { DateTime } from "luxon";
 import type { TFile, Vault } from "obsidian";
 import { describe, expect, it, vi } from "vitest";
 import { PERIOD_TYPES, SETTINGS_DEFAULTS } from "../src/constants";
-import type { PeriodicPlannerSettings } from "../src/types";
-import { extractCategoryAllocations, parseFileToNote } from "../src/utils/note-utils";
+import type { IndexedPeriodNote, PeriodicPlannerSettings } from "../src/types";
+import { extractCategoryAllocations, getParentFilePathsFromLinks, parseFileToNote } from "../src/utils/note-utils";
 import { TFile as MockTFile, Vault as MockVault } from "./mocks/obsidian";
 
 describe("Note Utilities", () => {
@@ -587,6 +587,255 @@ describe("Note Utilities", () => {
 			expect(result?.filePath).toBe("Periodic/Weekly/01-2025.md");
 			expect(result?.noteName).toBe("01-2025");
 			expect(result?.mtime).toBe(9876543210);
+		});
+	});
+
+	describe("getParentFilePathsFromLinks", () => {
+		const createMockNote = (
+			periodType: string,
+			parentLinks: {
+				parent?: string;
+				week?: string;
+				month?: string;
+				quarter?: string;
+				year?: string;
+			}
+		): IndexedPeriodNote => {
+			const file = createMockFile("test.md");
+			return {
+				file,
+				filePath: file.path,
+				periodType: periodType as any,
+				periodStart: DateTime.fromISO("2025-01-06T00:00:00.000Z"),
+				periodEnd: DateTime.fromISO("2025-01-12T23:59:59.999Z"),
+				noteName: "test",
+				mtime: Date.now(),
+				hoursAvailable: 40,
+				hoursSpent: 0,
+				parentLinks,
+				categoryAllocations: new Map(),
+			};
+		};
+
+		it("should return empty array for yearly notes (no childrenKey)", () => {
+			const note = createMockNote(PERIOD_TYPES.YEARLY, {
+				parent: "2024",
+				week: "2025-W01",
+				month: "2025-01",
+				quarter: "2025-Q1",
+				year: "2025",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toEqual([]);
+		});
+
+		it("should return parent links for daily note with childrenKey 'days'", () => {
+			const note = createMockNote(PERIOD_TYPES.DAILY, {
+				parent: "2025-W01",
+				week: "2025-W01",
+				month: "2025-01",
+				quarter: "2025-Q1",
+				year: "2025",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(5);
+			expect(result[0]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "days" });
+			expect(result[1]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "days" });
+			expect(result[2]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "days" });
+			expect(result[3]).toEqual({ parentFilePath: "2025-Q1.md", childrenKey: "days" });
+			expect(result[4]).toEqual({ parentFilePath: "2025.md", childrenKey: "days" });
+		});
+
+		it("should return parent links for weekly note with childrenKey 'weeks'", () => {
+			const note = createMockNote(PERIOD_TYPES.WEEKLY, {
+				parent: "2025-01",
+				week: "2025-W01",
+				month: "2025-01",
+				quarter: "2025-Q1",
+				year: "2025",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(5);
+			expect(result.every((r) => r.childrenKey === "weeks")).toBe(true);
+			expect(result[0]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
+			expect(result[1]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "weeks" });
+			expect(result[2]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
+			expect(result[3]).toEqual({ parentFilePath: "2025-Q1.md", childrenKey: "weeks" });
+			expect(result[4]).toEqual({ parentFilePath: "2025.md", childrenKey: "weeks" });
+		});
+
+		it("should return parent links for monthly note with childrenKey 'months'", () => {
+			const note = createMockNote(PERIOD_TYPES.MONTHLY, {
+				parent: "2025-Q1",
+				week: "2025-W01",
+				month: "2025-01",
+				quarter: "2025-Q1",
+				year: "2025",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(5);
+			expect(result.every((r) => r.childrenKey === "months")).toBe(true);
+			expect(result[0]).toEqual({ parentFilePath: "2025-Q1.md", childrenKey: "months" });
+		});
+
+		it("should return parent links for quarterly note with childrenKey 'quarters'", () => {
+			const note = createMockNote(PERIOD_TYPES.QUARTERLY, {
+				parent: "2025",
+				week: "2025-W01",
+				month: "2025-01",
+				quarter: "2025-Q1",
+				year: "2025",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(5);
+			expect(result.every((r) => r.childrenKey === "quarters")).toBe(true);
+			expect(result[0]).toEqual({ parentFilePath: "2025.md", childrenKey: "quarters" });
+		});
+
+		it("should only return links that exist", () => {
+			const note = createMockNote(PERIOD_TYPES.WEEKLY, {
+				parent: "2025-01",
+				month: "2025-01",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(2);
+			expect(result[0]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
+			expect(result[1]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
+		});
+
+		it("should return empty array when no parent links exist", () => {
+			const note = createMockNote(PERIOD_TYPES.WEEKLY, {});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toEqual([]);
+		});
+
+		it("should add .md extension to file paths that don't have it", () => {
+			const note = createMockNote(PERIOD_TYPES.DAILY, {
+				parent: "2025-W01",
+				week: "2025-W01.md",
+				month: "2025-01",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(3);
+			expect(result[0].parentFilePath).toBe("2025-W01.md");
+			expect(result[1].parentFilePath).toBe("2025-W01.md");
+			expect(result[2].parentFilePath).toBe("2025-01.md");
+		});
+
+		it("should handle paths with folders", () => {
+			const note = createMockNote(PERIOD_TYPES.WEEKLY, {
+				parent: "Periodic/Monthly/2025-01",
+				month: "Periodic/Monthly/2025-01.md",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(2);
+			expect(result[0].parentFilePath).toBe("Periodic/Monthly/2025-01.md");
+			expect(result[1].parentFilePath).toBe("Periodic/Monthly/2025-01.md");
+		});
+
+		it("should handle only parent link", () => {
+			const note = createMockNote(PERIOD_TYPES.DAILY, {
+				parent: "2025-W01",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(1);
+			expect(result[0]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "days" });
+		});
+
+		it("should handle only week link", () => {
+			const note = createMockNote(PERIOD_TYPES.DAILY, {
+				week: "2025-W01",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(1);
+			expect(result[0]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "days" });
+		});
+
+		it("should handle only month link", () => {
+			const note = createMockNote(PERIOD_TYPES.WEEKLY, {
+				month: "2025-01",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(1);
+			expect(result[0]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
+		});
+
+		it("should handle only quarter link", () => {
+			const note = createMockNote(PERIOD_TYPES.MONTHLY, {
+				quarter: "2025-Q1",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(1);
+			expect(result[0]).toEqual({ parentFilePath: "2025-Q1.md", childrenKey: "months" });
+		});
+
+		it("should handle only year link", () => {
+			const note = createMockNote(PERIOD_TYPES.QUARTERLY, {
+				year: "2025",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(1);
+			expect(result[0]).toEqual({ parentFilePath: "2025.md", childrenKey: "quarters" });
+		});
+
+		it("should handle duplicate parent links (same link in multiple fields)", () => {
+			const note = createMockNote(PERIOD_TYPES.DAILY, {
+				parent: "2025-W01",
+				week: "2025-W01",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(2);
+			expect(result[0].parentFilePath).toBe("2025-W01.md");
+			expect(result[1].parentFilePath).toBe("2025-W01.md");
+		});
+
+		it("should preserve order: parent, week, month, quarter, year", () => {
+			const note = createMockNote(PERIOD_TYPES.DAILY, {
+				year: "2025",
+				quarter: "2025-Q1",
+				month: "2025-01",
+				week: "2025-W01",
+				parent: "2025-W01",
+			});
+
+			const result = getParentFilePathsFromLinks(note);
+
+			expect(result).toHaveLength(5);
+			expect(result[0].parentFilePath).toBe("2025-W01.md");
+			expect(result[1].parentFilePath).toBe("2025-W01.md");
+			expect(result[2].parentFilePath).toBe("2025-01.md");
+			expect(result[3].parentFilePath).toBe("2025-Q1.md");
+			expect(result[4].parentFilePath).toBe("2025.md");
 		});
 	});
 });

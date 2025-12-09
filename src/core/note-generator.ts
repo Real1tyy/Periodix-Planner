@@ -1,5 +1,5 @@
 import type { DateTime } from "luxon";
-import { type App, TFile } from "obsidian";
+import type { App, TFile } from "obsidian";
 import type { Observable, Subscription } from "rxjs";
 import {
 	parseAllocationBlock,
@@ -24,7 +24,13 @@ import {
 	getStartOfPeriod,
 	type PeriodInfo,
 } from "../utils/date-utils";
-import { assignPeriodPropertiesToFrontmatter, createWikiLink, extractLinkTarget } from "../utils/frontmatter-utils";
+import { ensureFolderExists, getPdfPath, removeFileExtension } from "../utils/file-operations";
+import {
+	assignPeriodPropertiesToFrontmatter,
+	createWikiLink,
+	extractLinkTarget,
+	resolveNoteFile,
+} from "../utils/frontmatter-utils";
 import { getHoursForPeriodType, roundHours } from "../utils/time-budget-utils";
 
 type Frontmatter = Record<string, unknown>;
@@ -56,7 +62,7 @@ export class NoteGenerator {
 		}
 
 		try {
-			await this.ensureFolderExists(filePath);
+			await ensureFolderExists(this.app, filePath);
 			const file = await this.app.vault.create(filePath, "");
 			await this.writeFrontmatter(file, dt, periodType);
 			await this.writeTimeBudgetBlock(file, periodType);
@@ -97,12 +103,12 @@ export class NoteGenerator {
 		const format = this.settings.naming[PERIOD_CONFIG[periodType].formatKey];
 		const periodStart = getStartOfPeriod(dt, periodType);
 		const displayName = formatPeriodName(periodStart, format);
-		const fullPath = this.getNotePath(dt, periodType).replace(/\.md$/, "");
+		const fullPath = removeFileExtension(this.getNotePath(dt, periodType));
 		return createWikiLink(fullPath, displayName);
 	}
 
 	getNotePathWithoutExtension(dt: DateTime, periodType: PeriodType): string {
-		return this.getNotePath(dt, periodType).replace(/\.md$/, "");
+		return removeFileExtension(this.getNotePath(dt, periodType));
 	}
 
 	getNoteDisplayName(dt: DateTime, periodType: PeriodType): string {
@@ -123,7 +129,7 @@ export class NoteGenerator {
 			assignPeriodPropertiesToFrontmatter(fm, props, periodType, periodInfo, links, hoursAvailable, false);
 
 			if (gen.includePdfFrontmatter) {
-				const pdfPath = this.getPdfPath(file.path);
+				const pdfPath = getPdfPath(file.path);
 				fm[gen.pdfNoteProp] = `[[${pdfPath}]]`;
 			}
 		});
@@ -232,8 +238,7 @@ export class NoteGenerator {
 		const linkPath = extractLinkTarget(linkValue);
 		if (!linkPath) return null;
 
-		const file = this.app.metadataCache.getFirstLinkpathDest(linkPath, "");
-		return file instanceof TFile ? file : null;
+		return resolveNoteFile(this.app, linkPath);
 	}
 
 	private insertCodeBlockAfterFrontmatter(content: string, allocations: TimeAllocation[]): string {
@@ -280,25 +285,11 @@ export class NoteGenerator {
 		return links;
 	}
 
-	private async ensureFolderExists(filePath: string): Promise<void> {
-		const folder = filePath.substring(0, filePath.lastIndexOf("/"));
-		if (!folder) return;
-
-		const exists = await this.app.vault.adapter.exists(folder);
-		if (!exists) {
-			await this.app.vault.createFolder(folder);
-		}
-	}
-
-	private getPdfPath(notePath: string): string {
-		return notePath.replace(/\.md$/, ".pdf");
-	}
-
 	private async writePdfContent(file: TFile, filePath: string): Promise<void> {
 		const gen = this.settings.generation;
 		if (!gen.includePdfContent) return;
 
-		const pdfPath = this.getPdfPath(filePath);
+		const pdfPath = getPdfPath(filePath);
 		const content = `${gen.pdfContentHeader}\n\n![[${pdfPath}]]`;
 
 		const currentContent = await this.app.vault.read(file);

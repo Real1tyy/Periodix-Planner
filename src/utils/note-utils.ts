@@ -1,8 +1,9 @@
 import type { TFile, Vault } from "obsidian";
 import { parseAllocationBlock } from "../components/time-budget/allocation-parser";
-import type { IndexedPeriodNote, PeriodicPlannerSettings } from "../types";
+import type { IndexedPeriodNote, PeriodChildren, PeriodicPlannerSettings } from "../types";
+import { PERIOD_CONFIG } from "../types";
 import { FrontmatterSchema } from "../types/schemas";
-import { extractParentLinksFromFrontmatter } from "./frontmatter-utils";
+import { extractParentLinksFromFrontmatter, resolveFilePath } from "./frontmatter-utils";
 import { getHoursForPeriodType } from "./time-budget-utils";
 
 export async function extractCategoryAllocations(vault: Vault, file: TFile): Promise<Map<string, number>> {
@@ -71,4 +72,27 @@ export async function parseFileToNote(
 		parentLinks,
 		categoryAllocations,
 	};
+}
+
+export function getParentFilePathsFromLinks(
+	note: IndexedPeriodNote
+): Array<{ parentFilePath: string; childrenKey: keyof PeriodChildren }> {
+	const results: Array<{ parentFilePath: string; childrenKey: keyof PeriodChildren }> = [];
+	const childrenKey = PERIOD_CONFIG[note.periodType].childrenKey;
+	if (!childrenKey) return results;
+
+	const links = note.parentLinks;
+	const parentLinkKeys = ["parent", "week", "month", "quarter", "year"] as const;
+
+	for (const linkKey of parentLinkKeys) {
+		const linkValue = links[linkKey];
+		if (linkValue) {
+			results.push({
+				parentFilePath: resolveFilePath(linkValue),
+				childrenKey,
+			});
+		}
+	}
+
+	return results;
 }

@@ -1,8 +1,7 @@
 import type { TFile } from "obsidian";
 import type { Subscription } from "rxjs";
 import type { IndexedPeriodNote, PeriodChildren } from "../types";
-import { PERIOD_CONFIG } from "../types";
-import { resolveFilePath } from "../utils/frontmatter-utils";
+import { getParentFilePathsFromLinks } from "../utils/note-utils";
 import type { PeriodicNoteIndexer } from "./periodic-note-indexer";
 
 export class PeriodIndex {
@@ -63,7 +62,7 @@ export class PeriodIndex {
 	}
 
 	private addToParentsCaches(note: IndexedPeriodNote): void {
-		const parentLinkPaths = this.getParentFilePathsFromLinks(note);
+		const parentLinkPaths = getParentFilePathsFromLinks(note);
 
 		for (const { parentFilePath, childrenKey } of parentLinkPaths) {
 			let children = this.childrenCache.get(parentFilePath);
@@ -85,7 +84,7 @@ export class PeriodIndex {
 	}
 
 	private removeFromParentsCaches(note: IndexedPeriodNote): void {
-		const parentLinkPaths = this.getParentFilePathsFromLinks(note);
+		const parentLinkPaths = getParentFilePathsFromLinks(note);
 
 		for (const { parentFilePath, childrenKey } of parentLinkPaths) {
 			const children = this.childrenCache.get(parentFilePath);
@@ -93,28 +92,5 @@ export class PeriodIndex {
 				children[childrenKey] = children[childrenKey]?.filter((c) => c.filePath !== note.filePath);
 			}
 		}
-	}
-
-	private getParentFilePathsFromLinks(
-		note: IndexedPeriodNote
-	): Array<{ parentFilePath: string; childrenKey: keyof PeriodChildren }> {
-		const results: Array<{ parentFilePath: string; childrenKey: keyof PeriodChildren }> = [];
-		const childrenKey = PERIOD_CONFIG[note.periodType].childrenKey;
-		if (!childrenKey) return results;
-
-		const links = note.parentLinks;
-		const parentLinkKeys = ["parent", "week", "month", "quarter", "year"] as const;
-
-		for (const linkKey of parentLinkKeys) {
-			const linkValue = links[linkKey];
-			if (linkValue) {
-				results.push({
-					parentFilePath: resolveFilePath(linkValue),
-					childrenKey,
-				});
-			}
-		}
-
-		return results;
 	}
 }
