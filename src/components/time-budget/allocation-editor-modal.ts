@@ -98,7 +98,7 @@ export class AllocationEditorModal extends Modal {
 
 			const input = this.inputRefs.get(this.dragCategoryId);
 			if (input) {
-				input.value = String(hours);
+				input.value = hours > 0 ? String(hours) : "";
 			}
 
 			this.updateAllocationItemStates();
@@ -229,8 +229,7 @@ export class AllocationEditorModal extends Modal {
 
 			if (parentBudget) {
 				const parentBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("parent-budget-info") });
-				const remainingBudget = parentBudget.remaining;
-				const isOver = currentHours > remainingBudget && remainingBudget >= 0;
+				const isOver = currentHours > parentBudget.total && parentBudget.total > 0;
 				const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
 
 				if (isOver) {
@@ -285,7 +284,7 @@ export class AllocationEditorModal extends Modal {
 			const input = inputContainer.createEl("input", {
 				type: "number",
 				cls: cls("allocation-input"),
-				value: String(currentHours),
+				value: currentHours > 0 ? String(currentHours) : "",
 			});
 			input.min = "0";
 			input.step = "0.5";
@@ -325,7 +324,7 @@ export class AllocationEditorModal extends Modal {
 			});
 			this.percentageLabelRefs.set(category.id, percentageLabel);
 
-			if (parentBudget && currentHours > parentBudget.remaining && parentBudget.remaining >= 0) {
+			if (parentBudget && currentHours > parentBudget.total && parentBudget.total > 0) {
 				addCls(item, "over-budget");
 			}
 		}
@@ -350,7 +349,7 @@ export class AllocationEditorModal extends Modal {
 
 			const input = this.inputRefs.get(categoryId);
 			if (input) {
-				input.value = String(hours);
+				input.value = hours > 0 ? String(hours) : "";
 			}
 
 			this.updateAllocationItemStates();
@@ -446,7 +445,7 @@ export class AllocationEditorModal extends Modal {
 
 	private applyValue(categoryId: string, value: number, input: HTMLInputElement): void {
 		this.allocations.set(categoryId, value);
-		input.value = String(value);
+		input.value = value > 0 ? String(value) : "";
 		this.focusedCategoryId = categoryId;
 		this.updateViewsWithFocusPreservation();
 	}
@@ -501,8 +500,7 @@ export class AllocationEditorModal extends Modal {
 			if (budgetInfoContainer) {
 				const parentBudgetInfo = budgetInfoContainer.querySelector(`.${cls("parent-budget-info")}`);
 				if (parentBudgetInfo && parentBudget) {
-					const remainingBudget = parentBudget.remaining;
-					const isOver = currentHours > remainingBudget && remainingBudget >= 0;
+					const isOver = currentHours > parentBudget.total && parentBudget.total > 0;
 					const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
 
 					removeCls(parentBudgetInfo as HTMLElement, "over-budget");
@@ -540,7 +538,7 @@ export class AllocationEditorModal extends Modal {
 			}
 
 			removeCls(item as HTMLElement, "over-budget");
-			if (parentBudget && currentHours > parentBudget.remaining && parentBudget.remaining >= 0) {
+			if (parentBudget && currentHours > parentBudget.total && parentBudget.total > 0) {
 				addCls(item as HTMLElement, "over-budget");
 			}
 		}
@@ -666,7 +664,7 @@ export class AllocationEditorModal extends Modal {
 		for (const [categoryId, hours] of this.allocations) {
 			const input = this.inputRefs.get(categoryId);
 			if (input) {
-				input.value = String(hours);
+				input.value = hours > 0 ? String(hours) : "";
 			}
 		}
 	}
