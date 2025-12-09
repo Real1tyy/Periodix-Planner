@@ -51,11 +51,6 @@ export type NamingSettings = z.infer<typeof NamingSettingsSchema>;
 // ===== Time Budget Settings Schema =====
 export const TimeBudgetSettingsSchema = z.object({
 	hoursPerWeek: z.number().int().positive().max(168).default(SETTINGS_DEFAULTS.HOURS_PER_WEEK),
-	// Optional overrides - calculated from weekly if not set
-	hoursPerDayOverride: z.number().int().positive().max(24).optional(),
-	hoursPerMonthOverride: z.number().int().positive().optional(),
-	hoursPerQuarterOverride: z.number().int().positive().optional(),
-	hoursPerYearOverride: z.number().int().positive().optional(),
 });
 
 export type TimeBudgetSettings = z.infer<typeof TimeBudgetSettingsSchema>;

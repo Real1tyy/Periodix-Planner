@@ -56,14 +56,6 @@ describe("Schema Validation", () => {
 			});
 			expect(result.hoursPerWeek).toBe(60);
 		});
-
-		it("should accept optional overrides", () => {
-			const result = TimeBudgetSettingsSchema.parse({
-				hoursPerWeek: 40,
-				hoursPerMonthOverride: 200,
-			});
-			expect(result.hoursPerMonthOverride).toBe(200);
-		});
 	});
 
 	describe("CategorySchema", () => {

@@ -22,24 +22,17 @@ export interface CalculatedHours {
 
 /**
  * Calculates hours for all period types from time budget settings.
- * Uses the hoursPerWeek as the base and calculates others,
- * unless overrides are specified.
+ * Always calculates from weekly hours as the base.
  */
 export function calculateHoursForPeriods(settings: TimeBudgetSettings): CalculatedHours {
 	const { hoursPerWeek } = settings;
 
-	// Calculate base values from weekly hours
-	const calculatedDaily = Math.round(hoursPerWeek / 7);
-	const calculatedMonthly = Math.round((hoursPerWeek * 52) / 12);
-	const calculatedQuarterly = Math.round((hoursPerWeek * 52) / 4);
-	const calculatedYearly = hoursPerWeek * 52;
-
 	return {
-		daily: settings.hoursPerDayOverride ?? calculatedDaily,
+		daily: Math.round(hoursPerWeek / 7),
 		weekly: hoursPerWeek,
-		monthly: settings.hoursPerMonthOverride ?? calculatedMonthly,
-		quarterly: settings.hoursPerQuarterOverride ?? calculatedQuarterly,
-		yearly: settings.hoursPerYearOverride ?? calculatedYearly,
+		monthly: Math.round((hoursPerWeek * 52) / 12),
+		quarterly: Math.round((hoursPerWeek * 52) / 4),
+		yearly: hoursPerWeek * 52,
 	};
 }
 

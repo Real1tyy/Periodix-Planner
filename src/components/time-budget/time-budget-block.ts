@@ -385,7 +385,7 @@ export class TimeBudgetBlockRenderer {
 				currentAllocations,
 				totalHours,
 				parentBudgets,
-				childBudgets,
+				childBudgets
 			);
 
 			void modal.openAndWait().then((result) => {

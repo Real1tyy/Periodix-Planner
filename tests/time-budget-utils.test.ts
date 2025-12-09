@@ -27,21 +27,6 @@ describe("Time Budget Utilities", () => {
 			expect(result.yearly).toBe(40 * 52); // 2080
 		});
 
-		it("should use overrides when provided", () => {
-			const settingsWithOverrides: TimeBudgetSettings = {
-				hoursPerWeek: 40,
-				hoursPerDayOverride: 8,
-				hoursPerMonthOverride: 200,
-			};
-
-			const result = calculateHoursForPeriods(settingsWithOverrides);
-
-			expect(result.daily).toBe(8);
-			expect(result.monthly).toBe(200);
-			// Non-overridden values should still be calculated
-			expect(result.quarterly).toBe(Math.round((40 * 52) / 4));
-		});
-
 		it("should handle different weekly hours", () => {
 			const settings: TimeBudgetSettings = { hoursPerWeek: 60 };
 			const result = calculateHoursForPeriods(settings);
@@ -55,14 +40,6 @@ describe("Time Budget Utilities", () => {
 		it("should return correct hours for each period type", () => {
 			expect(getHoursForPeriodType(defaultSettings, "weekly")).toBe(40);
 			expect(getHoursForPeriodType(defaultSettings, "yearly")).toBe(2080);
-		});
-
-		it("should use override when available", () => {
-			const settings: TimeBudgetSettings = {
-				hoursPerWeek: 40,
-				hoursPerMonthOverride: 180,
-			};
-			expect(getHoursForPeriodType(settings, "monthly")).toBe(180);
 		});
 	});
 

@@ -10,7 +10,7 @@ export class TimeBudgetSettings {
 		new Setting(containerEl).setName("Time budget").setHeading();
 
 		containerEl.createEl("p", {
-			text: "Configure your base time budget. Other periods are calculated from your weekly hours unless overridden.",
+			text: "Configure your base time budget. All other periods are automatically calculated from your weekly hours.",
 			cls: "setting-item-description",
 		});
 
@@ -50,19 +50,6 @@ export class TimeBudgetSettings {
 
 		// Show calculated values
 		this.addCalculatedValues(containerEl);
-
-		// Optional overrides section
-		new Setting(containerEl).setName("Optional overrides").setHeading();
-
-		containerEl.createEl("p", {
-			text: "Override the calculated values with custom hours. Leave empty to use calculated values.",
-			cls: "setting-item-description",
-		});
-
-		this.addOptionalOverride(containerEl, "Daily hours override", "hoursPerDayOverride", 24);
-		this.addOptionalOverride(containerEl, "Monthly hours override", "hoursPerMonthOverride", 744);
-		this.addOptionalOverride(containerEl, "Quarterly hours override", "hoursPerQuarterOverride", 2232);
-		this.addOptionalOverride(containerEl, "Yearly hours override", "hoursPerYearOverride", 8760);
 	}
 
 	private addCalculatedValues(containerEl: HTMLElement): void {
@@ -83,35 +70,5 @@ export class TimeBudgetSettings {
 		list.createEl("li", { text: `Monthly: ~${calculated.monthly} hours` });
 		list.createEl("li", { text: `Quarterly: ~${calculated.quarterly} hours` });
 		list.createEl("li", { text: `Yearly: ~${calculated.yearly} hours` });
-	}
-
-	private addOptionalOverride(
-		containerEl: HTMLElement,
-		name: string,
-		key: keyof typeof this.settingsStore.currentSettings.timeBudget,
-		max: number
-	): void {
-		const currentValue = this.settingsStore.currentSettings.timeBudget[key];
-
-		new Setting(containerEl)
-			.setName(name)
-			.setDesc("Leave empty to use calculated value")
-			.addText((text) => {
-				text
-					.setPlaceholder("Auto")
-					.setValue(currentValue !== undefined ? String(currentValue) : "")
-					.onChange(async (value) => {
-						const parsed = parseInt(value, 10);
-						const newValue = !Number.isNaN(parsed) && parsed > 0 && parsed <= max ? parsed : undefined;
-
-						await this.settingsStore.updateSettings((s) => ({
-							...s,
-							timeBudget: {
-								...s.timeBudget,
-								[key]: newValue,
-							},
-						}));
-					});
-			});
 	}
 }

@@ -18,7 +18,6 @@ export class CategorySettings {
 			cls: "setting-item-description",
 		});
 
-		// Add new category button
 		new Setting(containerEl).setName("Add new category").addButton((btn) => {
 			btn
 				.setButtonText("Add category")
@@ -28,7 +27,6 @@ export class CategorySettings {
 				});
 		});
 
-		// List existing categories
 		this.categoriesContainer = containerEl.createDiv({ cls: cls("categories-list") });
 		this.renderCategories(this.categoriesContainer);
 	}
@@ -54,12 +52,10 @@ export class CategorySettings {
 	private renderCategory(containerEl: HTMLElement, category: Category): void {
 		const setting = new Setting(containerEl).setName(category.name).setDesc(category.description || "No description");
 
-		// Color indicator - background color must be dynamic based on category
 		const colorIndicator = setting.nameEl.createSpan({ cls: cls("category-color") });
 		colorIndicator.style.backgroundColor = category.color;
 		setting.nameEl.prepend(colorIndicator);
 
-		// Edit button
 		setting.addExtraButton((btn) => {
 			btn
 				.setIcon("pencil")
@@ -69,7 +65,6 @@ export class CategorySettings {
 				});
 		});
 
-		// Delete button
 		setting.addExtraButton((btn) => {
 			btn
 				.setIcon("trash")
@@ -101,7 +96,6 @@ export class CategorySettings {
 			categories: [...s.categories, newCategory],
 		}));
 
-		// Refresh the categories list
 		if (this.categoriesContainer) {
 			this.renderCategories(this.categoriesContainer);
 		}
@@ -110,7 +104,6 @@ export class CategorySettings {
 	private editCategory(category: Category, containerEl: HTMLElement): void {
 		const setting = new Setting(containerEl).setClass(cls("category-edit"));
 
-		// Name input
 		setting.addText((text) => {
 			text
 				.setPlaceholder("Category name")
@@ -120,14 +113,12 @@ export class CategorySettings {
 				});
 		});
 
-		// Color input
 		setting.addColorPicker((picker) => {
 			picker.setValue(category.color).onChange(async (value) => {
 				await this.updateCategory(category.id, { color: value });
 			});
 		});
 
-		// Description input
 		setting.addText((text) => {
 			text
 				.setPlaceholder("Description (optional)")
@@ -137,7 +128,6 @@ export class CategorySettings {
 				});
 		});
 
-		// Done button
 		setting.addButton((btn) => {
 			btn.setButtonText("Done").onClick(() => {
 				this.renderCategories(containerEl.parentElement!.querySelector(`.${cls("categories-list")}`)!);
