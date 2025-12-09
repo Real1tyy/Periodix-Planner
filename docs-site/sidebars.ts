@@ -19,7 +19,12 @@ const sidebars: SidebarsConfig = {
         "features/allocation-editor",
         "features/note-generation",
         "features/note-interconnection",
-        "features/navigation"
+        "features/navigation",
+        "features/visual-statistics",
+        "features/categories",
+        "features/time-budget-blocks",
+        "features/auto-generation",
+        "features/period-children"
       ]
     },
     "configuration",
