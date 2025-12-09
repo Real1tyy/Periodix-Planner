@@ -12,6 +12,7 @@ import {
 	getPreviousPeriod,
 	getStartOfPeriod,
 	isSamePeriod,
+	parseLinkToDateTime,
 	parsePeriodName,
 } from "../src/utils/date-utils";
 
@@ -273,6 +274,95 @@ describe("Date Utilities", () => {
 			const end = DateTime.fromISO("2025-12-31");
 			const result = formatPeriodDateRange("yearly", start, end);
 			expect(result).toBe("2025");
+		});
+	});
+
+	describe("parseLinkToDateTime", () => {
+		it("should parse daily link with simple filename", () => {
+			const result = parseLinkToDateTime("15-06-2025", "dd-MM-yyyy");
+			expect(result).not.toBeNull();
+			expect(result?.day).toBe(15);
+			expect(result?.month).toBe(6);
+			expect(result?.year).toBe(2025);
+		});
+
+		it("should parse daily link with folder path", () => {
+			const result = parseLinkToDateTime("Periodic/Daily/15-06-2025", "dd-MM-yyyy");
+			expect(result).not.toBeNull();
+			expect(result?.day).toBe(15);
+			expect(result?.month).toBe(6);
+			expect(result?.year).toBe(2025);
+		});
+
+		it("should parse daily link with .md extension", () => {
+			const result = parseLinkToDateTime("15-06-2025.md", "dd-MM-yyyy");
+			expect(result).not.toBeNull();
+			expect(result?.day).toBe(15);
+			expect(result?.month).toBe(6);
+			expect(result?.year).toBe(2025);
+		});
+
+		it("should parse weekly link", () => {
+			const result = parseLinkToDateTime("24-2025", "WW-kkkk");
+			expect(result).not.toBeNull();
+			expect(result?.weekNumber).toBe(24);
+			expect(result?.year).toBe(2025);
+		});
+
+		it("should parse weekly link with nested path", () => {
+			const result = parseLinkToDateTime("Periodic/Weekly/24-2025.md", "WW-kkkk");
+			expect(result).not.toBeNull();
+			expect(result?.weekNumber).toBe(24);
+			expect(result?.year).toBe(2025);
+		});
+
+		it("should parse monthly link", () => {
+			const result = parseLinkToDateTime("6-2025", "M-yyyy");
+			expect(result).not.toBeNull();
+			expect(result?.month).toBe(6);
+			expect(result?.year).toBe(2025);
+		});
+
+		it("should parse quarterly link", () => {
+			const result = parseLinkToDateTime("Q2-2025", "'Q'q-yyyy");
+			expect(result).not.toBeNull();
+			expect(result?.quarter).toBe(2);
+			expect(result?.year).toBe(2025);
+		});
+
+		it("should parse yearly link", () => {
+			const result = parseLinkToDateTime("2025", "yyyy");
+			expect(result).not.toBeNull();
+			expect(result?.year).toBe(2025);
+		});
+
+		it("should parse yearly link with nested path", () => {
+			const result = parseLinkToDateTime("Yearly/2025/2025.md", "yyyy");
+			expect(result).not.toBeNull();
+			expect(result?.year).toBe(2025);
+		});
+
+		it("should return null for invalid link target", () => {
+			const result = parseLinkToDateTime("invalid-date", "dd-MM-yyyy");
+			expect(result).toBeNull();
+		});
+
+		it("should return null for mismatched format", () => {
+			const result = parseLinkToDateTime("15-06-2025", "yyyy-MM-dd");
+			expect(result).toBeNull();
+		});
+
+		it("should handle empty string", () => {
+			const result = parseLinkToDateTime("", "dd-MM-yyyy");
+			expect(result).toBeNull();
+		});
+
+		it("should extract filename from complex nested path", () => {
+			const result = parseLinkToDateTime("Periodic/Daily/2025/June/15-06-2025.md", "dd-MM-yyyy");
+			expect(result).not.toBeNull();
+			expect(result?.day).toBe(15);
+			expect(result?.month).toBe(6);
+			expect(result?.year).toBe(2025);
 		});
 	});
 });

@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import type { PeriodType } from "../constants";
 import { PERIOD_CONFIG } from "../types";
+import { extractFilenameFromPath } from "./frontmatter-utils";
 
 export interface PeriodInfo {
 	type: PeriodType;
@@ -109,4 +110,9 @@ export function formatPeriodDateRange(periodType: PeriodType, periodStart: DateT
 		default:
 			return "";
 	}
+}
+
+export function parseLinkToDateTime(linkTarget: string, format: string): DateTime | null {
+	const filename = extractFilenameFromPath(linkTarget);
+	return parsePeriodName(filename, format);
 }

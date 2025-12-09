@@ -1,7 +1,7 @@
 // eslint.config.mjs
 import tsparser from "@typescript-eslint/parser";
-import obsidianmd from "eslint-plugin-obsidianmd";
 import { defineConfig } from "eslint/config";
+import obsidianmd from "eslint-plugin-obsidianmd";
 
 export default defineConfig([
 	...obsidianmd.configs.recommended,

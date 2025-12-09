@@ -118,16 +118,10 @@ export function createAllocationSummary(
 	};
 }
 
-/**
- * Sorts categories alphabetically by name
- */
 export function sortCategoriesByName(categories: Category[]): Category[] {
 	return [...categories].sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/**
- * Sorts time allocations by their category name
- */
 export function sortAllocationsByCategoryName(allocations: TimeAllocation[], categories: Category[]): TimeAllocation[] {
 	const categoryMap = new Map(categories.map((c) => [c.id, c]));
 	return [...allocations].sort((a, b) => {

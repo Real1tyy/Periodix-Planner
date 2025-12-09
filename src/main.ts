@@ -10,10 +10,15 @@ import { SettingsStore } from "./core/settings-store";
 import { PeriodicPlannerSettingsTab } from "./settings/settings-tab";
 import type { PeriodLinks } from "./types";
 import { PERIOD_CONFIG } from "./types";
-import { createPeriodInfo, getAncestorPeriodTypes, getNextPeriod, getPreviousPeriod } from "./utils/date-utils";
+import {
+	createPeriodInfo,
+	getAncestorPeriodTypes,
+	getNextPeriod,
+	getPreviousPeriod,
+	parseLinkToDateTime,
+} from "./utils/date-utils";
 import {
 	assignPeriodPropertiesToFrontmatter,
-	extractFilenameFromPath,
 	getActiveFileCache,
 	getLinkFromFrontmatter,
 	getPeriodTypeFromFrontmatter,
@@ -237,7 +242,8 @@ export default class PeriodicPlannerPlugin extends Plugin {
 			return;
 		}
 
-		const dt = this.parseLinkToDateTime(linkTarget, periodType);
+		const format = this.settingsStore.currentSettings.naming[PERIOD_CONFIG[periodType].formatKey];
+		const dt = parseLinkToDateTime(linkTarget, format);
 		if (!dt) {
 			new Notice(`Cannot parse date from: ${linkTarget}`);
 			return;
@@ -252,13 +258,6 @@ export default class PeriodicPlannerPlugin extends Plugin {
 		} else {
 			new Notice(`Failed to create note: ${result.error}`);
 		}
-	}
-
-	private parseLinkToDateTime(linkTarget: string, periodType: PeriodType): DateTime | null {
-		const filename = extractFilenameFromPath(linkTarget);
-		const format = this.settingsStore.currentSettings.naming[PERIOD_CONFIG[periodType].formatKey];
-		const parsed = DateTime.fromFormat(filename, format);
-		return parsed.isValid ? parsed : null;
 	}
 
 	private registerCodeBlockProcessor(): void {
