@@ -129,6 +129,9 @@ export class TimeBudgetBlockRenderer {
 		const remaining = roundHours(totalHours - totalAllocated);
 		const percentage = totalHours > 0 ? (totalAllocated / totalHours) * 100 : 0;
 
+		const overBudgetThreshold = this.settings.ui.overBudgetThresholdPercent;
+		const warningThreshold = this.settings.ui.warningThresholdPercent;
+
 		const summary = header.createDiv({ cls: cls("time-budget-summary") });
 
 		const statsRow = summary.createDiv({ cls: cls("stats-row") });
@@ -138,7 +141,7 @@ export class TimeBudgetBlockRenderer {
 			statsRow,
 			"Allocated",
 			`${formatHours(totalAllocated)}h (${percentage.toFixed(1)}%)`,
-			percentage > 100 ? "over" : undefined
+			percentage >= overBudgetThreshold ? "over" : undefined
 		);
 		this.createStatItem(statsRow, "Remaining", `${formatHours(remaining)}h`, remaining < 0 ? "over" : undefined);
 
@@ -156,10 +159,9 @@ export class TimeBudgetBlockRenderer {
 		const progressBar = summary.createDiv({ cls: cls("progress-bar-container") });
 		const progressFill = progressBar.createDiv({ cls: cls("progress-bar-fill") });
 		progressFill.style.width = `${Math.min(percentage, 100)}%`;
-
-		if (percentage > 100) {
+		if (percentage >= overBudgetThreshold) {
 			addCls(progressFill, "over-budget");
-		} else if (percentage >= 80) {
+		} else if (percentage >= warningThreshold) {
 			addCls(progressFill, "warning");
 		}
 	}
@@ -384,7 +386,6 @@ export class TimeBudgetBlockRenderer {
 				totalHours,
 				parentBudgets,
 				childBudgets,
-				`${periodType.charAt(0).toUpperCase() + periodType.slice(1)}: ${file.basename}`
 			);
 
 			void modal.openAndWait().then((result) => {

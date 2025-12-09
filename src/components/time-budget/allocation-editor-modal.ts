@@ -37,7 +37,6 @@ export class AllocationEditorModal extends Modal {
 		private totalHoursAvailable: number,
 		private parentBudgets: Map<string, CategoryBudgetInfo>,
 		private childBudgets: Map<string, CategoryBudgetInfo>,
-		_periodLabel: string
 	) {
 		super(app);
 
