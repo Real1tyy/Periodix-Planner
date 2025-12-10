@@ -1,6 +1,6 @@
 {
 	"name": "periodix-planner",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"description": "Intelligent periodic note generation with hierarchical time allocation, budget tracking, and interconnected daily/weekly/monthly/quarterly/yearly planning.",
 	"main": "main.js",
 	"scripts": {

@@ -1,7 +1,7 @@
 {
 	"id": "periodix-planner",
 	"name": "Periodix Planner",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"minAppVersion": "1.4.16",
 	"description": "Intelligent periodic note generation with hierarchical time allocation, budget tracking, and interconnected daily/weekly/monthly/quarterly/yearly planning.",
 	"author": "Real1tyy",
