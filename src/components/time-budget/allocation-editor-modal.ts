@@ -210,7 +210,7 @@ export class AllocationEditorModal extends Modal {
 
 		for (const category of sortedCategories) {
 			const currentHours = this.allocations.get(category.id) ?? 0;
-			const parentBudget = this.parentBudgets.get(category.id);
+			const parentBudget = this.getReactiveParentBudget(category.id);
 			const percentage = this.totalHoursAvailable > 0 ? (currentHours / this.totalHoursAvailable) * 100 : 0;
 
 			const item = this.allocationListEl.createDiv({ cls: cls("allocation-item") });
@@ -228,7 +228,8 @@ export class AllocationEditorModal extends Modal {
 
 			if (parentBudget) {
 				const parentBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("parent-budget-info") });
-				const isOver = currentHours > parentBudget.total && parentBudget.total > 0;
+				const EPSILON = 0.01;
+				const isOver = parentBudget.allocated > parentBudget.total + EPSILON && parentBudget.total > 0;
 				const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
 
 				if (isOver) {
@@ -323,8 +324,11 @@ export class AllocationEditorModal extends Modal {
 			});
 			this.percentageLabelRefs.set(category.id, percentageLabel);
 
-			if (parentBudget && currentHours > parentBudget.total && parentBudget.total > 0) {
-				addCls(item, "over-budget");
+			if (parentBudget) {
+				const EPSILON = 0.01;
+				if (parentBudget.allocated > parentBudget.total + EPSILON && parentBudget.total > 0) {
+					addCls(item, "over-budget");
+				}
 			}
 		}
 
@@ -489,7 +493,7 @@ export class AllocationEditorModal extends Modal {
 
 		for (const category of sortedCategories) {
 			const currentHours = this.allocations.get(category.id) ?? 0;
-			const parentBudget = this.parentBudgets.get(category.id);
+			const parentBudget = this.getReactiveParentBudget(category.id);
 			const percentage = this.totalHoursAvailable > 0 ? (currentHours / this.totalHoursAvailable) * 100 : 0;
 			const item = this.allocationListEl.querySelector(`[data-category-id="${category.id}"]`);
 
@@ -499,7 +503,8 @@ export class AllocationEditorModal extends Modal {
 			if (budgetInfoContainer) {
 				const parentBudgetInfo = budgetInfoContainer.querySelector(`.${cls("parent-budget-info")}`);
 				if (parentBudgetInfo && parentBudget) {
-					const isOver = currentHours > parentBudget.total && parentBudget.total > 0;
+					const EPSILON = 0.01;
+					const isOver = parentBudget.allocated > parentBudget.total + EPSILON && parentBudget.total > 0;
 					const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
 
 					removeCls(parentBudgetInfo as HTMLElement, "over-budget");
@@ -537,8 +542,11 @@ export class AllocationEditorModal extends Modal {
 			}
 
 			removeCls(item as HTMLElement, "over-budget");
-			if (parentBudget && currentHours > parentBudget.total && parentBudget.total > 0) {
-				addCls(item as HTMLElement, "over-budget");
+			if (parentBudget) {
+				const EPSILON = 0.01;
+				if (parentBudget.allocated > parentBudget.total + EPSILON && parentBudget.total > 0) {
+					addCls(item as HTMLElement, "over-budget");
+				}
 			}
 		}
 	}
@@ -574,6 +582,44 @@ export class AllocationEditorModal extends Modal {
 			total += hours;
 		}
 		return total;
+	}
+
+	/**
+	 * Calculate reactive parent budget that includes current (unsaved) allocations.
+	 * This shows how the parent budget would look if we saved right now.
+	 */
+	private getReactiveParentBudget(categoryId: string): CategoryBudgetInfo | undefined {
+		const parentBudget = this.parentBudgets.get(categoryId);
+		if (!parentBudget) return undefined;
+
+		// Get the current allocation for this category in the modal
+		const currentAllocation = this.allocations.get(categoryId) ?? 0;
+
+		// Calculate the difference from what was originally allocated
+		// We need to find the original allocation for this category
+		const originalAllocation = this.getOriginalAllocation(categoryId);
+		const allocationDelta = currentAllocation - originalAllocation;
+
+		// Update the parent budget with the delta
+		return {
+			categoryId: parentBudget.categoryId,
+			total: parentBudget.total,
+			allocated: parentBudget.allocated + allocationDelta,
+			remaining: parentBudget.remaining - allocationDelta,
+		};
+	}
+
+	/**
+	 * Get the original allocation (when modal opened) for a category.
+	 * This is needed to calculate the delta for reactive parent budgets.
+	 */
+	private getOriginalAllocation(categoryId: string): number {
+		// The first state in undo stack is the original state
+		if (this.undoStack.length > 0) {
+			const originalState = this.undoStack[0];
+			return originalState.get(categoryId) ?? 0;
+		}
+		return this.allocations.get(categoryId) ?? 0;
 	}
 
 	private getAllocationsArray(): TimeAllocation[] {
