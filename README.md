@@ -3,13 +3,9 @@
 # Periodix-Planner
 
 ![Downloads](https://img.shields.io/github/downloads/Real1tyy/Periodix-Planner/total?label=Downloads&style=for-the-badge)
-
 ![Release](https://img.shields.io/github/v/release/Real1tyy/Periodix-Planner?label=Latest%20Release&style=for-the-badge)
-
 ![Stars](https://img.shields.io/github/stars/Real1tyy/Periodix-Planner?style=for-the-badge)
-
 ![License](https://img.shields.io/github/license/Real1tyy/Periodix-Planner?style=for-the-badge)
-
 ![Obsidian](https://img.shields.io/badge/obsidian-plugin-purple.svg?style=for-the-badge)
 
 **Intelligent periodic note generation with hierarchical time allocation, budget tracking, and interconnected planning across daily, weekly, monthly, quarterly, and yearly timeframes.**
