@@ -132,6 +132,9 @@ export class TimeBudgetBlockRenderer {
 		const overBudgetThreshold = this.settings.ui.overBudgetThresholdPercent;
 		const warningThreshold = this.settings.ui.warningThresholdPercent;
 
+		// Tolerance for floating-point comparison (0.01%)
+		const EPSILON = 0.01;
+
 		const summary = header.createDiv({ cls: cls("time-budget-summary") });
 
 		const statsRow = summary.createDiv({ cls: cls("stats-row") });
@@ -141,9 +144,9 @@ export class TimeBudgetBlockRenderer {
 			statsRow,
 			"Allocated",
 			`${formatHours(totalAllocated)}h (${percentage.toFixed(1)}%)`,
-			percentage >= overBudgetThreshold ? "over" : undefined
+			percentage > overBudgetThreshold + EPSILON ? "over" : undefined
 		);
-		this.createStatItem(statsRow, "Remaining", `${formatHours(remaining)}h`, remaining < 0 ? "over" : undefined);
+		this.createStatItem(statsRow, "Remaining", `${formatHours(remaining)}h`, remaining < -EPSILON ? "over" : undefined);
 
 		const showChild = periodType !== "daily";
 		if (showChild) {
@@ -159,9 +162,9 @@ export class TimeBudgetBlockRenderer {
 		const progressBar = summary.createDiv({ cls: cls("progress-bar-container") });
 		const progressFill = progressBar.createDiv({ cls: cls("progress-bar-fill") });
 		progressFill.style.width = `${Math.min(percentage, 100)}%`;
-		if (percentage >= overBudgetThreshold) {
+		if (percentage > overBudgetThreshold + EPSILON) {
 			addCls(progressFill, "over-budget");
-		} else if (percentage >= warningThreshold) {
+		} else if (percentage > warningThreshold + EPSILON) {
 			addCls(progressFill, "warning");
 		}
 	}
@@ -264,12 +267,15 @@ export class TimeBudgetBlockRenderer {
 			const parentBudget = parentBudgets.get(allocation.categoryId);
 			const childBudget = childBudgets.get(allocation.categoryId);
 
+			// Tolerance for floating-point comparison (0.01 hours)
+			const EPSILON = 0.01;
+
 			let hasIssue = false;
-			if (showParent && parentBudget && parentBudget.allocated > parentBudget.total) {
+			if (showParent && parentBudget && parentBudget.allocated > parentBudget.total + EPSILON) {
 				statusCell.createSpan({ text: "⚠️ Over parent", cls: cls("status-over") });
 				addCls(row, "over-budget-row");
 				hasIssue = true;
-			} else if (showChild && childBudget && childBudget.allocated > childBudget.total) {
+			} else if (showChild && childBudget && childBudget.allocated > childBudget.total + EPSILON) {
 				statusCell.createSpan({ text: "⚠️ Children over", cls: cls("status-over") });
 				addCls(row, "over-budget-row");
 				hasIssue = true;
