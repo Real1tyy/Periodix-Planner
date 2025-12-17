@@ -8,6 +8,14 @@ All notable changes to this project will be documented here.
 
 ---
 
+## 1.1.1
+
+### Bug Fixes
+
+- **Fixed immediate generation on load**: Changed default "on load" setting to `false` to prevent automatic note generation when the plugin loads
+
+---
+
 ## 1.1.0
 
 ### New Features
