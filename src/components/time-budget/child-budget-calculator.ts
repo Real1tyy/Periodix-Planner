@@ -16,13 +16,13 @@ function getDirectChildrenKey(periodType: PeriodType): keyof import("../../types
 	return PERIOD_CONFIG[directChildType].childrenKey;
 }
 
-export async function calculateChildAllocatedForNode(
+export function calculateChildAllocatedForNode(
 	file: TFile,
 	periodType: PeriodType,
 	allocations: TimeAllocation[],
 	periodIndex: PeriodIndex,
 	categories: Category[]
-): Promise<Map<string, CategoryBudgetInfo>> {
+): Map<string, CategoryBudgetInfo> {
 	const budgets = new Map<string, CategoryBudgetInfo>();
 
 	if (periodType === "daily") {
@@ -77,7 +77,7 @@ export async function getChildBudgetsFromIndex(
 	periodIndex: PeriodIndex,
 	categories: Category[]
 ): Promise<ChildBudgetResult> {
-	const budgets = await calculateChildAllocatedForNode(file, periodType, currentAllocations, periodIndex, categories);
+	const budgets = calculateChildAllocatedForNode(file, periodType, currentAllocations, periodIndex, categories);
 
 	const totalChildrenAllocated = Array.from(budgets.values()).reduce((sum, budget) => {
 		return sum + budget.allocated;

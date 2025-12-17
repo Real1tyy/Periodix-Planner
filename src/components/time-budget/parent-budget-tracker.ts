@@ -50,7 +50,7 @@ export async function getParentBudgets(
 		}
 	}
 
-	const childAllocatedBudgets = await calculateChildAllocatedForNode(
+	const childAllocatedBudgets = calculateChildAllocatedForNode(
 		parentNote.file,
 		parentNote.periodType,
 		parentAllocations,
