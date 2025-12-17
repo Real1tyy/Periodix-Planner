@@ -181,12 +181,57 @@ Use daily notes to:
 
 ## 🔧 Advanced Features
 
-### Fill from Parent
+### Auto-Inherit Parent Percentages {#auto-inherit-parent-percentages}
 
-In the allocation editor, use the **"Fill from parent"** checkbox to:
-- Base allocations on parent period's budget
-- Automatically calculate from parent percentage
-- Maintain proportional allocation
+Periodix-Planner can automatically inherit time allocations from parent periods based on their percentage distribution. This feature helps maintain consistent allocation patterns across your hierarchical periods.
+
+#### How It Works
+
+When a child period has no categories allocated and the setting is enabled, the plugin automatically fills allocations using the parent's percentage distribution:
+
+**Example:**
+- **Parent (Monthly)**: 80h Work (50%), 48h Study (30%), 32h Exercise (20%)
+- **Child (Weekly)**: 40h available → automatically gets 20h Work, 12h Study, 8h Exercise
+
+#### Enabling Auto-Inherit
+
+Go to **Settings** → **Periodix-Planner** → **Time budget** tab:
+
+Enable **"Automatically inherit parent percentages"** to:
+- Auto-fill empty child periods when time budget block renders
+- Inherit parent's percentage distribution instantly
+- Save time on repetitive allocations
+
+#### Manual Fill from Parent
+
+In the allocation editor, click the **"Fill parent"** button to:
+- Manually inherit parent allocations at any time
+- Override existing allocations with parent percentages
+- Works even if auto-inherit is disabled
+
+**Benefits:**
+- One-click inheritance of parent allocations
+- Maintains proportional distribution perfectly
+- Uses precise integer arithmetic (zero rounding errors)
+- Saves time on repetitive allocations
+
+### Fill from Parent {#fill-from-parent}
+
+Each category in the allocation editor has a **"Fill from parent"** checkbox that provides per-category control:
+
+**How it works:**
+- When enabled, quick-fill buttons (10%, 25%, 50%) calculate based on **parent's budget** instead of child's total
+- Custom percentage input also uses parent budget
+- Allows mixing parent-based and independent allocations
+
+**Example:**
+- Parent Work budget: 100 hours
+- Child total available: 40 hours
+- With "Fill from parent" checked for Work:
+  - 50% button → 50h (50% of parent's 100h), not 20h (50% of child's 40h)
+  - Max button → Uses parent's remaining budget
+
+**Use case:** Useful when you want some categories to follow parent allocations while keeping others independent.
 
 ### Custom Percentage Input
 

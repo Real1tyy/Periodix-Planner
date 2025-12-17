@@ -64,17 +64,26 @@ Uses [Luxon format tokens](https://moment.github.io/luxon/#/formatting?id=table-
 
 ## ⏱️ Time Budget Tab
 
-Configure available hours for each period type.
+Configure available hours for each period type and inheritance behavior.
 
 ### Settings
 
-**Hours per Week** - Base weekly hour budget -  `40`
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Hours per Week** | Base weekly hour budget for planning | `40` |
+| **Automatically inherit parent percentages** | Auto-fill child periods with parent's allocation distribution | `false` |
 
-### Calculations
+### Hours Calculations
 
 - **Monthly** = Weekly × 4.33
 - **Quarterly** = Monthly × 3
 - **Yearly** = Quarterly × 4
+
+### Auto-Inherit Parent Percentages
+
+When enabled, child periods with empty allocations are automatically filled based on the parent period's percentage distribution. This maintains consistent allocation patterns across your hierarchy and saves time on repetitive allocations.
+
+**Learn more:** [Auto-Inherit Parent Percentages](/features/time-budgeting#auto-inherit-parent-percentages)
 
 ## 🎨 Categories Tab
 

@@ -32,9 +32,12 @@ The Allocation Editor allows you to:
 
 At the top of the editor, you'll see:
 
+- **Fill parent** button: Inherit allocations from parent period (only shown if parent exists)
+- **Undo** button: Revert recent changes
 - **Allocated**: Total hours allocated across all categories
 - **Remaining**: Hours still available
 - **Total**: Total hours available in the period
+- **Redo** button: Restore undone changes
 - **Status indicators**: Color-coded (green/yellow/red)
 
 ### Category List
@@ -108,18 +111,19 @@ Enter exact percentages:
 - Respects "Fill from parent" setting
 - Rounds to nearest 0.1 hours
 
-## 🔄 Fill from Parent
+## 🔄 Inherit from Parent Period
 
-When a category has a parent budget, you can use the **"Fill from parent"** checkbox:
+### Fill Parent Button
 
-1. Check the **"Fill from parent"** checkbox
-2. Quick-fill buttons and percentage input now calculate from parent budget
-3. Useful for maintaining proportional allocation
+Click the **"Fill parent"** button (shown at the top when a parent period exists) to instantly fill all categories based on the parent period's percentage distribution.
 
-**Example:**
-- Yearly Work budget: 2,000 hours
-- Quarterly Work budget: 500 hours
-- With "Fill from parent" checked, 50% = 250 hours (from quarterly budget)
+**Learn more:** [Auto-Inherit Parent Percentages](/features/time-budgeting#auto-inherit-parent-percentages)
+
+### Per-Category Fill from Parent Checkbox
+
+Each category has a **"Fill from parent"** checkbox that changes how quick-fill buttons calculate percentages - they'll use the parent budget instead of the child's total available hours.
+
+**Learn more:** [Fill from Parent](/features/time-budgeting#fill-from-parent)
 
 ## ⚠️ Budget Warnings
 
@@ -136,8 +140,8 @@ When you exceed a parent budget:
 
 ### Using Buttons
 
-- Click **↶ Undo** to revert changes
-- Click **↷ Redo** to restore changes
+- Click **Undo** to revert changes
+- Click **Redo** to restore changes
 - Buttons are disabled when no history available
 
 ### Keyboard Shortcuts

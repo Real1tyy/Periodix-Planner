@@ -38,6 +38,8 @@ Define how many hours you have available and delegate them across categories wit
 - Cascading allocation through hierarchy
 - Smart budget tracking with warnings
 - Visual feedback (green/yellow/red indicators)
+- **Auto-inherit parent percentages** - Automatically fill child periods based on parent's allocation distribution
+- Manual "Fill parent" button for on-demand inheritance
 
 **Learn more:** [Time Budgeting](/features/time-budgeting)
 
