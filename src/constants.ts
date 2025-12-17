@@ -73,6 +73,9 @@ export const SETTINGS_DEFAULTS = {
 	// ===== Time Budget Code Block Settings =====
 	INCLUDE_PLAN_HEADING: true,
 	PLAN_HEADING_CONTENT: "## Plan",
+
+	// ===== Auto-Inherit Settings =====
+	AUTO_INHERIT_PARENT_PERCENTAGES: false,
 } as const;
 
 /**

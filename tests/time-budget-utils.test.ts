@@ -5,6 +5,7 @@ import {
 	calculateHoursForPeriods,
 	calculateRemainingHours,
 	createAllocationSummary,
+	fillAllocationsFromParent,
 	formatHours,
 	getBudgetStatus,
 	getHoursForPeriodType,
@@ -14,6 +15,7 @@ import {
 describe("Time Budget Utilities", () => {
 	const defaultSettings: TimeBudgetSettings = {
 		hoursPerWeek: 40,
+		autoInheritParentPercentages: false,
 	};
 
 	describe("calculateHoursForPeriods", () => {
@@ -28,7 +30,7 @@ describe("Time Budget Utilities", () => {
 		});
 
 		it("should handle different weekly hours", () => {
-			const settings: TimeBudgetSettings = { hoursPerWeek: 60 };
+			const settings: TimeBudgetSettings = { hoursPerWeek: 60, autoInheritParentPercentages: false };
 			const result = calculateHoursForPeriods(settings);
 
 			expect(result.weekly).toBe(60);
@@ -154,6 +156,74 @@ describe("Time Budget Utilities", () => {
 		it("should format single decimal with trailing zero", () => {
 			expect(formatHours(10.1)).toBe("10.10");
 			expect(formatHours(5.5)).toBe("5.50");
+		});
+	});
+
+	describe("fillAllocationsFromParent", () => {
+		it("should distribute child hours based on parent percentages", () => {
+			const parentBudgets = new Map([
+				["cat1", { categoryId: "cat1", total: 20 }],
+				["cat2", { categoryId: "cat2", total: 30 }],
+				["cat3", { categoryId: "cat3", total: 10 }],
+			]);
+
+			const result = fillAllocationsFromParent(parentBudgets, 120);
+
+			// Total parent: 60h (20 + 30 + 10)
+			// cat1: 20/60 = 33.33% of 120 = 40h
+			// cat2: 30/60 = 50% of 120 = 60h
+			// cat3: 10/60 = 16.67% of 120 = 20h
+			expect(result).toHaveLength(3);
+			expect(result.find((a) => a.categoryId === "cat1")?.hours).toBe(40);
+			expect(result.find((a) => a.categoryId === "cat2")?.hours).toBe(60);
+			expect(result.find((a) => a.categoryId === "cat3")?.hours).toBe(20);
+		});
+
+		it("should handle empty parent budgets", () => {
+			const parentBudgets = new Map();
+			const result = fillAllocationsFromParent(parentBudgets, 100);
+			expect(result).toEqual([]);
+		});
+
+		it("should handle zero child hours", () => {
+			const parentBudgets = new Map([
+				["cat1", { categoryId: "cat1", total: 20 }],
+				["cat2", { categoryId: "cat2", total: 30 }],
+			]);
+
+			const result = fillAllocationsFromParent(parentBudgets, 0);
+			expect(result).toEqual([]);
+		});
+
+		it("should handle parent with zero total", () => {
+			const parentBudgets = new Map([
+				["cat1", { categoryId: "cat1", total: 0 }],
+				["cat2", { categoryId: "cat2", total: 0 }],
+			]);
+
+			const result = fillAllocationsFromParent(parentBudgets, 100);
+			expect(result).toEqual([]);
+		});
+
+		it("should round hours to 2 decimal places", () => {
+			const parentBudgets = new Map([
+				["cat1", { categoryId: "cat1", total: 33 }], // Will result in non-round percentage
+			]);
+
+			const result = fillAllocationsFromParent(parentBudgets, 100);
+			expect(result[0].hours).toBe(100); // 33/33 = 100%
+		});
+
+		it("should exclude categories with zero hours after calculation", () => {
+			const parentBudgets = new Map([
+				["cat1", { categoryId: "cat1", total: 100 }],
+				["cat2", { categoryId: "cat2", total: 0.001 }], // Negligible amount
+			]);
+
+			const result = fillAllocationsFromParent(parentBudgets, 1);
+			// Only cat1 should be included since cat2 would round to ~0
+			expect(result.length).toBeGreaterThanOrEqual(1);
+			expect(result.find((a) => a.categoryId === "cat1")).toBeDefined();
 		});
 	});
 });

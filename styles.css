@@ -604,6 +604,22 @@
 	cursor: not-allowed;
 }
 
+.periodic-planner-fill-from-parent-btn {
+	padding: 6px 12px;
+	border: 1px solid var(--background-modifier-border);
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 13px;
+	transition: all 0.15s ease;
+	white-space: nowrap;
+}
+
+.periodic-planner-fill-from-parent-btn:hover {
+	filter: brightness(1.1);
+}
+
 .periodic-planner-summary-item {
 	display: flex;
 	align-items: center;

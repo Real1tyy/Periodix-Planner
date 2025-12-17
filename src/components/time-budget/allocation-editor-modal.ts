@@ -1,7 +1,12 @@
 import { type App, Modal } from "obsidian";
 import type { Category, TimeAllocation } from "../../types";
 import { addCls, cls, removeCls } from "../../utils/css";
-import { formatHours, roundHours, sortCategoriesByName } from "../../utils/time-budget-utils";
+import {
+	fillAllocationsFromParent,
+	formatHours,
+	roundHours,
+	sortCategoriesByName,
+} from "../../utils/time-budget-utils";
 import type { CategoryBudgetInfo } from "./parent-budget-tracker";
 
 const DEBOUNCE_MS = 300;
@@ -135,6 +140,17 @@ export class AllocationEditorModal extends Modal {
 		summary.className = cls("allocation-summary");
 
 		const summaryControls = summary.createDiv({ cls: cls("summary-controls") });
+
+		if (this.parentBudgets.size > 0) {
+			const fillFromParentBtn = summaryControls.createEl("button", {
+				text: "↓ Fill from parent",
+				cls: cls("fill-from-parent-btn"),
+			});
+			fillFromParentBtn.addEventListener("click", () => {
+				this.saveState();
+				this.applyFillFromParent();
+			});
+		}
 
 		this.undoButton = summaryControls.createEl("button", {
 			text: "↶ undo",
@@ -721,6 +737,23 @@ export class AllocationEditorModal extends Modal {
 		if (this.redoButton) {
 			this.redoButton.disabled = this.redoStack.length === 0;
 		}
+	}
+
+	private applyFillFromParent(): void {
+		if (this.parentBudgets.size === 0) {
+			return;
+		}
+
+		const filledAllocations = fillAllocationsFromParent(this.parentBudgets, this.totalHoursAvailable);
+
+		this.allocations.clear();
+
+		for (const allocation of filledAllocations) {
+			this.allocations.set(allocation.categoryId, allocation.hours);
+		}
+
+		this.updateAllInputs();
+		this.updateViewsWithFocusPreservation();
 	}
 
 	private setupScopeHandlers(): void {

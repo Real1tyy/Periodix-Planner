@@ -22,6 +22,7 @@ const mockSettings: PeriodicPlannerSettings = {
 	},
 	timeBudget: {
 		hoursPerWeek: SETTINGS_DEFAULTS.HOURS_PER_WEEK,
+		autoInheritParentPercentages: false,
 	},
 	properties: {
 		previousProp: SETTINGS_DEFAULTS.PREVIOUS_PROP,

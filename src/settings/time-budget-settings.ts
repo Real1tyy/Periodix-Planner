@@ -48,6 +48,25 @@ export class TimeBudgetSettings {
 					});
 			});
 
+		new Setting(containerEl)
+			.setName("Automatically inherit parent percentages")
+			.setDesc(
+				"When enabled, opening the allocation editor for a child period with no categories will automatically fill allocations based on the parent period's percentage distribution."
+			)
+			.addToggle((toggle) => {
+				toggle
+					.setValue(this.settingsStore.currentSettings.timeBudget.autoInheritParentPercentages)
+					.onChange(async (value) => {
+						await this.settingsStore.updateSettings((s) => ({
+							...s,
+							timeBudget: {
+								...s.timeBudget,
+								autoInheritParentPercentages: value,
+							},
+						}));
+					});
+			});
+
 		// Show calculated values
 		this.addCalculatedValues(containerEl);
 	}

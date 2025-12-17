@@ -125,3 +125,47 @@ export function sortAllocationsByCategoryName(allocations: TimeAllocation[], cat
 		return nameA.localeCompare(nameB);
 	});
 }
+
+/**
+ * Fills child allocations based on parent allocation percentages.
+ * Each category receives a proportional share of the child's total hours
+ * based on the parent's allocation distribution.
+ *
+ * @param parentBudgets - Parent budget information per category
+ * @param childTotalHours - Total hours available in the child period
+ * @returns Array of time allocations matching parent percentages
+ */
+export function fillAllocationsFromParent(
+	parentBudgets: Map<string, { categoryId: string; total: number }>,
+	childTotalHours: number
+): TimeAllocation[] {
+	if (parentBudgets.size === 0 || childTotalHours <= 0) {
+		return [];
+	}
+
+	// Calculate total parent allocated hours
+	let totalParentHours = 0;
+	for (const budget of parentBudgets.values()) {
+		totalParentHours += budget.total;
+	}
+
+	if (totalParentHours === 0) {
+		return [];
+	}
+
+	// Calculate allocations based on parent percentages
+	const allocations: TimeAllocation[] = [];
+	for (const budget of parentBudgets.values()) {
+		const percentage = budget.total / totalParentHours;
+		const hours = roundHours(percentage * childTotalHours);
+
+		if (hours > 0) {
+			allocations.push({
+				categoryId: budget.categoryId,
+				hours,
+			});
+		}
+	}
+
+	return allocations;
+}

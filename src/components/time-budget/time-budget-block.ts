@@ -4,7 +4,7 @@ import type { PeriodType } from "../../constants";
 import type { PeriodIndex } from "../../core/period-index";
 import type { Category, IndexedPeriodNote, PeriodicPlannerSettings, TimeAllocation } from "../../types";
 import { addCls, cls } from "../../utils/css";
-import { formatHours, roundHours } from "../../utils/time-budget-utils";
+import { fillAllocationsFromParent, formatHours, roundHours } from "../../utils/time-budget-utils";
 import { AllocationEditorModal } from "./allocation-editor-modal";
 import {
 	getTotalAllocatedHours,
@@ -109,18 +109,32 @@ export class TimeBudgetBlockRenderer {
 		}
 
 		const parentBudgets = await getParentBudgets(entry, this.settings, this.periodIndex);
+
+		let finalAllocations = allocations;
+		if (
+			this.settings.timeBudget.autoInheritParentPercentages &&
+			allocations.length === 0 &&
+			parentBudgets.budgets.size > 0
+		) {
+			const inheritedAllocations = fillAllocationsFromParent(parentBudgets.budgets, totalHours);
+			if (inheritedAllocations.length > 0) {
+				await this.updateCodeBlock(file, inheritedAllocations, ctx);
+				finalAllocations = inheritedAllocations;
+			}
+		}
+
 		const childBudgets = await getChildBudgetsFromIndex(
 			file,
 			periodType,
-			allocations,
+			finalAllocations,
 			this.periodIndex,
 			this.settings.categories
 		);
 
-		this.renderHeader(el, totalHours, allocations, periodType, childBudgets.totalChildrenAllocated);
+		this.renderHeader(el, totalHours, finalAllocations, periodType, childBudgets.totalChildrenAllocated);
 
 		this.tableData = {
-			allocations,
+			allocations: finalAllocations,
 			categories: this.settings.categories,
 			periodType,
 			parentBudgets: parentBudgets.budgets,
@@ -133,12 +147,12 @@ export class TimeBudgetBlockRenderer {
 		this.tableInsertBefore = pieChartContainer;
 
 		this.renderAllocationTable();
-		this.renderPieChart(pieChartContainer, allocations, this.settings.categories);
+		this.renderPieChart(pieChartContainer, finalAllocations, this.settings.categories);
 		this.renderEditButton(
 			el,
 			file,
 			periodType,
-			allocations,
+			finalAllocations,
 			totalHours,
 			parentBudgets.budgets,
 			childBudgets.budgets,

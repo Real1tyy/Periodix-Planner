@@ -61,6 +61,7 @@ export type NamingSettings = z.infer<typeof NamingSettingsSchema>;
 // ===== Time Budget Settings Schema =====
 export const TimeBudgetSettingsSchema = z.object({
 	hoursPerWeek: z.number().int().positive().max(168).default(SETTINGS_DEFAULTS.HOURS_PER_WEEK),
+	autoInheritParentPercentages: z.boolean().default(SETTINGS_DEFAULTS.AUTO_INHERIT_PARENT_PERCENTAGES),
 });
 
 export type TimeBudgetSettings = z.infer<typeof TimeBudgetSettingsSchema>;
