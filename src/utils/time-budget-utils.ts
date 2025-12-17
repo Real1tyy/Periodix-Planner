@@ -142,7 +142,5 @@ export function fillAllocationsFromParent(
 		});
 
 	// Convert back to hours and filter out zero allocations
-	return rows
-		.map(({ categoryId, floor }) => ({ categoryId, hours: floor / 100 }))
-		.filter((a) => a.hours > 0);
+	return rows.map(({ categoryId, floor }) => ({ categoryId, hours: floor / 100 })).filter((a) => a.hours > 0);
 }
