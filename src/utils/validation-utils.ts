@@ -5,7 +5,7 @@ export const DateTimeSchema = z.string().transform((val, ctx) => {
 	const dt = DateTime.fromISO(val);
 	if (!dt.isValid) {
 		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
+			code: "custom",
 			message: "Invalid ISO datetime",
 		});
 		return z.NEVER;

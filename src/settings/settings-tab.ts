@@ -51,7 +51,7 @@ export class PeriodicPlannerSettingsTab extends PluginSettingTab {
 
 		const linksContainer = containerEl.createDiv({ cls: cls("settings-support-container") });
 		linksContainer.createEl("a", {
-			text: "Support Periodix-Planner development",
+			text: "Support the development",
 			href: "https://github.com/Real1tyy#-support-my-work",
 			cls: cls("settings-support-link"),
 		});

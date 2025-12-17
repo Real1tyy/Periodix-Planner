@@ -129,7 +129,7 @@ export class GenerationSettings {
 
 		new Setting(containerEl)
 			.setName("Add heading above code block")
-			.setDesc("Add a markdown heading above the periodic-planner code block")
+			.setDesc("Add a Markdown heading above the periodic-planner code block")
 			.addToggle((toggle) => {
 				toggle.setValue(this.settingsStore.currentSettings.generation.includePlanHeading).onChange(async (value) => {
 					await this.settingsStore.updateSettings((s) => ({
@@ -144,7 +144,7 @@ export class GenerationSettings {
 
 		new Setting(containerEl)
 			.setName("Plan heading content")
-			.setDesc("The markdown heading to add above the code block (e.g., ## Plan)")
+			.setDesc("The Markdown heading to add above the code block (e.g., ## plan)")
 			.addText((text) => {
 				text
 					.setPlaceholder(SETTINGS_DEFAULTS.PLAN_HEADING_CONTENT)

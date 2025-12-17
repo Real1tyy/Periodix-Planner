@@ -137,7 +137,7 @@ export class AllocationEditorModal extends Modal {
 		const summaryControls = summary.createDiv({ cls: cls("summary-controls") });
 
 		this.undoButton = summaryControls.createEl("button", {
-			text: "↶ Undo",
+			text: "↶ undo",
 			cls: cls("undo-redo-btn"),
 		});
 		this.undoButton.disabled = this.undoStack.length === 0;
@@ -180,7 +180,7 @@ export class AllocationEditorModal extends Modal {
 		});
 
 		this.redoButton = summaryControls.createEl("button", {
-			text: "↷ Redo",
+			text: "↷ redo",
 			cls: cls("undo-redo-btn"),
 		});
 		this.redoButton.disabled = this.redoStack.length === 0;
@@ -517,7 +517,7 @@ export class AllocationEditorModal extends Modal {
 				}
 
 				const childBudget = this.childBudgets.get(category.id);
-				let childBudgetInfo = budgetInfoContainer.querySelector(`.${cls("child-budget-info")}`) as HTMLElement | null;
+				let childBudgetInfo = budgetInfoContainer.querySelector(`.${cls("child-budget-info")}`);
 				if (childBudget) {
 					const allocated = childBudget.allocated ?? 0;
 					const total = childBudget.total ?? 0;

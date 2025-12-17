@@ -159,7 +159,7 @@ export async function updateHoursSpentInFrontmatter(
 	hoursSpent: number,
 	hoursSpentProp: string
 ): Promise<void> {
-	await app.fileManager.processFrontMatter(file, (fm) => {
+	await app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 		if (hoursSpentProp) {
 			fm[hoursSpentProp] = hoursSpent;
 		}
