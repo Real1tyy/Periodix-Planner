@@ -143,7 +143,7 @@ export class AllocationEditorModal extends Modal {
 
 		if (this.parentBudgets.size > 0) {
 			const fillFromParentBtn = summaryControls.createEl("button", {
-				text: "↓ Fill from parent",
+				text: "Fill parent",
 				cls: cls("fill-from-parent-btn"),
 			});
 			fillFromParentBtn.addEventListener("click", () => {
@@ -153,7 +153,7 @@ export class AllocationEditorModal extends Modal {
 		}
 
 		this.undoButton = summaryControls.createEl("button", {
-			text: "↶ undo",
+			text: "Undo",
 			cls: cls("undo-redo-btn"),
 		});
 		this.undoButton.disabled = this.undoStack.length === 0;
@@ -196,7 +196,7 @@ export class AllocationEditorModal extends Modal {
 		});
 
 		this.redoButton = summaryControls.createEl("button", {
-			text: "↷ redo",
+			text: "Redo",
 			cls: cls("undo-redo-btn"),
 		});
 		this.redoButton.disabled = this.redoStack.length === 0;

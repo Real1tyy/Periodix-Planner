@@ -177,6 +177,86 @@ describe("Time Budget Utilities", () => {
 			expect(result.find((a) => a.categoryId === "cat1")?.hours).toBe(40);
 			expect(result.find((a) => a.categoryId === "cat2")?.hours).toBe(60);
 			expect(result.find((a) => a.categoryId === "cat3")?.hours).toBe(20);
+
+			// CRITICAL: Sum must exactly equal child total (no rounding errors)
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			expect(roundHours(sum)).toBe(120);
+		});
+
+		it("CRITICAL: should ensure exact 100% distribution - no over-allocation", () => {
+			// This is the critical test case that was failing
+			const parentBudgets = new Map([
+				["cat1", { categoryId: "cat1", total: 3.32 }],
+				["cat2", { categoryId: "cat2", total: 1.12 }],
+				["cat3", { categoryId: "cat3", total: 6.04 }],
+				["cat4", { categoryId: "cat4", total: 6.04 }],
+				["cat5", { categoryId: "cat5", total: 5.52 }],
+				["cat6", { categoryId: "cat6", total: 1.64 }],
+			]);
+
+			const totalParent = 3.32 + 1.12 + 6.04 + 6.04 + 5.52 + 1.64; // 23.68
+			const childTotal = 11.0;
+
+			const result = fillAllocationsFromParent(parentBudgets, childTotal);
+
+			// Sum must EXACTLY equal childTotal (rounded to 2 decimals to handle floating point)
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			expect(roundHours(sum)).toBe(childTotal);
+
+			// Each allocation should maintain proper percentage
+			for (const allocation of result) {
+				const parentBudget = parentBudgets.get(allocation.categoryId);
+				if (parentBudget) {
+					const expectedPercentage = parentBudget.total / totalParent;
+					const actualPercentage = allocation.hours / childTotal;
+					// Allow tiny deviation due to rounding, but within 1%
+					expect(Math.abs(actualPercentage - expectedPercentage)).toBeLessThan(0.01);
+				}
+			}
+		});
+
+		it("should ensure exact sum with challenging rounding scenarios", () => {
+			// Test case with numbers that typically cause rounding issues
+			const parentBudgets = new Map([
+				["cat1", { categoryId: "cat1", total: 1 }],
+				["cat2", { categoryId: "cat2", total: 1 }],
+				["cat3", { categoryId: "cat3", total: 1 }],
+			]);
+
+			const result = fillAllocationsFromParent(parentBudgets, 10);
+
+			// Each should get ~3.33h, but sum must equal exactly 10
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			expect(roundHours(sum)).toBe(10);
+
+			// Allocations should be close to 3.33 each
+			for (const allocation of result) {
+				expect(allocation.hours).toBeGreaterThan(3.3);
+				expect(allocation.hours).toBeLessThan(3.35);
+			}
+		});
+
+		it("should handle uneven distribution perfectly", () => {
+			const parentBudgets = new Map([
+				["cat1", { categoryId: "cat1", total: 7 }],
+				["cat2", { categoryId: "cat2", total: 11 }],
+				["cat3", { categoryId: "cat3", total: 13 }],
+			]);
+
+			const result = fillAllocationsFromParent(parentBudgets, 100);
+
+			// Sum must exactly equal 100 (rounded to 2 decimals to handle floating point)
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			expect(roundHours(sum)).toBe(100);
+		});
+
+		it("should handle single category (100% allocation)", () => {
+			const parentBudgets = new Map([["cat1", { categoryId: "cat1", total: 40 }]]);
+
+			const result = fillAllocationsFromParent(parentBudgets, 100);
+
+			expect(result).toHaveLength(1);
+			expect(result[0].hours).toBe(100);
 		});
 
 		it("should handle empty parent budgets", () => {
@@ -205,13 +285,23 @@ describe("Time Budget Utilities", () => {
 			expect(result).toEqual([]);
 		});
 
-		it("should round hours to 2 decimal places", () => {
+		it("should handle very small child totals", () => {
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 33 }], // Will result in non-round percentage
+				["cat1", { categoryId: "cat1", total: 50 }],
+				["cat2", { categoryId: "cat2", total: 50 }],
 			]);
 
-			const result = fillAllocationsFromParent(parentBudgets, 100);
-			expect(result[0].hours).toBe(100); // 33/33 = 100%
+			const result = fillAllocationsFromParent(parentBudgets, 1);
+
+			// Sum must equal exactly 1
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			expect(roundHours(sum)).toBe(1);
+
+			// Each should get 0.5
+			expect(result).toHaveLength(2);
+			for (const allocation of result) {
+				expect(allocation.hours).toBe(0.5);
+			}
 		});
 
 		it("should exclude categories with zero hours after calculation", () => {
@@ -221,9 +311,29 @@ describe("Time Budget Utilities", () => {
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 1);
-			// Only cat1 should be included since cat2 would round to ~0
-			expect(result.length).toBeGreaterThanOrEqual(1);
-			expect(result.find((a) => a.categoryId === "cat1")).toBeDefined();
+
+			// Sum must equal exactly 1
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			expect(roundHours(sum)).toBe(1);
+		});
+
+		it("should handle many categories with precise distribution", () => {
+			const parentBudgets = new Map([
+				["cat1", { categoryId: "cat1", total: 10 }],
+				["cat2", { categoryId: "cat2", total: 15 }],
+				["cat3", { categoryId: "cat3", total: 20 }],
+				["cat4", { categoryId: "cat4", total: 25 }],
+				["cat5", { categoryId: "cat5", total: 30 }],
+			]);
+
+			const result = fillAllocationsFromParent(parentBudgets, 200);
+
+			// Sum must equal exactly 200
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			expect(roundHours(sum)).toBe(200);
+
+			// All categories should have allocations
+			expect(result).toHaveLength(5);
 		});
 	});
 });

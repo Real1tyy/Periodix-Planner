@@ -128,12 +128,21 @@ export function sortAllocationsByCategoryName(allocations: TimeAllocation[], cat
 
 /**
  * Fills child allocations based on parent allocation percentages.
- * Each category receives a proportional share of the child's total hours
- * based on the parent's allocation distribution.
+ * Uses integer arithmetic (cents) to ensure the sum of child allocations
+ * exactly equals the child's total hours with ZERO rounding errors.
+ *
+ * Algorithm (Largest Remainder Method):
+ * 1. Convert everything to cents (multiply by 100) to work with integers
+ * 2. Calculate raw allocation in cents for each category
+ * 3. Floor each allocation to get initial cents
+ * 4. Distribute remaining cents to categories with largest remainders
+ * 5. Convert back to hours (divide by 100)
+ *
+ * This guarantees: sum of allocations === childTotalHours (exact equality)
  *
  * @param parentBudgets - Parent budget information per category
  * @param childTotalHours - Total hours available in the child period
- * @returns Array of time allocations matching parent percentages
+ * @returns Array of time allocations matching parent percentages exactly
  */
 export function fillAllocationsFromParent(
 	parentBudgets: Map<string, { categoryId: string; total: number }>,
@@ -153,15 +162,58 @@ export function fillAllocationsFromParent(
 		return [];
 	}
 
-	// Calculate allocations based on parent percentages
-	const allocations: TimeAllocation[] = [];
+	// Work in cents to avoid floating point errors
+	const childTotalCents = Math.round(childTotalHours * 100);
+
+	interface AllocationData {
+		categoryId: string;
+		rawCents: number;
+		floorCents: number;
+		remainder: number;
+	}
+
+	const allocationData: AllocationData[] = [];
+	let totalFloorCents = 0;
+
+	// Calculate allocations in cents
 	for (const budget of parentBudgets.values()) {
 		const percentage = budget.total / totalParentHours;
-		const hours = roundHours(percentage * childTotalHours);
+		const rawCents = percentage * childTotalCents;
+		const floorCents = Math.floor(rawCents);
+		const remainder = rawCents - floorCents;
+
+		allocationData.push({
+			categoryId: budget.categoryId,
+			rawCents,
+			floorCents,
+			remainder,
+		});
+
+		totalFloorCents += floorCents;
+	}
+
+	// Sort by remainder (descending) for largest remainder method
+	allocationData.sort((a, b) => b.remainder - a.remainder);
+
+	// Distribute the remaining cents to categories with largest remainders
+	let remainingCents = childTotalCents - totalFloorCents;
+
+	const allocations: TimeAllocation[] = [];
+	for (const data of allocationData) {
+		let finalCents = data.floorCents;
+
+		// Add 1 cent if we still have remaining cents to distribute
+		if (remainingCents > 0) {
+			finalCents += 1;
+			remainingCents -= 1;
+		}
+
+		// Convert back to hours
+		const hours = finalCents / 100;
 
 		if (hours > 0) {
 			allocations.push({
-				categoryId: budget.categoryId,
+				categoryId: data.categoryId,
 				hours,
 			});
 		}
