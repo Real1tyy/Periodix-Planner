@@ -2,6 +2,8 @@
 
 # Periodix-Planner
 
+<img src="./docs-site/static/img/logo2.jpeg" alt="Periodix-Planner Logo" width="220" />
+
 ![Downloads](https://img.shields.io/github/downloads/Real1tyy/Periodix-Planner/total?label=Downloads&style=for-the-badge)
 ![Release](https://img.shields.io/github/v/release/Real1tyy/Periodix-Planner?label=Latest%20Release&style=for-the-badge)
 ![Stars](https://img.shields.io/github/stars/Real1tyy/Periodix-Planner?style=for-the-badge)
@@ -189,12 +191,28 @@ Comprehensive documentation is available at: **[docs.periodix-planner.com](https
 
 - [Installation Guide](https://real1tyy.github.io/Periodix-Planner/installation)
 - [Quick Start](https://real1tyy.github.io/Periodix-Planner/quickstart)
+- [YouTube Video Breakdown](https://real1tyy.github.io/Periodix-Planner/video)
 - [Features Overview](https://real1tyy.github.io/Periodix-Planner/features/overview)
 - [Time Budgeting](https://real1tyy.github.io/Periodix-Planner/features/time-budgeting)
 - [Allocation Editor](https://real1tyy.github.io/Periodix-Planner/features/allocation-editor)
 - [Configuration](https://real1tyy.github.io/Periodix-Planner/configuration)
 - [FAQ](https://real1tyy.github.io/Periodix-Planner/faq)
 - [Troubleshooting](https://real1tyy.github.io/Periodix-Planner/troubleshooting)
+
+## 🎥 YouTube: Full feature breakdown
+
+The docs include an embed-ready page for the official walkthrough (and the README below includes a clickable “embed” preview):
+
+- **Docs page**: `https://real1tyy.github.io/Periodix-Planner/video`
+- **Video link (paste yours here)**: `PASTE_YOUTUBE_LINK_HERE`
+
+<a href="PASTE_YOUTUBE_LINK_HERE" target="_blank" rel="noreferrer">
+  <img
+    src="https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg"
+    alt="Periodix-Planner — Full feature breakdown (YouTube)"
+    width="720"
+  />
+</a>
 
 ## 🤝 Contributing
 

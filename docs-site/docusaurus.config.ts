@@ -6,7 +6,7 @@ const config: Config = {
 	title: "Periodix-Planner",
 	tagline:
 		"Intelligent periodic note generation with hierarchical time allocation and budget tracking.",
-	favicon: "img/favicon.ico",
+	favicon: "img/logo2.jpeg",
 
 	url: "https://Real1tyy.github.io",
 	baseUrl: "/Periodix-Planner/",
@@ -60,7 +60,7 @@ const config: Config = {
 	],
 
 	themeConfig: {
-		image: "img/periodic-planner-social.png",
+		image: "img/logo2.jpeg",
 		colorMode: {
 			defaultMode: "dark",
 			respectPrefersColorScheme: true,
@@ -69,7 +69,7 @@ const config: Config = {
 			title: "Periodix-Planner",
 			logo: {
 				alt: "Periodix-Planner Logo",
-				src: "img/logo.png",
+				src: "img/logo2.jpeg",
 				href: "/",
 			},
 			items: [
@@ -79,8 +79,8 @@ const config: Config = {
 					position: "left",
 				},
 				{
-					href: "#",
-					label: "Tutorial",
+					to: "/video",
+					label: "Video",
 					position: "right",
 				},
 				{

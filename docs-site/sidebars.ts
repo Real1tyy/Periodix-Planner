@@ -9,6 +9,7 @@ const sidebars: SidebarsConfig = {
     },
     "installation",
     "quickstart",
+    "video",
     {
       type: "category",
       label: "Features",

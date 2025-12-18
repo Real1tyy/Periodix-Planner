@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Prisma Calendar - Page Not Found</title>
-    <meta name="description" content="A feature-rich, fully configurable calendar plugin for Obsidian.">
+    <title>Periodix-Planner - Page Not Found</title>
+    <meta name="description" content="Intelligent periodic note generation with hierarchical time allocation and budget tracking.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -22,10 +22,13 @@
             padding: 2rem;
         }
         .logo {
-            font-size: 2rem;
-            font-weight: bold;
             margin-bottom: 1rem;
-            color: #4a9eff;
+        }
+        .logo img {
+            width: 160px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
         }
         .error-code {
             font-size: 3rem;
@@ -56,35 +59,37 @@
 </head>
 <body>
     <div class="error-message">
-        <div class="logo">Prisma Calendar</div>
+        <div class="logo">
+            <img src="./Periodix-Planner/img/logo2.jpeg" alt="Periodix-Planner Logo" />
+        </div>
         <div class="error-code">404</div>
         <div class="message">
             The page you're looking for doesn't exist at this location.
         </div>
         <div>
             Try visiting:
-            <a href="./Prisma-Calendar/" class="link">Documentation Home</a> |
-            <a href="./Prisma-Calendar/intro" class="link">Introduction</a> |
-            <a href="./Prisma-Calendar/installation" class="link">Installation</a>
+            <a href="./Periodix-Planner/" class="link">Documentation Home</a> |
+            <a href="./Periodix-Planner/intro" class="link">Introduction</a> |
+            <a href="./Periodix-Planner/installation" class="link">Installation</a>
         </div>
         <div class="redirect-info">
             <strong>Looking for a specific page?</strong><br>
-            All documentation pages are now served from <code>/Prisma-Calendar/</code>
+            All documentation pages are now served from <code>/Periodix-Planner/</code>
         </div>
     </div>
     <script>
         // Auto-redirect common paths to their correct locations
         const path = window.location.pathname;
         const redirectMap = {
-            '/intro': '/Prisma-Calendar/intro',
-            '/installation': '/Prisma-Calendar/installation',
-            '/quickstart': '/Prisma-Calendar/quickstart',
-            '/configuration': '/Prisma-Calendar/configuration',
-            '/features': '/Prisma-Calendar/features/overview',
-            '/faq': '/Prisma-Calendar/faq',
-            '/troubleshooting': '/Prisma-Calendar/troubleshooting',
-            '/roadmap': '/Prisma-Calendar/roadmap',
-            '/changelog': '/Prisma-Calendar/changelog'
+            '/intro': '/Periodix-Planner/intro',
+            '/installation': '/Periodix-Planner/installation',
+            '/quickstart': '/Periodix-Planner/quickstart',
+            '/video': '/Periodix-Planner/video',
+            '/configuration': '/Periodix-Planner/configuration',
+            '/features': '/Periodix-Planner/features/overview',
+            '/faq': '/Periodix-Planner/faq',
+            '/troubleshooting': '/Periodix-Planner/troubleshooting',
+            '/changelog': '/Periodix-Planner/changelog'
         };
 
         if (redirectMap[path]) {

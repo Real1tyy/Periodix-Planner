@@ -111,6 +111,7 @@ See the [Installation Guide](/installation) and [Quick Start Guide](/quickstart)
 
 - **[Installation](/installation)** - How to install and set up Periodix-Planner
 - **[Quick Start](/quickstart)** - Get up and running in minutes
+- **[Video Breakdown](/video)** - Full feature walkthrough on YouTube
 - **[Features](/features/overview)** - Comprehensive feature documentation
 - **[Configuration](/configuration)** - All settings explained
 - **[FAQ](/faq)** - Common questions answered
