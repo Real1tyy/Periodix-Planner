@@ -123,7 +123,7 @@ export class TimeBudgetBlockRenderer {
 			}
 		}
 
-		const childBudgets = await getChildBudgetsFromIndex(
+		const childBudgets = getChildBudgetsFromIndex(
 			file,
 			periodType,
 			finalAllocations,

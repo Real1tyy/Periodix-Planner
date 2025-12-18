@@ -70,13 +70,13 @@ export function calculateChildAllocatedForNode(
 	return budgets;
 }
 
-export async function getChildBudgetsFromIndex(
+export function getChildBudgetsFromIndex(
 	file: TFile,
 	periodType: PeriodType,
 	currentAllocations: TimeAllocation[],
 	periodIndex: PeriodIndex,
 	categories: Category[]
-): Promise<ChildBudgetResult> {
+): ChildBudgetResult {
 	const budgets = calculateChildAllocatedForNode(file, periodType, currentAllocations, periodIndex, categories);
 
 	const totalChildrenAllocated = Array.from(budgets.values()).reduce((sum, budget) => {
