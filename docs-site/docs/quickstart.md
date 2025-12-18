@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Quick Start
 
-## 🎯 Step 1: Open Settings
+## Step 1: Open settings
 
 1. Open **Settings** (gear icon in the bottom left)
 2. Navigate to **Periodix-Planner** in the left sidebar
@@ -17,7 +17,7 @@ You'll see several tabs for configuration:
 - **Properties** - Customize frontmatter property names
 - **Generation** - Control auto-generation behavior
 
-## 📁 Step 2: Configure Folders
+## Step 2: Configure folders
 
 Set up where you want your periodic notes to be stored:
 
@@ -31,7 +31,7 @@ Set up where you want your periodic notes to be stored:
 
 You can customize these to match your vault structure. The plugin will create these folders automatically if they don't exist.
 
-## 🏷️ Step 3: Set Up Categories
+## Step 3: Set up categories
 
 Define your time investment categories:
 
@@ -48,7 +48,7 @@ Define your time investment categories:
 - Relationships (Orange)
 - Personal Projects (Red)
 
-## ⏱️ Step 4: Configure Time Budget
+## Step 4: Configure time budget
 
 Set your available hours:
 
@@ -58,7 +58,7 @@ Set your available hours:
 
 The plugin will automatically calculate hours for each period type based on your weekly hours.
 
-## 🎨 Step 5: Customize Naming (Optional)
+## Step 5: Customize naming (optional)
 
 Customize how your notes are named:
 
@@ -70,9 +70,9 @@ Customize how your notes are named:
    - **Quarterly**: `YYYY-[Q]Q` (default)
    - **Yearly**: `YYYY` (default)
 
-## 🚀 Step 6: Generate Your First Notes
+## Step 6: Generate your first notes
 
-Now you're ready to generate notes! You have two options:
+You have two options:
 
 ### Option A: Generate for Today
 1. Open the **Command Palette** (Ctrl/Cmd + P)
@@ -91,9 +91,9 @@ This will create:
 2. Enable **Auto-generate future periods**
 3. The plugin will automatically create notes when you open Obsidian
 
-## 📊 Step 7: Add Time Budget Block
+## Step 7: Add a time budget block
 
-Add a time budget visualization to any periodic note:
+To render a time budget block in a note:
 
 1. Open one of your generated periodic notes
 2. Add a code block with the language `periodic-planner`:
@@ -106,15 +106,15 @@ learning: 1h
 ```
 ````
 
-3. The plugin will render an interactive time budget interface with:
+3. The plugin will render a time budget view with:
    - Pie chart visualization
    - Allocation table
    - Budget tracking
    - Edit button to modify allocations
 
-## ✏️ Step 8: Edit Allocations
+## Step 8: Edit allocations
 
-Use the interactive allocation editor:
+To update allocations:
 
 1. Click the **Edit allocations** button in the time budget block
 2. Use the allocation editor modal to:
@@ -126,22 +126,14 @@ Use the interactive allocation editor:
 
 3. Click **Save allocations** to update the note's frontmatter
 
-## 🎉 You're All Set!
-
-You now have:
-- ✅ Periodic notes automatically generated
-- ✅ Interconnected notes with navigation links
-- ✅ Time budget categories configured
-- ✅ Visual time allocation tracking
-
-## 🔍 Next Steps
+## Next steps
 
 - Learn about [all features](/features/overview)
 - Explore [configuration options](/configuration)
 - Check out [time budgeting](/features/time-budgeting) in detail
 - Read about [navigation commands](/features/navigation)
 
-## 💡 Tips
+## Tips
 
 - **Link to projects**: Use the time budget to track hours spent on specific projects
 - **Review regularly**: Check your allocations weekly to ensure you're on track
