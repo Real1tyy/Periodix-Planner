@@ -14,6 +14,38 @@
 
 ---
 
+## 🎬 Video: Full feature breakdown
+
+<a href="PASTE_YOUTUBE_LINK_HERE" target="_blank" rel="noreferrer">
+  <img
+    src="https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg"
+    alt="Periodix-Planner — Full feature breakdown (YouTube)"
+    width="100%"
+  />
+</a>
+
+---
+
+## 📸 Screenshots
+
+<p align="center">
+  <a href="https://real1tyy.github.io/Periodix-Planner/features/time-budgeting" target="_blank" rel="noreferrer">
+    <img src="./docs-site/static/img/features/time-budgeting.png" alt="Time budgeting" width="49%" />
+  </a>
+  <a href="https://real1tyy.github.io/Periodix-Planner/features/allocation-editor" target="_blank" rel="noreferrer">
+    <img src="./docs-site/static/img/features/edit-allocator.png" alt="Allocation editor" width="49%" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://real1tyy.github.io/Periodix-Planner/features/time-budget-blocks" target="_blank" rel="noreferrer">
+    <img src="./docs-site/static/img/features/time-budget-blocks.png" alt="Time budget blocks" width="49%" />
+  </a>
+  <a href="https://real1tyy.github.io/Periodix-Planner/features/visual-statistics" target="_blank" rel="noreferrer">
+    <img src="./docs-site/static/img/features/visual-statistics.png" alt="Visual statistics" width="49%" />
+  </a>
+</p>
+
 </div>
 
 ## Why Periodix-Planner exists
@@ -198,21 +230,6 @@ Comprehensive documentation is available at: **[docs.periodix-planner.com](https
 - [Configuration](https://real1tyy.github.io/Periodix-Planner/configuration)
 - [FAQ](https://real1tyy.github.io/Periodix-Planner/faq)
 - [Troubleshooting](https://real1tyy.github.io/Periodix-Planner/troubleshooting)
-
-## 🎥 YouTube: Full feature breakdown
-
-The docs include an embed-ready page for the official walkthrough (and the README below includes a clickable “embed” preview):
-
-- **Docs page**: `https://real1tyy.github.io/Periodix-Planner/video`
-- **Video link (paste yours here)**: `PASTE_YOUTUBE_LINK_HERE`
-
-<a href="PASTE_YOUTUBE_LINK_HERE" target="_blank" rel="noreferrer">
-  <img
-    src="https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg"
-    alt="Periodix-Planner — Full feature breakdown (YouTube)"
-    width="720"
-  />
-</a>
 
 ## 🤝 Contributing
 
