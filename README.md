@@ -1,9 +1,6 @@
 <div align="center">
 
-<h1>
-  Periodix-Planner
-  <img src="./docs-site/static/img/logo2.jpeg" alt="Periodix-Planner Logo" height="80" />
-</h1>
+# Periodix-Planner
 
 ![Downloads](https://img.shields.io/github/downloads/Real1tyy/Periodix-Planner/total?label=Downloads&style=for-the-badge)
 ![Release](https://img.shields.io/github/v/release/Real1tyy/Periodix-Planner?label=Latest%20Release&style=for-the-badge)
