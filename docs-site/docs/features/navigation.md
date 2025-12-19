@@ -30,6 +30,15 @@ Periodix-Planner provides powerful commands for navigating between periodic note
 - **Usage**: Works from any periodic note (except yearly)
 - **Behavior**: Creates note if it doesn't exist
 
+**Go to Child Period**
+- **Command ID**: `periodix-planner:go-to-child`
+- **Description**: Navigate to a child period with smart interval detection
+- **Usage**: Works from weekly, monthly, quarterly, or yearly notes that have child periods
+- **Behavior**:
+  - If the current period contains today's date → navigates to the child period containing today
+  - If the current period is in the past or future → navigates to the first child period
+  - Only appears when child periods exist
+
 ### Open Current Period
 
 **Open Today's Daily Note**
@@ -88,7 +97,8 @@ Periodix-Planner provides powerful commands for navigating between periodic note
 
 Some commands only work in specific contexts:
 
-- **Go to Previous/Next/Parent**: Only work from periodic notes
+- **Go to Previous/Next/Parent/Child**: Only work from periodic notes
+- **Go to Child**: Only works from non-daily notes with existing child periods
 - **Show Child Periods**: Only works from non-daily notes
 - **Open Current Period**: Works from anywhere
 

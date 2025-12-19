@@ -41,6 +41,13 @@ All notable changes to this project will be documented here.
   - **Filtered note generation**: Auto-generation and manual generation commands respect enabled period settings
   - **Period children modal**: Only displays enabled period types when viewing child notes
 
+- **Go to Child Period Command**: New navigation command that intelligently navigates to child periods
+  - Command: "Go to child period" (ID: `periodix-planner:go-to-child`)
+  - Smart interval detection: if parent period contains today, navigates to the child containing today
+  - Falls back to first child for past/future periods
+  - Works with any parent period type (weekly → daily, monthly → weekly/daily, etc.)
+  - Only enabled when child periods exist
+
 ### Bug Fixes
 
 - **Fixed duplicate time budget block rendering**: Resolved issue where time budget blocks would render multiple times on initial note load

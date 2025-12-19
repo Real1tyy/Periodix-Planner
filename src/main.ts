@@ -19,7 +19,11 @@ import {
 	openNoteFile,
 	resolveNoteFile,
 } from "./utils/frontmatter-utils";
-import { getEnabledAncestorPeriodTypes, getEnabledParentPeriodType } from "./utils/period-navigation";
+import {
+	getEnabledAncestorPeriodTypes,
+	getEnabledChildPeriodType,
+	getEnabledParentPeriodType,
+} from "./utils/period-navigation";
 import { getHoursForPeriodType } from "./utils/time-budget-utils";
 
 export default class PeriodicPlannerPlugin extends Plugin {
@@ -173,6 +177,7 @@ export default class PeriodicPlannerPlugin extends Plugin {
 		this.registerNavigationCommand("go-to-previous", "Go to previous period", "previousProp");
 		this.registerNavigationCommand("go-to-next", "Go to next period", "nextProp");
 		this.registerNavigationCommand("go-to-parent", "Go to parent period", "parentProp");
+		this.registerNavigateToChildCommand();
 
 		this.registerOpenCurrentCommand("open-daily", "Open today's daily note", "daily");
 		this.registerOpenCurrentCommand("open-weekly", "Open current weekly note", "weekly");
@@ -226,6 +231,50 @@ export default class PeriodicPlannerPlugin extends Plugin {
 				if (!targetType) return false;
 
 				if (!checking) void this.navigateOrCreate(link, targetType);
+				return true;
+			},
+		});
+	}
+
+	private registerNavigateToChildCommand(): void {
+		this.addCommand({
+			id: "go-to-child",
+			name: "Go to child period",
+			checkCallback: (checking) => {
+				const file = this.app.workspace.getActiveFile();
+				if (!file) return false;
+
+				const entry = this.periodIndex.getEntryForFile(file);
+				if (!entry) return false;
+
+				const childType = getEnabledChildPeriodType(entry.periodType, this.settingsStore.currentSettings.generation);
+				if (!childType) return false;
+
+				const children = this.periodIndex.getChildrenForFile(file);
+				if (!children) return false;
+
+				const childrenKey = PERIOD_CONFIG[childType].childrenKey;
+				if (!childrenKey) return false;
+
+				const directChildren = children[childrenKey];
+				if (!directChildren || directChildren.length === 0) return false;
+
+				if (!checking) {
+					const now = DateTime.now();
+					const isCurrentPeriod = now >= entry.periodStart && now <= entry.periodEnd;
+
+					let targetChild: (typeof directChildren)[0];
+
+					if (isCurrentPeriod) {
+						targetChild =
+							directChildren.find((child) => now >= child.periodStart && now <= child.periodEnd) || directChildren[0];
+					} else {
+						targetChild = directChildren[0];
+					}
+
+					void openNoteFile(this.app, targetChild.file);
+				}
+
 				return true;
 			},
 		});
