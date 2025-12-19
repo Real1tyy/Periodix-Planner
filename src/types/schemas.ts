@@ -139,6 +139,18 @@ export const ActivityWatchSettingsSchema = z.object({
 
 export type ActivityWatchSettings = z.infer<typeof ActivityWatchSettingsSchema>;
 
+// ===== Templater Settings Schema =====
+export const TemplaterSettingsSchema = z.object({
+	enabled: z.boolean().default(SETTINGS_DEFAULTS.ENABLE_TEMPLATER),
+	dailyTemplate: z.string().default(SETTINGS_DEFAULTS.TEMPLATER_DAILY_TEMPLATE),
+	weeklyTemplate: z.string().default(SETTINGS_DEFAULTS.TEMPLATER_WEEKLY_TEMPLATE),
+	monthlyTemplate: z.string().default(SETTINGS_DEFAULTS.TEMPLATER_MONTHLY_TEMPLATE),
+	quarterlyTemplate: z.string().default(SETTINGS_DEFAULTS.TEMPLATER_QUARTERLY_TEMPLATE),
+	yearlyTemplate: z.string().default(SETTINGS_DEFAULTS.TEMPLATER_YEARLY_TEMPLATE),
+});
+
+export type TemplaterSettings = z.infer<typeof TemplaterSettingsSchema>;
+
 // ===== Main Plugin Settings Schema =====
 export const PeriodicPlannerSettingsSchema = z.object({
 	version: z.number().int().positive().default(1),
@@ -163,6 +175,9 @@ export const PeriodicPlannerSettingsSchema = z.object({
 
 	// ActivityWatch integration
 	activityWatch: ActivityWatchSettingsSchema.default(ActivityWatchSettingsSchema.parse({})),
+
+	// Templater integration
+	templater: TemplaterSettingsSchema.default(TemplaterSettingsSchema.parse({})),
 
 	// User-defined time categories
 	categories: z.array(CategorySchema).default([]),

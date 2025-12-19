@@ -2,6 +2,7 @@ import type { DateTime } from "luxon";
 import type { App } from "obsidian";
 import type { Observable, Subscription } from "rxjs";
 import type { PeriodType } from "../constants";
+import type { TemplateService } from "../services/template";
 import { type NoteGenerationResult, ORDERED_PERIOD_TYPES, type PeriodicPlannerSettings } from "../types";
 import { getNextPeriod, getStartOfPeriod, now } from "../utils/date-utils";
 import { isPeriodTypeEnabled } from "../utils/period-navigation";
@@ -19,12 +20,12 @@ export class AutoGenerator {
 	private subscription: Subscription;
 	private noteGenerator: NoteGenerator;
 
-	constructor(app: App, settings$: Observable<PeriodicPlannerSettings>) {
+	constructor(app: App, settings$: Observable<PeriodicPlannerSettings>, templateService: TemplateService) {
 		this.settings = null!;
 		this.subscription = settings$.subscribe((settings) => {
 			this.settings = settings;
 		});
-		this.noteGenerator = new NoteGenerator(app, settings$);
+		this.noteGenerator = new NoteGenerator(app, settings$, templateService);
 	}
 
 	destroy(): void {

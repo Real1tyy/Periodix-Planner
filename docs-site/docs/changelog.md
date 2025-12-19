@@ -12,6 +12,13 @@ All notable changes to this project will be documented here.
 
 ### New Features
 
+- **Templater Integration**: Create periodic notes from custom templates using the Templater plugin. [Learn more](/integrations#templater)
+  - Support for per-period-type templates (daily, weekly, monthly, quarterly, yearly)
+  - Automatic template application when creating new periodic notes
+  - Fallback to standard note creation when templates are not configured
+  - File existence check prevents accidental overwrites
+  - Seamless integration with Templater's template processing
+
 - **ActivityWatch Integration**: Automatically track and visualize computer usage in daily notes. [Learn more](/integrations#activitywatch)
   - Connect to your local ActivityWatch server to fetch daily activity data
   - Automatic data injection into past daily notes during indexing

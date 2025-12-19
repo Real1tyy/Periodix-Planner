@@ -7,6 +7,7 @@ import {
 	serializeAllocations,
 } from "../components/time-budget/allocation-parser";
 import type { PeriodType } from "../constants";
+import type { TemplateService } from "../services/template";
 import type {
 	NoteGenerationResult,
 	PeriodicPlannerSettings,
@@ -45,7 +46,8 @@ export class NoteGenerator {
 
 	constructor(
 		private app: App,
-		settings$: Observable<PeriodicPlannerSettings>
+		settings$: Observable<PeriodicPlannerSettings>,
+		private templateService: TemplateService
 	) {
 		this.settings = null!;
 		this.subscription = settings$.subscribe((settings) => {
@@ -77,7 +79,20 @@ export class NoteGenerator {
 
 		try {
 			await ensureFolderExists(this.app, filePath);
-			const file = await this.app.vault.create(filePath, "");
+
+			const config = PERIOD_CONFIG[periodType];
+			const folder = this.settings.directories[config.folderKey];
+			const format = this.settings.naming[config.formatKey];
+			const periodStart = getStartOfPeriod(dt, periodType);
+			const filename = formatPeriodName(periodStart, format);
+
+			const file = await this.templateService.createFile({
+				title: filename,
+				targetDirectory: folder,
+				filename: filename,
+				templatePath: this.settings.templater[config.templateKey] || undefined,
+			});
+
 			await this.writeFrontmatter(file, dt, periodType);
 			await this.writeTimeBudgetBlock(file, periodType);
 			await this.writePdfContent(file, filePath);

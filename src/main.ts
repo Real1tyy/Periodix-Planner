@@ -7,6 +7,7 @@ import { AutoGenerator, formatAutoGenerationSummary } from "./core/auto-generato
 import { PeriodIndex } from "./core/period-index";
 import { PeriodicNoteIndexer } from "./core/periodic-note-indexer";
 import { SettingsStore } from "./core/settings-store";
+import { TemplateService } from "./services/template";
 import { PeriodicPlannerSettingsTab } from "./settings/settings-tab";
 import type { PeriodLinks } from "./types";
 import { PERIOD_CONFIG } from "./types";
@@ -31,13 +32,15 @@ export default class PeriodicPlannerPlugin extends Plugin {
 	autoGenerator!: AutoGenerator;
 	indexer!: PeriodicNoteIndexer;
 	periodIndex!: PeriodIndex;
+	templateService!: TemplateService;
 
 	async onload() {
 		this.settingsStore = new SettingsStore(this);
 		await this.settingsStore.loadSettings();
 
-		this.autoGenerator = new AutoGenerator(this.app, this.settingsStore.settings$);
 		this.indexer = new PeriodicNoteIndexer(this.app, this.settingsStore.settings$);
+		this.templateService = new TemplateService(this.app, this.settingsStore.settings$);
+		this.autoGenerator = new AutoGenerator(this.app, this.settingsStore.settings$, this.templateService);
 		this.periodIndex = new PeriodIndex(this.indexer);
 
 		this.addSettingTab(new PeriodicPlannerSettingsTab(this.app, this));
@@ -53,6 +56,7 @@ export default class PeriodicPlannerPlugin extends Plugin {
 		this.autoGenerator.destroy();
 		this.indexer.stop();
 		this.periodIndex.destroy();
+		this.templateService.destroy();
 	}
 
 	private async initializeOnLayoutReady(): Promise<void> {

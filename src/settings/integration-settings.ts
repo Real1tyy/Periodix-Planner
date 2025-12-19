@@ -76,6 +76,118 @@ export class IntegrationSettings {
 					});
 			});
 
+		new Setting(containerEl).setName("Templater").setHeading();
+
+		containerEl.createEl("p", {
+			text: "Use Templater to create periodic notes from templates. Configure folder templates in Templater's settings to automatically apply templates when creating notes in specific directories.",
+			cls: "setting-item-description",
+		});
+
+		new Setting(containerEl)
+			.setName("Enable Templater")
+			.setDesc("Use Templater templates when creating periodic notes")
+			.addToggle((toggle) => {
+				toggle.setValue(this.settingsStore.currentSettings.templater.enabled).onChange(async (value) => {
+					await this.settingsStore.updateSettings((s) => ({
+						...s,
+						templater: {
+							...s.templater,
+							enabled: value,
+						},
+					}));
+				});
+			});
+
+		new Setting(containerEl)
+			.setName("Daily note template")
+			.setDesc("Path to the template file for daily notes (e.g., Templates/Daily.md)")
+			.addText((text) => {
+				text
+					.setPlaceholder("Templates/Daily.md")
+					.setValue(this.settingsStore.currentSettings.templater.dailyTemplate)
+					.onChange(async (value) => {
+						await this.settingsStore.updateSettings((s) => ({
+							...s,
+							templater: {
+								...s.templater,
+								dailyTemplate: value,
+							},
+						}));
+					});
+			});
+
+		new Setting(containerEl)
+			.setName("Weekly note template")
+			.setDesc("Path to the template file for weekly notes (e.g., Templates/Weekly.md)")
+			.addText((text) => {
+				text
+					.setPlaceholder("Templates/Weekly.md")
+					.setValue(this.settingsStore.currentSettings.templater.weeklyTemplate)
+					.onChange(async (value) => {
+						await this.settingsStore.updateSettings((s) => ({
+							...s,
+							templater: {
+								...s.templater,
+								weeklyTemplate: value,
+							},
+						}));
+					});
+			});
+
+		new Setting(containerEl)
+			.setName("Monthly note template")
+			.setDesc("Path to the template file for monthly notes (e.g., Templates/Monthly.md)")
+			.addText((text) => {
+				text
+					.setPlaceholder("Templates/Monthly.md")
+					.setValue(this.settingsStore.currentSettings.templater.monthlyTemplate)
+					.onChange(async (value) => {
+						await this.settingsStore.updateSettings((s) => ({
+							...s,
+							templater: {
+								...s.templater,
+								monthlyTemplate: value,
+							},
+						}));
+					});
+			});
+
+		new Setting(containerEl)
+			.setName("Quarterly note template")
+			.setDesc("Path to the template file for quarterly notes (e.g., Templates/Quarterly.md)")
+			.addText((text) => {
+				text
+					.setPlaceholder("Templates/Quarterly.md")
+					.setValue(this.settingsStore.currentSettings.templater.quarterlyTemplate)
+					.onChange(async (value) => {
+						await this.settingsStore.updateSettings((s) => ({
+							...s,
+							templater: {
+								...s.templater,
+								quarterlyTemplate: value,
+							},
+						}));
+					});
+			});
+
+		new Setting(containerEl)
+			.setName("Yearly note template")
+			.setDesc("Path to the template file for yearly notes (e.g., Templates/Yearly.md)")
+			.addText((text) => {
+				text
+					.setPlaceholder("Templates/Yearly.md")
+					.setValue(this.settingsStore.currentSettings.templater.yearlyTemplate)
+					.onChange(async (value) => {
+						await this.settingsStore.updateSettings((s) => ({
+							...s,
+							templater: {
+								...s.templater,
+								yearlyTemplate: value,
+							},
+						}));
+					});
+			});
+
 		new Setting(containerEl).setName("Actions").setHeading();
 
 		new Setting(containerEl)

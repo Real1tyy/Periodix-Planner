@@ -6,6 +6,40 @@ sidebar_position: 8
 
 Periodix-Planner integrates with third-party tools to enhance your periodic planning workflow.
 
+## Templater
+
+Use [Templater](https://github.com/SilentVoid13/Templater) templates to create customized periodic notes.
+
+### Setup
+
+1. Install and enable the [Templater plugin](https://github.com/SilentVoid13/Templater)
+2. Create template files for the period types you want to customize
+3. In **Settings** → **Periodix-Planner** → **Integrations** → **Templater**:
+   - Toggle **Enable Templater** on
+   - Enter template paths for the period types you want to customize
+   - Leave paths empty for period types you don't want to template
+
+### Configuration
+
+| Setting | Description |
+|---------|-------------|
+| **Enable Templater** | Turn integration on/off |
+| **Daily/Weekly/Monthly/Quarterly/Yearly note template** | Path to template file (e.g., `Templates/Daily.md`) |
+
+### How It Works
+
+When creating a new periodic note:
+1. If a template path is configured, Periodix-Planner uses Templater to process it
+2. After template processing, required frontmatter is automatically added
+3. If no template is configured, notes are created with default content
+4. Existing notes are never overwritten
+
+### Notes
+
+- Periodix-Planner automatically adds period-specific frontmatter - don't include these in your templates
+- Templates are optional - configure only the period types you want to customize
+- See [Templater documentation](https://silentvoid13.github.io/Templater/) for template syntax
+
 ## ActivityWatch
 
 Track and visualize your computer usage automatically in daily notes.
