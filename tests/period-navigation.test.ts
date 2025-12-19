@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { GenerationSettings } from "../src/types/schemas";
 import {
-    getEnabledAncestorPeriodTypes,
-    getEnabledChildPeriodType,
-    getEnabledChildrenKey,
-    getEnabledDescendantPeriodTypes,
-    getEnabledLinkKey,
-    getEnabledParentPeriodType,
-    getEnabledPeriodTypes,
-    isPeriodTypeEnabled,
+	getEnabledAncestorPeriodTypes,
+	getEnabledChildPeriodType,
+	getEnabledChildrenKey,
+	getEnabledDescendantPeriodTypes,
+	getEnabledLinkKey,
+	getEnabledParentPeriodType,
+	getEnabledPeriodTypes,
+	isPeriodTypeEnabled,
 } from "../src/utils/period-navigation";
 
 const allEnabledSettings: GenerationSettings = {

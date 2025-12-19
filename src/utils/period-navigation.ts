@@ -3,9 +3,6 @@ import { ORDERED_PERIOD_TYPES, PERIOD_CONFIG } from "../types/config";
 import type { PeriodChildren } from "../types/period";
 import type { GenerationSettings } from "../types/schemas";
 
-/**
- * Get all enabled period types based on settings, ordered from largest to smallest.
- */
 export function getEnabledPeriodTypes(settings: GenerationSettings): PeriodType[] {
 	return ORDERED_PERIOD_TYPES.filter((periodType) => isPeriodTypeEnabled(periodType, settings));
 }
@@ -28,63 +25,63 @@ export function isPeriodTypeEnabled(periodType: PeriodType, settings: Generation
 }
 
 /**
- * Get the direct parent period type for a given period type, skipping disabled periods.
- * Returns null if no enabled parent exists.
+ * Get the direct neighbor period type (parent/child) for a given period type, skipping disabled periods.
+ * Offset: use -1 for parent, +1 for child.
+ * Returns null if no enabled neighbor exists.
  */
+function getEnabledNeighborPeriodType(
+	periodType: PeriodType,
+	settings: GenerationSettings,
+	offset: number
+): PeriodType | null {
+	const enabledTypes = getEnabledPeriodTypes(settings);
+	const currentIndex = enabledTypes.indexOf(periodType);
+	const neighborIndex = currentIndex + offset;
+
+	if (currentIndex === -1 || neighborIndex < 0 || neighborIndex >= enabledTypes.length) {
+		return null;
+	}
+
+	return enabledTypes[neighborIndex];
+}
+
 export function getEnabledParentPeriodType(periodType: PeriodType, settings: GenerationSettings): PeriodType | null {
-	const enabledTypes = getEnabledPeriodTypes(settings);
-	const currentIndex = enabledTypes.indexOf(periodType);
-
-	if (currentIndex === -1 || currentIndex === 0) {
-		return null;
-	}
-
-	return enabledTypes[currentIndex - 1];
+	return getEnabledNeighborPeriodType(periodType, settings, -1);
 }
 
-/**
- * Get the direct child period type for a given period type, skipping disabled periods.
- * Returns null if no enabled child exists.
- */
 export function getEnabledChildPeriodType(periodType: PeriodType, settings: GenerationSettings): PeriodType | null {
-	const enabledTypes = getEnabledPeriodTypes(settings);
-	const currentIndex = enabledTypes.indexOf(periodType);
-
-	if (currentIndex === -1 || currentIndex === enabledTypes.length - 1) {
-		return null;
-	}
-
-	return enabledTypes[currentIndex + 1];
+	return getEnabledNeighborPeriodType(periodType, settings, 1);
 }
 
 /**
- * Get all ancestor period types (parents, grandparents, etc.) that are enabled.
- * Returns them ordered from immediate parent to most distant ancestor.
+ * Get a slice of enabled period types relative to the given period type.
+ * Returns empty array if period type is not enabled.
  */
+function getRelativePeriodTypesSlice(
+	periodType: PeriodType,
+	settings: GenerationSettings,
+	startOffset: number,
+	endOffset?: number
+): PeriodType[] {
+	const enabledTypes = getEnabledPeriodTypes(settings);
+	const currentIndex = enabledTypes.indexOf(periodType);
+
+	if (currentIndex === -1) {
+		return [];
+	}
+
+	const sliceStart = currentIndex + startOffset;
+	const sliceEnd = endOffset === undefined ? undefined : currentIndex + endOffset;
+
+	return enabledTypes.slice(sliceStart, sliceEnd);
+}
+
 export function getEnabledAncestorPeriodTypes(periodType: PeriodType, settings: GenerationSettings): PeriodType[] {
-	const enabledTypes = getEnabledPeriodTypes(settings);
-	const currentIndex = enabledTypes.indexOf(periodType);
-
-	if (currentIndex === -1) {
-		return [];
-	}
-
-	return enabledTypes.slice(0, currentIndex);
+	return getRelativePeriodTypesSlice(periodType, settings, -Infinity, 0);
 }
 
-/**
- * Get all descendant period types (children, grandchildren, etc.) that are enabled.
- * Returns them ordered from immediate child to most distant descendant.
- */
 export function getEnabledDescendantPeriodTypes(periodType: PeriodType, settings: GenerationSettings): PeriodType[] {
-	const enabledTypes = getEnabledPeriodTypes(settings);
-	const currentIndex = enabledTypes.indexOf(periodType);
-
-	if (currentIndex === -1) {
-		return [];
-	}
-
-	return enabledTypes.slice(currentIndex + 1);
+	return getRelativePeriodTypesSlice(periodType, settings, 1);
 }
 
 /**
