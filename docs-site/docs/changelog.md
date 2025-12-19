@@ -12,6 +12,16 @@ All notable changes to this project will be documented here.
 
 ### New Features
 
+- **ActivityWatch Integration**: Automatically track and visualize computer usage in daily notes. [Learn more](/integrations#activitywatch)
+  - Connect to your local ActivityWatch server to fetch daily activity data
+  - Automatic data injection into past daily notes during indexing
+  - Application usage breakdown with time and percentages
+  - Privacy-first: all data stays local on your machine
+  - Smart filtering: only tracks active time (excludes AFK periods)
+  - Manual bulk processing available via "Process now" button
+  - Configurable API URL and heading text
+  - Desktop only (ActivityWatch doesn't run on mobile)
+
 - **Optional Code Block Auto-Insertion**: Added a new setting to control whether the `periodic-planner` code block is automatically inserted into newly generated periodic notes
   - New setting: "Auto-insert code block" in Settings → Generation → Time budget code block
   - When enabled (default: `true`), the plugin automatically adds the time budget code block to new periodic notes

@@ -27,6 +27,7 @@ const sidebars: SidebarsConfig = {
       ]
     },
     "configuration",
+    "integrations",
     "changelog",
     "faq",
     "troubleshooting",
