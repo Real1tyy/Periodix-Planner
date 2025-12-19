@@ -4,6 +4,8 @@ sidebar_position: 3
 
 # Quick Start
 
+**Prefer video?** [Watch the full feature breakdown on YouTube](https://www.youtube.com/watch?v=bIVNj6fkTc8) to see everything in action.
+
 ## Step 1: Open settings
 
 1. Open **Settings** (gear icon in the bottom left)

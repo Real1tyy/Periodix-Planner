@@ -8,16 +8,12 @@ This page hosts the official video walkthrough for Periodix-Planner.
 
 ## ▶️ Watch the full breakdown
 
-- **YouTube link (paste yours here)**: `PASTE_YOUTUBE_LINK_HERE`
-
 ## Embed
-
-Replace the `src` below with your YouTube **embed** URL (format: `https://www.youtube.com/embed/VIDEO_ID`).
 
 <iframe
   width="100%"
   height="480"
-  src="PASTE_YOUTUBE_EMBED_LINK_HERE"
+  src="https://www.youtube.com/embed/bIVNj6fkTc8"
   title="Periodix-Planner — Full feature breakdown"
   frameborder="0"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -27,6 +23,4 @@ Replace the `src` below with your YouTube **embed** URL (format: `https://www.yo
 
 ## Prefer reading?
 
-If you’d rather skim docs than watch a video, start at **[Features Overview](/features/overview)**.
-
-
+If you'd rather skim docs than watch a video, start at **[Features Overview](/features/overview)**.

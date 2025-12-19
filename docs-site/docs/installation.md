@@ -6,6 +6,8 @@ sidebar_position: 2
 
 Periodix-Planner can be installed through several methods. Choose the one that works best for you.
 
+**New to Periodix-Planner?** [Watch the video walkthrough](https://www.youtube.com/watch?v=bIVNj6fkTc8) to see all features in action.
+
 ## 📦 Method 1: Community Plugins (Recommended)
 
 Once approved, Periodix-Planner will be available in the Obsidian Community Plugins directory:

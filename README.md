@@ -14,9 +14,9 @@
 
 ## 🎬 Video: Full feature breakdown
 
-<a href="PASTE_YOUTUBE_LINK_HERE" target="_blank" rel="noreferrer">
+<a href="https://www.youtube.com/watch?v=bIVNj6fkTc8" target="_blank" rel="noreferrer">
   <img
-    src="https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg"
+    src="https://img.youtube.com/vi/bIVNj6fkTc8/maxresdefault.jpg"
     alt="Periodix-Planner — Full feature breakdown (YouTube)"
     width="100%"
   />

@@ -80,7 +80,12 @@ const config: Config = {
 				},
 				{
 					to: "/video",
-					label: "Video",
+					label: "📺 Video",
+					position: "left",
+				},
+				{
+					href: "https://www.youtube.com/watch?v=bIVNj6fkTc8",
+					label: "YouTube",
 					position: "right",
 				},
 				{
@@ -109,6 +114,10 @@ const config: Config = {
 							to: "/quickstart",
 						},
 						{
+							label: "Video Walkthrough",
+							to: "/video",
+						},
+						{
 							label: "Changelog",
 							to: "/changelog",
 						},
@@ -130,6 +139,10 @@ const config: Config = {
 				{
 					title: "More",
 					items: [
+						{
+							label: "YouTube Video",
+							href: "https://www.youtube.com/watch?v=bIVNj6fkTc8",
+						},
 						{
 							label: "Repository",
 							href: "https://github.com/Real1tyy/Periodix-Planner",
