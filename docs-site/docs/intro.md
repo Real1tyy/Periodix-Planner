@@ -84,6 +84,10 @@ Periodix-Planner helps you decide what deserves your time in the first place.
 
 **[Watch the full feature breakdown on YouTube](https://www.youtube.com/watch?v=bIVNj6fkTc8)** to see Periodix-Planner in action.
 
+## 📸 Screenshots
+
+Check out the [Screenshots Gallery](/screenshots) to see all plugin visuals and features in action.
+
 ## 🚀 Quick Start
 
 1. **Install** the plugin from Obsidian Community Plugins or BRAT
@@ -115,6 +119,7 @@ See the [Installation Guide](/installation) and [Quick Start Guide](/quickstart)
 
 - **[Installation](/installation)** - How to install and set up Periodix-Planner
 - **[Quick Start](/quickstart)** - Get up and running in minutes
+- **[Screenshots](/screenshots)** - Visual gallery of all plugin features
 - **[Features](/features/overview)** - Comprehensive feature documentation
 - **[Configuration](/configuration)** - All settings explained
 - **[FAQ](/faq)** - Common questions answered

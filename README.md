@@ -40,6 +40,8 @@
   </a>
 </p>
 
+Check out the [Screenshots Gallery](https://real1tyy.github.io/Periodix-Planner/screenshots) in the documentation to see all plugin visuals and features in action.
+
 </div>
 
 ## Why Periodix-Planner exists
