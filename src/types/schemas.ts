@@ -103,6 +103,7 @@ export const GenerationSettingsSchema = z.object({
 	pdfContentHeader: z.string().default(SETTINGS_DEFAULTS.PDF_CONTENT_HEADER),
 
 	// Time Budget Code Block Settings
+	autoInsertCodeBlock: z.boolean().default(SETTINGS_DEFAULTS.AUTO_INSERT_CODE_BLOCK),
 	includePlanHeading: z.boolean().default(SETTINGS_DEFAULTS.INCLUDE_PLAN_HEADING),
 	planHeadingContent: z.string().default(SETTINGS_DEFAULTS.PLAN_HEADING_CONTENT),
 });

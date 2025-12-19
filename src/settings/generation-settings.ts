@@ -123,9 +123,24 @@ export class GenerationSettings {
 		new Setting(containerEl).setName("Time budget code block").setHeading();
 
 		containerEl.createEl("p", {
-			text: "Configure what is added when the time budget code block is auto-inserted into periodic notes.",
+			text: "Configure automatic insertion of the periodic-planner code block into new periodic notes.",
 			cls: "setting-item-description",
 		});
+
+		new Setting(containerEl)
+			.setName("Auto-insert code block")
+			.setDesc("Automatically add the periodic-planner code block to newly generated periodic notes")
+			.addToggle((toggle) => {
+				toggle.setValue(this.settingsStore.currentSettings.generation.autoInsertCodeBlock).onChange(async (value) => {
+					await this.settingsStore.updateSettings((s) => ({
+						...s,
+						generation: {
+							...s.generation,
+							autoInsertCodeBlock: value,
+						},
+					}));
+				});
+			});
 
 		new Setting(containerEl)
 			.setName("Add heading above code block")

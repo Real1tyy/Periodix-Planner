@@ -71,6 +71,7 @@ export const SETTINGS_DEFAULTS = {
 	PDF_CONTENT_HEADER: "## Note",
 
 	// ===== Time Budget Code Block Settings =====
+	AUTO_INSERT_CODE_BLOCK: true,
 	INCLUDE_PLAN_HEADING: true,
 	PLAN_HEADING_CONTENT: "## Plan",
 

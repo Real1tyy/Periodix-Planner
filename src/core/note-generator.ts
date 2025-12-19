@@ -136,6 +136,10 @@ export class NoteGenerator {
 	}
 
 	private async writeTimeBudgetBlock(file: TFile, periodType: PeriodType): Promise<void> {
+		if (!this.settings.generation.autoInsertCodeBlock) {
+			return;
+		}
+
 		const inheritedAllocations = await this.getInheritedAllocations(file, periodType);
 		const content = await this.app.vault.read(file);
 		const updatedContent = this.insertCodeBlockAfterFrontmatter(content, inheritedAllocations);
@@ -146,6 +150,10 @@ export class NoteGenerator {
 	}
 
 	async ensureTimeBudgetBlock(file: TFile, periodType: PeriodType): Promise<void> {
+		if (!this.settings.generation.autoInsertCodeBlock) {
+			return;
+		}
+
 		const content = await this.app.vault.read(file);
 		if (content.includes("```periodic-planner")) return;
 
