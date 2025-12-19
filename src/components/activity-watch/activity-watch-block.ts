@@ -1,7 +1,7 @@
 import { type App, MarkdownRenderChild } from "obsidian";
 import { type ActivityWatchData, parseActivityWatchBlock } from "../../types/activity-watch";
 import { addCls, cls } from "../../utils/css";
-import { formatSecondsToHours } from "../../utils/time-budget-utils";
+import { formatSecondsToHours, formatSecondsToHoursMinutes } from "../../utils/time-budget-utils";
 import { type PieChartData, PieChartRenderer } from "../shared/pie-chart";
 import { EnlargedChartModal } from "../time-budget/enlarged-chart-modal";
 
@@ -127,9 +127,8 @@ export class ActivityWatchBlockRenderer extends MarkdownRenderChild {
 
 			row.createEl("td", { text: app.name });
 
-			const hours = formatSecondsToHours(app.duration);
-			const seconds = Math.floor(app.duration);
-			row.createEl("td", { text: `${hours}h (${seconds}s)` });
+			const formatted = formatSecondsToHoursMinutes(app.duration);
+			row.createEl("td", { text: formatted });
 
 			const percentage = data.totalActiveTime > 0 ? (app.duration / data.totalActiveTime) * 100 : 0;
 			row.createEl("td", { text: `${percentage.toFixed(1)}%` });
