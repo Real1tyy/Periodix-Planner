@@ -8,6 +8,22 @@ All notable changes to this project will be documented here.
 
 ---
 
+## 1.3.0
+
+### New Features
+
+- **ActivityWatch Integration**: Automatically track and visualize computer usage in daily notes. [Learn more](/integrations#activitywatch)
+  - Connect to your local ActivityWatch server to fetch daily activity data
+  - Automatic data injection into past daily notes during indexing
+  - Application usage breakdown with time and percentages
+  - Privacy-first: all data stays local on your machine
+  - Smart filtering: only tracks active time (excludes AFK periods)
+  - Manual bulk processing available via "Process now" button
+  - Configurable API URL and heading text
+  - Desktop only (ActivityWatch doesn't run on mobile)
+
+---
+
 ## 1.2.0
 
 ### New Features
@@ -19,15 +35,6 @@ All notable changes to this project will be documented here.
   - File existence check prevents accidental overwrites
   - Seamless integration with Templater's template processing
 
-- **ActivityWatch Integration**: Automatically track and visualize computer usage in daily notes. [Learn more](/integrations#activitywatch)
-  - Connect to your local ActivityWatch server to fetch daily activity data
-  - Automatic data injection into past daily notes during indexing
-  - Application usage breakdown with time and percentages
-  - Privacy-first: all data stays local on your machine
-  - Smart filtering: only tracks active time (excludes AFK periods)
-  - Manual bulk processing available via "Process now" button
-  - Configurable API URL and heading text
-  - Desktop only (ActivityWatch doesn't run on mobile)
 
 - **Optional Code Block Auto-Insertion**: Added a new setting to control whether the `periodic-planner` code block is automatically inserted into newly generated periodic notes
   - New setting: "Auto-insert code block" in Settings → Generation → Time budget code block
