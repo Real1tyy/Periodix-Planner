@@ -122,8 +122,8 @@ This renders as an interactive block with:
 
 ### Requirements
 
-- **Desktop Only**: ActivityWatch integration only works with desktop Obsidian (ActivityWatch doesn't run on mobile)
-- **Local Server**: ActivityWatch must be running on the same machine as Obsidian
+- **Desktop Only**: ActivityWatch integration only works with desktop Obsidian (not mobile)
+- **ActivityWatch Server**: Requires a running ActivityWatch server - by default runs locally on `http://localhost:5600`
 - **Past Dates Only**: Data is only added to past daily notes (not today or future dates)
 
 ### Troubleshooting
@@ -133,10 +133,6 @@ This renders as an interactive block with:
 - Check that you have ActivityWatch watchers enabled (window tracker and AFK tracker)
 - Ensure the daily note is from a past date (not today or future)
 - Use the "Process now" button to manually trigger processing
-
-**Duplicate sections?**
-- The plugin checks for existing ActivityWatch headings to prevent duplicates
-- If you see duplicates, the heading text may have changed - update old sections manually
 
 **Connection errors?**
 - Confirm ActivityWatch server is running (`http://localhost:5600` should load in browser)
