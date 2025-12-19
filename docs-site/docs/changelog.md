@@ -17,13 +17,9 @@ All notable changes to this project will be documented here.
   - **Automatic Injection**: Activity data added to past daily notes during indexing
   - **Code Fence Format**: `periodic-planner-activity-watch` blocks store structured JSON data
   - **Sortable Table**: Click headers to sort by application name or duration
-  - **Duration Formatting**: Shows hours and minutes (e.g., "3h 49m")
   - **Enlarge View**: Full-screen pie chart modal with detailed breakdowns
-  - **Zod Validation**: Runtime validation of all API responses for type safety
-  - **Parallel Processing**: Bulk file processing for fast retroactive updates
   - **Smart Filtering**: Only tracks active time (excludes AFK periods)
   - **Privacy-First**: All data stays local - ActivityWatch runs on your machine
-  - **Single API Call**: Optimized bucket discovery with parallel processing
   - **Configurable**: Custom API URL, heading text, and code fence name
   - **Desktop Only**: Requires locally-running ActivityWatch server
 
