@@ -30,19 +30,22 @@ export function createPieChartConfig(data: PieChartData, config?: PieChartConfig
 		},
 		options: {
 			responsive: true,
-			maintainAspectRatio: true,
+			maintainAspectRatio: false,
 			plugins: {
 				legend: {
 					position: "right",
 					labels: {
 						color: "#ffffff",
 						font: {
-							size: 12,
+							size: 11,
 						},
-						padding: 12,
+						padding: 8,
 						usePointStyle: true,
 						pointStyle: "circle",
+						boxWidth: 12,
+						boxHeight: 12,
 					},
+					maxWidth: 200,
 				},
 				tooltip: {
 					callbacks: {

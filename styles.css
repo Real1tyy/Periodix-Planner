@@ -459,8 +459,13 @@
 
 /* Pie Chart */
 .periodic-planner-pie-chart-container {
-	max-width: 400px;
+	max-width: 600px;
+	width: 100%;
+	height: 350px;
 	margin: 20px auto;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .periodic-planner-clickable {
@@ -474,6 +479,7 @@
 
 .periodic-planner-pie-chart-canvas {
 	max-width: 100%;
+	max-height: 100%;
 }
 
 .periodic-planner-pie-chart-empty {
@@ -515,7 +521,7 @@
 
 /* ===== Enlarged Chart Modal ===== */
 .modal:has(.periodic-planner-enlarged-chart-modal) {
-	width: 900px;
+	width: 960px;
 	max-width: 95vw;
 	height: auto;
 	max-height: 90vh;
@@ -547,11 +553,15 @@
 	justify-content: center;
 	align-items: center;
 	padding: 20px 0;
+	width: 100%;
+	height: 560px;
 }
 
-.periodic-planner-enlarged-chart-container canvas {
+.periodic-planner-enlarged-chart-container .periodic-planner-pie-chart-canvas {
+	width: 100%;
+	height: 100%;
 	max-width: 100%;
-	max-height: 580px;
+	max-height: 100%;
 }
 
 /* ===== Allocation Editor Modal ===== */
