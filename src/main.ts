@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import { Notice, Plugin, TFile } from "obsidian";
+import { ActivityWatchBlockRenderer } from "./components/activity-watch/activity-watch-block";
 import { PeriodChildrenBasesModal } from "./components/period-children/bases-modal";
 import { TimeBudgetBlockRenderer } from "./components/time-budget";
 import type { PeriodType } from "./constants";
@@ -348,6 +349,19 @@ export default class PeriodicPlannerPlugin extends Plugin {
 				source,
 				ctx
 			);
+			ctx.addChild(renderer);
+		});
+
+		const activityWatchCodeFence = this.settingsStore.currentSettings.activityWatch.codeFence;
+		this.registerMarkdownCodeBlockProcessor(activityWatchCodeFence, (source, el, ctx) => {
+			if (el.hasClass("periodic-planner-activity-watch-initialized")) {
+				return;
+			}
+
+			el.empty();
+			el.addClass("periodic-planner-activity-watch-initialized");
+
+			const renderer = new ActivityWatchBlockRenderer(el, this.app, source);
 			ctx.addChild(renderer);
 		});
 	}

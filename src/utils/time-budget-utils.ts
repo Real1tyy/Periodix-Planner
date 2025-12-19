@@ -9,6 +9,10 @@ export function formatHours(hours: number): string {
 	return roundHours(hours).toFixed(2);
 }
 
+export function formatSecondsToHours(seconds: number): string {
+	return (seconds / 3600).toFixed(2);
+}
+
 /**
  * Calculated hours for each period type based on settings
  */

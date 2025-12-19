@@ -29,8 +29,8 @@ export async function injectActivityWatchContent(
 	try {
 		const awService = new ActivityWatchService(activityWatch.apiUrl);
 		const appData = await awService.getDailyAppUsage(date);
-		const chartMarkdown = ActivityWatchService.generateAppUsageMarkdown(appData);
-		const content = `\n${activityWatch.heading}\n\n${chartMarkdown}\n`;
+		const codeBlock = ActivityWatchService.generateActivityWatchCodeBlock(appData, activityWatch.codeFence);
+		const content = `\n${activityWatch.heading}\n\n${codeBlock}\n`;
 
 		const currentContent = await app.vault.read(file);
 		await app.vault.modify(file, currentContent + content);

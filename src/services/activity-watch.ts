@@ -102,25 +102,18 @@ export class ActivityWatchService {
 			.sort((a, b) => b.duration - a.duration);
 	}
 
-	static generateAppUsageMarkdown(appData: AppTimeData[]): string {
-		if (appData.length === 0) {
-			return "No activity data available for this day.";
-		}
-
+	static generateActivityWatchCodeBlock(appData: AppTimeData[], codeFenceName: string): string {
 		const totalSeconds = appData.reduce((sum, item) => sum + item.duration, 0);
-		const totalHours = (totalSeconds / 3600).toFixed(2);
+		const apps = appData.map((item) => ({
+			name: item.app,
+			duration: Math.floor(item.duration),
+		}));
 
-		let markdown = `**Total Active Time:** ${totalHours} hours (${Math.floor(totalSeconds)} seconds)\n\n`;
-		markdown += "```\n";
+		const data = {
+			totalActiveTime: Math.floor(totalSeconds),
+			apps: appData.length === 0 ? [] : apps,
+		};
 
-		for (const item of appData) {
-			const paddedApp = item.app.padEnd(30, " ");
-			const seconds = Math.floor(item.duration);
-			markdown += `${paddedApp} ${seconds}s\n`;
-		}
-
-		markdown += "```";
-
-		return markdown;
+		return `\`\`\`${codeFenceName}\n${JSON.stringify(data, null, 2)}\n\`\`\``;
 	}
 }
