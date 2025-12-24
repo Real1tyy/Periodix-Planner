@@ -185,6 +185,13 @@ export default class PeriodicPlannerPlugin extends Plugin {
 		this.registerNavigateToChildCommand();
 
 		this.registerOpenCurrentCommand("open-daily", "Open today's daily note", "daily");
+		this.addCommand({
+			id: "open-yesterday",
+			name: "Open yesterday's daily note",
+			callback: async () => {
+				await this.openPeriodForDate(DateTime.now().minus({ days: 1 }), "daily");
+			},
+		});
 		this.registerOpenCurrentCommand("open-weekly", "Open current weekly note", "weekly");
 		this.registerOpenCurrentCommand("open-monthly", "Open current monthly note", "monthly");
 		this.registerOpenCurrentCommand("open-quarterly", "Open current quarterly note", "quarterly");
@@ -296,7 +303,11 @@ export default class PeriodicPlannerPlugin extends Plugin {
 	}
 
 	private async openCurrentPeriod(periodType: PeriodType): Promise<void> {
-		const result = await this.autoGenerator.generateSingleNote(DateTime.now(), periodType);
+		await this.openPeriodForDate(DateTime.now(), periodType);
+	}
+
+	private async openPeriodForDate(dateTime: DateTime, periodType: PeriodType): Promise<void> {
+		const result = await this.autoGenerator.generateSingleNote(dateTime, periodType);
 		if (result.success) {
 			const file = this.app.vault.getAbstractFileByPath(result.filePath);
 			if (file instanceof TFile) {
