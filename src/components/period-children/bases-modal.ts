@@ -75,7 +75,7 @@ export class PeriodChildrenBasesModal extends Modal {
 			.map((type) => ({
 				type,
 				label: PERIOD_TYPE_LABELS[type],
-				folder: this.directories[PERIOD_CONFIG[type].folderKey],
+				folder: this.directories[PERIOD_CONFIG[type].folderKey] as string,
 			}));
 	}
 
@@ -204,7 +204,7 @@ ${orderArray}
 		const noteName = this.parent.noteName;
 		const linkKey = PERIOD_CONFIG[this.parent.periodType].linkKey;
 		const propKey = linkKey ? (`${linkKey}Prop` as keyof PropertySettings) : null;
-		const hierarchyProp = propKey ? this.properties[propKey] : this.properties.parentProp;
+		const hierarchyProp = propKey ? (this.properties[propKey] as string) : (this.properties.parentProp as string);
 		return `        - ${hierarchyProp} == ["[[${filePath}|${noteName}]]"]`;
 	}
 

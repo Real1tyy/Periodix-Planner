@@ -118,7 +118,7 @@ export default class PeriodicPlannerPlugin extends Plugin {
 	private async ensureFrontmatterProperties(file: TFile, periodType: PeriodType, dateTime: DateTime): Promise<void> {
 		const settings = this.settingsStore.currentSettings;
 		const props = settings.properties;
-		const format = settings.naming[PERIOD_CONFIG[periodType].formatKey];
+		const format = settings.naming[PERIOD_CONFIG[periodType].formatKey] as string;
 		const periodInfo = createPeriodInfo(dateTime, periodType, format);
 		const links = this.buildPeriodLinks(dateTime, periodType);
 		const hoursAvailable = getHoursForPeriodType(settings.timeBudget, periodType);
@@ -367,7 +367,7 @@ export default class PeriodicPlannerPlugin extends Plugin {
 			return;
 		}
 
-		const format = this.settingsStore.currentSettings.naming[PERIOD_CONFIG[periodType].formatKey];
+		const format = this.settingsStore.currentSettings.naming[PERIOD_CONFIG[periodType].formatKey] as string;
 		const dt = parseLinkToDateTime(linkTarget, format);
 		if (!dt) {
 			new Notice(`Cannot parse date from: ${linkTarget}`);

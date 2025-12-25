@@ -46,10 +46,10 @@ export function detectPeriodTypeFromFilename(
 	const periodTypes: PeriodType[] = ["daily", "weekly", "monthly", "quarterly", "yearly"];
 
 	for (const periodType of periodTypes) {
-		const folder = settings.directories[PERIOD_CONFIG[periodType].folderKey];
+		const folder = settings.directories[PERIOD_CONFIG[periodType].folderKey] as string;
 		if (!file.path.startsWith(folder)) continue;
 
-		const format = settings.naming[PERIOD_CONFIG[periodType].formatKey];
+		const format = settings.naming[PERIOD_CONFIG[periodType].formatKey] as string;
 		const dateTime = DateTime.fromFormat(filename, format);
 
 		if (dateTime.isValid) {
@@ -69,8 +69,8 @@ export function buildPeriodLinksForNote(
 	const nextDt = getNextPeriod(dateTime, periodType);
 
 	const formatLink = (dt: DateTime, type: PeriodType): string => {
-		const folder = settings.directories[PERIOD_CONFIG[type].folderKey];
-		const format = settings.naming[PERIOD_CONFIG[type].formatKey];
+		const folder = settings.directories[PERIOD_CONFIG[type].folderKey] as string;
+		const format = settings.naming[PERIOD_CONFIG[type].formatKey] as string;
 		const name = dt.toFormat(format);
 		return `[[${folder}/${name}|${name}]]`;
 	};
@@ -103,7 +103,7 @@ async function ensureFrontmatterPropertiesForFile(
 	settings: PeriodicPlannerSettings
 ): Promise<void> {
 	const props = settings.properties;
-	const format = settings.naming[PERIOD_CONFIG[periodType].formatKey];
+	const format = settings.naming[PERIOD_CONFIG[periodType].formatKey] as string;
 	const periodInfo = createPeriodInfo(dateTime, periodType, format);
 	const links = buildPeriodLinksForNote(dateTime, periodType, settings);
 	const hoursAvailable = getHoursForPeriodType(settings.timeBudget, periodType);

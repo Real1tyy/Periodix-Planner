@@ -138,7 +138,12 @@ export type GenerationSettings = z.infer<typeof GenerationSettingsSchema>;
 export const UISettingsSchema = z
 	.object({
 		warningThresholdPercent: z.number().int().min(50).max(100).catch(SETTINGS_DEFAULTS.WARNING_THRESHOLD_PERCENT),
-		overBudgetThresholdPercent: z.number().int().min(100).max(150).catch(SETTINGS_DEFAULTS.OVER_BUDGET_THRESHOLD_PERCENT),
+		overBudgetThresholdPercent: z
+			.number()
+			.int()
+			.min(100)
+			.max(150)
+			.catch(SETTINGS_DEFAULTS.OVER_BUDGET_THRESHOLD_PERCENT),
 	})
 	.loose();
 
@@ -176,28 +181,28 @@ export const PeriodicPlannerSettingsSchema = z
 		version: z.number().int().positive().catch(1),
 
 		// Directory configuration
-		directories: DirectorySettingsSchema.default({} as any),
+		directories: DirectorySettingsSchema.default(DirectorySettingsSchema.parse({})),
 
 		// Note naming patterns
-		naming: NamingSettingsSchema.default({} as any),
+		naming: NamingSettingsSchema.default(NamingSettingsSchema.parse({})),
 
 		// Time budget configuration
-		timeBudget: TimeBudgetSettingsSchema.default({} as any),
+		timeBudget: TimeBudgetSettingsSchema.default(TimeBudgetSettingsSchema.parse({})),
 
 		// Frontmatter property names
-		properties: PropertySettingsSchema.default({} as any),
+		properties: PropertySettingsSchema.default(PropertySettingsSchema.parse({})),
 
 		// Auto-generation settings
-		generation: GenerationSettingsSchema.default({} as any),
+		generation: GenerationSettingsSchema.default(GenerationSettingsSchema.parse({})),
 
 		// UI configuration
-		ui: UISettingsSchema.default({} as any),
+		ui: UISettingsSchema.default(UISettingsSchema.parse({})),
 
 		// ActivityWatch integration
-		activityWatch: ActivityWatchSettingsSchema.default({} as any),
+		activityWatch: ActivityWatchSettingsSchema.default(ActivityWatchSettingsSchema.parse({})),
 
 		// Templater integration
-		templater: TemplaterSettingsSchema.default({} as any),
+		templater: TemplaterSettingsSchema.default(TemplaterSettingsSchema.parse({})),
 
 		// User-defined time categories
 		categories: z.array(CategorySchema).catch([]),

@@ -67,7 +67,7 @@ export class DirectorySettings {
 			.addText((text) => {
 				text
 					.setPlaceholder(placeholder)
-					.setValue(this.settingsStore.currentSettings.directories[key])
+					.setValue(this.settingsStore.currentSettings.directories[key] as string)
 					.onChange(async (value) => {
 						await this.settingsStore.updateSettings((s) => ({
 							...s,

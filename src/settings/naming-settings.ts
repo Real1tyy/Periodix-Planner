@@ -75,7 +75,7 @@ export class NamingSettings {
 			.addText((text) => {
 				text
 					.setPlaceholder(placeholder)
-					.setValue(this.settingsStore.currentSettings.naming[key])
+					.setValue(this.settingsStore.currentSettings.naming[key] as string)
 					.onChange(async (value) => {
 						await this.settingsStore.updateSettings((s) => ({
 							...s,

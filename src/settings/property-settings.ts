@@ -144,7 +144,7 @@ export class PropertySettings {
 			.addText((text) => {
 				text
 					.setPlaceholder(defaultValue)
-					.setValue(this.settingsStore.currentSettings.properties[key])
+					.setValue(this.settingsStore.currentSettings.properties[key] as string)
 					.onChange(async (value) => {
 						await this.settingsStore.updateSettings((s) => ({
 							...s,
