@@ -2,7 +2,7 @@ import type { Category, TimeAllocation } from "../../types";
 import { sortAllocationsByCategoryName } from "../../utils/time-budget-utils";
 import { type PieChartData, PieChartRenderer } from "../shared/pie-chart";
 
-export function preparePieChartData(allocations: TimeAllocation[], categories: Category[]): PieChartData {
+function preparePieChartData(allocations: TimeAllocation[], categories: Category[]): PieChartData {
 	const categoryMap = new Map(categories.map((c) => [c.id, c]));
 
 	const labels: string[] = [];

@@ -65,7 +65,7 @@ export function extractFilenameFromPath(filePath: string): string {
 	return parts[parts.length - 1] || pathWithoutExt;
 }
 
-export interface ParsedWikiLink {
+interface ParsedWikiLink {
 	fullPath: string;
 	fileName: string;
 	alias: string | null;

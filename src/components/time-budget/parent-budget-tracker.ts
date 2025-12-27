@@ -12,7 +12,7 @@ export interface CategoryBudgetInfo {
 	remaining: number;
 }
 
-export interface ParentBudgetResult {
+interface ParentBudgetResult {
 	parentFile: TFile | null;
 	budgets: Map<string, CategoryBudgetInfo>;
 	totalParentHours: number;

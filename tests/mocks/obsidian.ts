@@ -34,12 +34,12 @@ export class Vault {
 	};
 }
 
-export class Workspace {
+class Workspace {
 	on = vi.fn();
 	getActiveFile = vi.fn().mockReturnValue(null);
 }
 
-export class FileManager {
+class FileManager {
 	processFrontMatter = vi.fn().mockImplementation(async (_file, fn) => {
 		const fm: Record<string, any> = {};
 		fn(fm);
@@ -56,16 +56,6 @@ export class TFile {
 		this.path = path;
 		this.basename = path.replace(/\.md$/, "");
 		this.extension = "md";
-	}
-}
-
-export class TFolder {
-	path: string;
-	name: string;
-
-	constructor(path = "test") {
-		this.path = path;
-		this.name = path.split("/").pop() || path;
 	}
 }
 
@@ -156,7 +146,7 @@ export class Modal {
 	close(): void {}
 }
 
-export const moment = vi.fn().mockImplementation(() => ({
+const _moment = vi.fn().mockImplementation(() => ({
 	format: vi.fn().mockReturnValue("2025-01-01"),
 	startOf: vi.fn().mockReturnThis(),
 	endOf: vi.fn().mockReturnThis(),

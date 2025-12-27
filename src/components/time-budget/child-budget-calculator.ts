@@ -5,7 +5,7 @@ import type { Category, GenerationSettings, TimeAllocation } from "../../types";
 import { getEnabledChildrenKey } from "../../utils/period-navigation";
 import { buildCategoryNameToIdMap, type CategoryBudgetInfo } from "./parent-budget-tracker";
 
-export interface ChildBudgetResult {
+interface ChildBudgetResult {
 	budgets: Map<string, CategoryBudgetInfo>;
 	totalChildrenAllocated: number;
 }

@@ -1,11 +1,11 @@
 import type { Category, TimeAllocation } from "../../types";
 
-export interface ParsedAllocation {
+interface ParsedAllocation {
 	categoryName: string;
 	hours: number;
 }
 
-export interface AllocationParseResult {
+interface AllocationParseResult {
 	allocations: ParsedAllocation[];
 	errors: string[];
 }

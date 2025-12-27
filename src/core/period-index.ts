@@ -5,7 +5,7 @@ import { getParentFilePathsFromLinks } from "../utils/note-utils";
 import { noteDataChanged } from "../utils/period";
 import type { PeriodicNoteIndexer } from "./periodic-note-indexer";
 
-export type PeriodIndexEvent = {
+type PeriodIndexEvent = {
 	type: "period-updated";
 	filePath: string;
 };

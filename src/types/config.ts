@@ -11,10 +11,10 @@ export const ORDERED_PERIOD_TYPES: PeriodType[] = [
 	PERIOD_TYPES.DAILY,
 ];
 
-export type LinkKey = keyof Omit<PeriodLinks, "previous" | "next" | "parent">;
-export type ChildrenKey = keyof PeriodChildren;
+type LinkKey = keyof Omit<PeriodLinks, "previous" | "next" | "parent">;
+type ChildrenKey = keyof PeriodChildren;
 
-export interface PeriodConfig {
+interface PeriodConfig {
 	luxonUnit: DateTimeUnit;
 	duration: DurationLike;
 	folderKey: keyof DirectorySettings;

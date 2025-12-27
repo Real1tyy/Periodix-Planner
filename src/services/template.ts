@@ -5,7 +5,7 @@ import type { BehaviorSubject, Subscription } from "rxjs";
 import type { Frontmatter } from "../types";
 import type { PeriodicPlannerSettings } from "../types/schemas";
 
-export interface FileCreationOptions {
+interface FileCreationOptions {
 	title: string;
 	targetDirectory: string;
 	filename?: string;

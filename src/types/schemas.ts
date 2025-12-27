@@ -17,7 +17,7 @@ export const CategorySchema = z
 export type Category = z.infer<typeof CategorySchema>;
 
 // ===== Time Allocation Schema =====
-export const TimeAllocationSchema = z
+const TimeAllocationSchema = z
 	.object({
 		categoryId: z.string(),
 		hours: z.number().nonnegative(),
@@ -79,7 +79,7 @@ export const TimeBudgetSettingsSchema = z
 export type TimeBudgetSettings = z.infer<typeof TimeBudgetSettingsSchema>;
 
 // ===== Frontmatter Property Settings Schema =====
-export const PropertySettingsSchema = z
+const PropertySettingsSchema = z
 	.object({
 		// Navigation properties
 		previousProp: z.string().catch(SETTINGS_DEFAULTS.PREVIOUS_PROP),
@@ -106,7 +106,7 @@ export const PropertySettingsSchema = z
 export type PropertySettings = z.infer<typeof PropertySettingsSchema>;
 
 // ===== Generation Settings Schema =====
-export const GenerationSettingsSchema = z
+const GenerationSettingsSchema = z
 	.object({
 		autoGenerateOnLoad: z.boolean().catch(SETTINGS_DEFAULTS.AUTO_GENERATE_ON_LOAD),
 		generatePeriodsAhead: z.number().int().min(1).max(5).catch(SETTINGS_DEFAULTS.GENERATE_PERIODS_AHEAD),
@@ -135,7 +135,7 @@ export const GenerationSettingsSchema = z
 export type GenerationSettings = z.infer<typeof GenerationSettingsSchema>;
 
 // ===== UI Settings Schema =====
-export const UISettingsSchema = z
+const UISettingsSchema = z
 	.object({
 		warningThresholdPercent: z.number().int().min(50).max(100).catch(SETTINGS_DEFAULTS.WARNING_THRESHOLD_PERCENT),
 		overBudgetThresholdPercent: z
@@ -147,10 +147,8 @@ export const UISettingsSchema = z
 	})
 	.strip();
 
-export type UISettings = z.infer<typeof UISettingsSchema>;
-
 // ===== ActivityWatch Settings Schema =====
-export const ActivityWatchSettingsSchema = z
+const ActivityWatchSettingsSchema = z
 	.object({
 		enabled: z.boolean().catch(SETTINGS_DEFAULTS.ENABLE_ACTIVITY_WATCH),
 		apiUrl: z.url().catch(SETTINGS_DEFAULTS.ACTIVITY_WATCH_URL),
@@ -159,10 +157,8 @@ export const ActivityWatchSettingsSchema = z
 	})
 	.strip();
 
-export type ActivityWatchSettings = z.infer<typeof ActivityWatchSettingsSchema>;
-
 // ===== Templater Settings Schema =====
-export const TemplaterSettingsSchema = z
+const TemplaterSettingsSchema = z
 	.object({
 		enabled: z.boolean().catch(SETTINGS_DEFAULTS.ENABLE_TEMPLATER),
 		dailyTemplate: z.string().catch(SETTINGS_DEFAULTS.TEMPLATER_DAILY_TEMPLATE),

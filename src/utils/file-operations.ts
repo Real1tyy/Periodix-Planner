@@ -1,4 +1,4 @@
-import type { App, TFile } from "obsidian";
+import type { App } from "obsidian";
 
 export async function ensureFolderExists(app: App, filePath: string): Promise<void> {
 	const folder = filePath.substring(0, filePath.lastIndexOf("/"));
@@ -16,9 +16,4 @@ export function getPdfPath(notePath: string): string {
 
 export function removeFileExtension(filePath: string): string {
 	return filePath.replace(/\.md$/, "");
-}
-
-export async function appendContentToFile(app: App, file: TFile, content: string): Promise<void> {
-	const currentContent = await app.vault.read(file);
-	await app.vault.modify(file, currentContent + content);
 }

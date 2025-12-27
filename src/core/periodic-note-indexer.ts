@@ -19,7 +19,7 @@ import { parseFileToNote, updateHoursSpentInFrontmatter } from "../utils/note-ut
 
 const SCAN_CONCURRENCY = 10;
 
-export type IndexerEvent =
+type IndexerEvent =
 	| {
 			type: "note-indexed";
 			filePath: string;

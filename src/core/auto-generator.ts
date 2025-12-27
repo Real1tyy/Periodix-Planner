@@ -8,7 +8,7 @@ import { getNextPeriod, getStartOfPeriod, now } from "../utils/date-utils";
 import { isPeriodTypeEnabled } from "../utils/period-navigation";
 import { NoteGenerator } from "./note-generator";
 
-export interface AutoGenerationSummary {
+interface AutoGenerationSummary {
 	created: number;
 	existing: number;
 	failed: number;

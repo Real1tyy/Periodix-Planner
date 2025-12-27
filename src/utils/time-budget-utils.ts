@@ -29,7 +29,7 @@ export function formatSecondsToHoursMinutes(seconds: number): string {
 /**
  * Calculated hours for each period type based on settings
  */
-export interface CalculatedHours {
+interface CalculatedHours {
 	daily: number;
 	weekly: number;
 	monthly: number;
@@ -67,7 +67,7 @@ export function calculateAllocationPercentage(totalHours: number, allocatedHours
 	return Math.round((allocatedHours / totalHours) * 100);
 }
 
-export type BudgetStatus = "under" | "warning" | "over";
+type BudgetStatus = "under" | "warning" | "over";
 
 export function getBudgetStatus(
 	allocationPercentage: number,
@@ -83,7 +83,7 @@ export function getBudgetStatus(
 	return "under";
 }
 
-export interface AllocationSummary {
+interface AllocationSummary {
 	totalHours: number;
 	allocatedHours: number;
 	remainingHours: number;

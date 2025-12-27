@@ -11,7 +11,7 @@ import type { CategoryBudgetInfo } from "./parent-budget-tracker";
 
 const DEBOUNCE_MS = 300;
 
-export interface AllocationEditorResult {
+interface AllocationEditorResult {
 	allocations: TimeAllocation[];
 	cancelled: boolean;
 }

@@ -9,12 +9,12 @@ export interface PieChartData {
 	colors: string[];
 }
 
-export interface PieChartConfig {
+interface PieChartConfig {
 	title?: string;
 	valueFormatter?: (value: number) => string;
 }
 
-export function createPieChartConfig(data: PieChartData, config?: PieChartConfig): ChartConfiguration<"pie"> {
+function createPieChartConfig(data: PieChartData, config?: PieChartConfig): ChartConfiguration<"pie"> {
 	return {
 		type: "pie",
 		data: {

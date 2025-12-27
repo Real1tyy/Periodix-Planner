@@ -51,9 +51,6 @@ const ActivityWatchDataSchema = z.object({
 	),
 });
 
-export type ActivityWatchBucket = z.infer<typeof ActivityWatchBucketSchema>;
-export type ActivityWatchBucketsResponse = z.infer<typeof ActivityWatchBucketsResponseSchema>;
-export type ActivityWatchEvent = z.infer<typeof ActivityWatchEventSchema>;
 export type ActivityWatchQueryResponse = z.infer<typeof ActivityWatchQueryResponseSchema>;
 export type AppTimeData = z.infer<typeof AppTimeDataSchema>;
 export type BucketIds = z.infer<typeof BucketIdsSchema>;
@@ -68,16 +65,4 @@ export function parseActivityWatchBlock(source: string): ActivityWatchData | nul
 	}
 }
 
-export function serializeActivityWatchData(data: ActivityWatchData): string {
-	return JSON.stringify(data, null, 2);
-}
-
-export {
-	ActivityWatchBucketSchema,
-	ActivityWatchBucketsResponseSchema,
-	ActivityWatchDataSchema,
-	ActivityWatchEventSchema,
-	ActivityWatchQueryResponseSchema,
-	AppTimeDataSchema,
-	BucketIdsSchema,
-};
+export { ActivityWatchBucketsResponseSchema, ActivityWatchQueryResponseSchema };
