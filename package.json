@@ -38,10 +38,10 @@
 		"yearly"
 	],
 	"funding": {
-		"type": "github",
-		"url": "https://github.com/sponsors/Real1tyy"
+		"type": "custom",
+		"url": "https://matejvavroproductivity.com/support/"
 	},
-	"author": "Real1tyy",
+	"author": "Matej Vavro",
 	"license": "MIT",
 	"packageManager": "pnpm@9.0.0",
 	"pnpm": {
