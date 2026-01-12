@@ -24,10 +24,6 @@ export class CategoriesSection implements SettingsSection {
 	) {}
 
 	render(containerEl: HTMLElement): void {
-		if (this.globalStatsAggregator) {
-			this.renderGlobalStatistics(containerEl);
-		}
-
 		new Setting(containerEl).setName("Time categories").setHeading();
 
 		containerEl.createEl("p", {
@@ -46,9 +42,13 @@ export class CategoriesSection implements SettingsSection {
 
 		this.categoriesContainer = containerEl.createDiv({ cls: cls("categories-list") });
 		this.renderCategories(this.categoriesContainer);
+
+		if (this.globalStatsAggregator) {
+			this.renderGlobalStatisticsSummary(containerEl);
+		}
 	}
 
-	private renderGlobalStatistics(containerEl: HTMLElement): void {
+	private renderGlobalStatisticsSummary(containerEl: HTMLElement): void {
 		new Setting(containerEl).setName("Global statistics").setHeading();
 
 		containerEl.createEl("p", {
@@ -60,18 +60,21 @@ export class CategoriesSection implements SettingsSection {
 
 		const statistics = this.globalStatsAggregator?.getStatistics();
 		if (statistics) {
-			this.renderStatistics(statistics);
+			this.renderPieChartSummary(statistics);
 		}
 
 		this.statsSubscription =
 			this.globalStatsAggregator?.events$.subscribe((event) => {
 				if (event.type === "statistics-updated") {
-					this.renderStatistics(event.statistics);
+					this.renderPieChartSummary(event.statistics);
+					if (this.categoriesContainer) {
+						this.renderCategories(this.categoriesContainer);
+					}
 				}
 			}) ?? null;
 	}
 
-	private renderStatistics(statistics: GlobalStatistics): void {
+	private renderPieChartSummary(statistics: GlobalStatistics): void {
 		if (!this.statisticsContainer) {
 			return;
 		}
@@ -88,54 +91,11 @@ export class CategoriesSection implements SettingsSection {
 			return;
 		}
 
-		const listContainer = this.statisticsContainer.createDiv({ cls: cls("statistics-list") });
-		const table = listContainer.createEl("table", { cls: cls("statistics-table") });
-		const thead = table.createEl("thead");
-		const headerRow = thead.createEl("tr");
-		headerRow.createEl("th", { text: "Category" });
-		headerRow.createEl("th", { text: "Notes" });
-		headerRow.createEl("th", { text: "Total Hours" });
-		headerRow.createEl("th", { text: "Percentage" });
-
-		const tbody = table.createEl("tbody");
-		const categoryMap = new Map(categories.map((c) => [c.id, c]));
-
-		for (const stat of statistics.categoryStats) {
-			const category = categoryMap.get(stat.categoryId);
-			if (!category) {
-				continue;
-			}
-
-			const percentage =
-				statistics.totalHours > 0 ? ((stat.totalHours / statistics.totalHours) * 100).toFixed(1) : "0.0";
-
-			const row = tbody.createEl("tr");
-
-			const nameCell = row.createEl("td");
-			const colorIndicator = nameCell.createSpan({ cls: cls("category-color-inline") });
-			colorIndicator.style.backgroundColor = category.color;
-			nameCell.appendText(` ${category.name}`);
-
-			row.createEl("td", { text: stat.noteCount.toString() });
-			row.createEl("td", { text: `${stat.totalHours.toFixed(1)}h` });
-			row.createEl("td", { text: `${percentage}%` });
-		}
-
-		const totalRow = tbody.createEl("tr", { cls: cls("statistics-total-row") });
-		totalRow.createEl("td", { text: "Total" });
-		totalRow.createEl("td", { text: statistics.totalNotes.toString() });
-		totalRow.createEl("td", { text: `${statistics.totalHours.toFixed(1)}h` });
-		totalRow.createEl("td", { text: "100%" });
-
 		const chartContainer = this.statisticsContainer.createDiv({ cls: cls("statistics-chart") });
 		this.renderPieChart(chartContainer, statistics, categories);
 	}
 
-	private renderPieChart(
-		container: HTMLElement,
-		statistics: NonNullable<ReturnType<NonNullable<typeof this.globalStatsAggregator>["getStatistics"]>>,
-		categories: Category[]
-	): void {
+	private renderPieChart(container: HTMLElement, statistics: GlobalStatistics, categories: Category[]): void {
 		if (this.pieChartRenderer) {
 			this.pieChartRenderer.destroy();
 		}
@@ -178,13 +138,39 @@ export class CategoriesSection implements SettingsSection {
 			return;
 		}
 
-		for (const category of categories) {
-			this.renderCategory(containerEl, category);
+		const statistics = this.globalStatsAggregator?.getStatistics();
+		const statsMap = new Map(statistics?.categoryStats.map((s) => [s.categoryId, s]) ?? []);
+
+		const sortedCategories = [...categories].sort((a, b) => {
+			const statA = statsMap.get(a.id);
+			const statB = statsMap.get(b.id);
+			const hoursA = statA?.totalHours ?? 0;
+			const hoursB = statB?.totalHours ?? 0;
+			return hoursB - hoursA;
+		});
+
+		for (const category of sortedCategories) {
+			this.renderCategory(containerEl, category, statsMap, statistics?.totalHours ?? 0);
 		}
 	}
 
-	private renderCategory(containerEl: HTMLElement, category: Category): void {
-		const setting = new Setting(containerEl).setName(category.name).setDesc(category.description || "No description");
+	private renderCategory(
+		containerEl: HTMLElement,
+		category: Category,
+		statsMap: Map<string, { categoryId: string; totalHours: number; noteCount: number }>,
+		totalHours: number
+	): void {
+		const stat = statsMap.get(category.id);
+		const noteCount = stat?.noteCount ?? 0;
+		const hours = stat?.totalHours ?? 0;
+		const percentage = totalHours > 0 ? ((hours / totalHours) * 100).toFixed(1) : "0.0";
+
+		const description = category.description || "No description";
+		const statsText = stat
+			? `${description} · ${noteCount} notes · ${hours.toFixed(1)}h (${percentage}%)`
+			: description;
+
+		const setting = new Setting(containerEl).setName(category.name).setDesc(statsText);
 
 		const colorIndicator = setting.nameEl.createSpan({ cls: cls("category-color") });
 		colorIndicator.style.backgroundColor = category.color;
