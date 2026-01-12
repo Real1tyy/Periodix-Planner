@@ -12,6 +12,32 @@ All notable changes to this project will be documented here.
 
 ### New Features
 
+- **Automatic Category Discovery**: Categories are now automatically detected from your periodic notes in real-time
+  - No manual category creation needed - just use category names in your time allocations
+  - Categories appear in settings automatically when first used
+  - Real-time tracking shows which categories are active and in how many notes
+  - Settings now focus on statistics and color customization rather than manual management
+
+- **Enhanced Global Statistics**: Comprehensive time allocation analytics across all your periodic notes. [Learn more](/features/statistics)
+  - **Period Type Selector**: View statistics filtered by period type (daily, weekly, monthly, quarterly, yearly)
+  - **Interactive Pie Chart**: Visual breakdown of time allocation by category with color-coded segments
+  - **Per-Category Analytics**: See how many notes use each category and total hours allocated
+  - **Sorted by Usage**: Categories automatically sorted by hours allocated for the selected period type
+  - **Note Count Breakdown**: View category usage across all period types (e.g., "Daily: 5, Weekly: 3, Monthly: 1")
+  - **Color-Coded Rows**: Each category row is subtly highlighted with its assigned color for easy identification
+
+- **Streamlined Category Management**: Settings tab now serves as your analytics and customization hub
+  - Configure category colors with the built-in color picker
+  - View comprehensive usage statistics for each category
+  - Track which period types use each category
+  - See total hours and percentages for selected period type
+  - Background colors update instantly when you change category colors
+
+- **Reactive Category System**: Categories automatically sync across the plugin as you work
+  - Add a new category in any note - it appears in settings immediately
+  - No restart required for category changes to take effect
+  - Category tracker monitors all periodic notes and updates statistics in real-time
+
 - **Global Statistics**: View comprehensive time allocation statistics across all periodic notes in the Categories settings tab
   - Aggregates data from top-level periodic notes (yearly, quarterly, monthly, weekly, or daily)
   - Displays a detailed table with category breakdown, note counts, total hours, and percentages

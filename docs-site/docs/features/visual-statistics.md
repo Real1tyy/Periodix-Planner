@@ -10,16 +10,18 @@ Periodix-Planner provides powerful visual statistics to help you understand your
 
 ## 📊 Overview
 
-Visual statistics are displayed in the time budget code block, showing:
+Visual statistics are displayed in the time budget code block within your notes, showing:
 
 - **Pie charts** - Category distribution visualization
 - **Allocation tables** - Detailed breakdown with hours and percentages
 - **Progress bars** - Visual tracking of budget consumption
 - **Budget status** - Color-coded indicators (green/yellow/red)
 
+**Note**: These are *in-note* visualizations. For *global analytics* across all your periodic notes, see **[Statistics](/features/statistics)**.
+
 ## Pie Chart Visualization
 
-The pie chart shows the distribution of allocated time across categories:
+The pie chart shows the distribution of allocated time across [categories](/features/categories):
 
 - **Color-coded segments** - Each category uses its configured color
 - **Percentage labels** - See exact allocation percentages
@@ -69,4 +71,8 @@ Visual progress indicators show:
 
 ---
 
-**Related:** Learn about [Time Budgeting](/features/time-budgeting) and [Allocation Editor](/features/allocation-editor).
+**Related:**
+- **[Statistics](/features/statistics)** - View global analytics across all periodic notes
+- **[Categories](/features/categories)** - Learn about automatic category discovery
+- **[Time Budgeting](/features/time-budgeting)** - Understand the time budgeting system
+- **[Allocation Editor](/features/allocation-editor)** - Interactive time allocation management
