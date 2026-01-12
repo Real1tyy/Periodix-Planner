@@ -32,6 +32,35 @@
 	color: var(--text-on-accent);
 }
 
+/* Settings Navigation */
+.periodic-planner-settings-nav {
+	margin-bottom: 24px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	padding-bottom: 16px;
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.periodic-planner-settings-nav-button {
+	padding: 8px 16px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background-color: var(--background-secondary);
+	color: var(--text-normal);
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.periodic-planner-settings-nav-button:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.periodic-planner-settings-nav-button-active {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
 /* Settings Content Area */
 .periodic-planner-settings-content {
 	padding: 10px 0;
