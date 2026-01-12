@@ -6,8 +6,8 @@ import { SETTINGS_DEFAULTS } from "../../constants";
 import type { GlobalStatistics, GlobalStatisticsAggregator } from "../../core";
 import type { SettingsStore } from "../../core/settings-store";
 import type { Category } from "../../types";
+import type { SettingsSection } from "../../types/settings";
 import { cls } from "../../utils/css";
-import type { SettingsSection } from "../types";
 
 export class CategoriesSection implements SettingsSection {
 	readonly id = "categories";

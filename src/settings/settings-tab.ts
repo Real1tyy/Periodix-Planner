@@ -2,6 +2,7 @@ import { SettingsUIBuilder } from "@real1ty-obsidian-plugins/utils";
 import { type App, PluginSettingTab } from "obsidian";
 import type PeriodicPlannerPlugin from "../main";
 import type { PeriodicPlannerSettingsSchema } from "../types";
+import type { SettingsSection } from "../types/settings";
 import { cls } from "../utils/css";
 import {
 	BasesSection,
@@ -11,7 +12,6 @@ import {
 	PeriodicSection,
 	PropertiesSection,
 } from "./sections";
-import type { SettingsSection } from "./types";
 
 const DOCS_URL = "https://Real1tyy.github.io/Periodix-Planner/";
 const CHANGELOG_URL = "https://Real1tyy.github.io/Periodix-Planner/changelog";

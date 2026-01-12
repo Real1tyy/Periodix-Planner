@@ -1,7 +1,7 @@
 import { Setting } from "obsidian";
 import { SETTINGS_DEFAULTS } from "../../constants";
 import type { SettingsStore } from "../../core/settings-store";
-import type { SettingsSection } from "../types";
+import type { SettingsSection } from "../../types/settings";
 
 export class GenerationSection implements SettingsSection {
 	readonly id = "generation";

@@ -2,7 +2,7 @@ import type { SettingsUIBuilder } from "@real1ty-obsidian-plugins/utils";
 import { Setting } from "obsidian";
 import { SETTINGS_DEFAULTS } from "../../constants";
 import type { PeriodicPlannerSettingsSchema } from "../../types";
-import type { SettingsSection } from "../types";
+import type { SettingsSection } from "../../types/settings";
 
 export class BasesSection implements SettingsSection {
 	readonly id = "bases";

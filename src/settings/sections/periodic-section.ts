@@ -1,8 +1,8 @@
 import { Setting } from "obsidian";
 import { SETTINGS_DEFAULTS } from "../../constants";
 import type { SettingsStore } from "../../core/settings-store";
+import type { SettingsSection } from "../../types/settings";
 import { cls } from "../../utils/css";
-import type { SettingsSection } from "../types";
 
 export class PeriodicSection implements SettingsSection {
 	readonly id = "periodic";

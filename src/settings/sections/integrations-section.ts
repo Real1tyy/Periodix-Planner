@@ -2,8 +2,8 @@ import type { App } from "obsidian";
 import { Notice, Setting } from "obsidian";
 import { SETTINGS_DEFAULTS } from "../../constants";
 import type { SettingsStore } from "../../core/settings-store";
+import type { SettingsSection } from "../../types/settings";
 import { processAllDailyNotesForActivityWatch } from "../../utils/activity-watch";
-import type { SettingsSection } from "../types";
 
 export class IntegrationsSection implements SettingsSection {
 	readonly id = "integrations";
