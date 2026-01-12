@@ -74,6 +74,7 @@ export const createMockSettings = (overrides?: Partial<PeriodicPlannerSettings>)
 		tasksDirectory: SETTINGS_DEFAULTS.BASES_TASKS_DIRECTORY,
 		dateProperty: SETTINGS_DEFAULTS.BASES_DATE_PROPERTY,
 		propertiesToShow: SETTINGS_DEFAULTS.BASES_PROPERTIES_TO_SHOW,
+		showRibbonIcon: SETTINGS_DEFAULTS.BASES_SHOW_RIBBON_ICON,
 	},
 	categories: [],
 	...overrides,

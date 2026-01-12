@@ -18,6 +18,7 @@ export class BasesSettings {
 		this.renderTasksDirectorySetting(containerEl);
 		this.renderDatePropertySetting(containerEl);
 		this.renderPropertiesToShowSetting(containerEl);
+		this.renderShowRibbonIconSetting(containerEl);
 	}
 
 	private renderTasksDirectorySetting(containerEl: HTMLElement): void {
@@ -88,6 +89,26 @@ export class BasesSettings {
 						},
 					}));
 				})
+		);
+
+		settingEl.settingEl.addClass(cls("setting"));
+	}
+
+	private renderShowRibbonIconSetting(containerEl: HTMLElement): void {
+		const settingEl = new Setting(containerEl)
+			.setName("Show ribbon icon")
+			.setDesc("Display a ribbon icon in the left sidebar to quickly open the Period Tasks view.");
+
+		settingEl.addToggle((toggle) =>
+			toggle.setValue(this.settingsStore.currentSettings.basesView.showRibbonIcon).onChange(async (value) => {
+				await this.settingsStore.updateSettings((settings) => ({
+					...settings,
+					basesView: {
+						...settings.basesView,
+						showRibbonIcon: value,
+					},
+				}));
+			})
 		);
 
 		settingEl.settingEl.addClass(cls("setting"));

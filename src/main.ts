@@ -39,6 +39,7 @@ export default class PeriodicPlannerPlugin extends Plugin {
 	indexer!: PeriodicNoteIndexer;
 	periodIndex!: PeriodIndex;
 	templateService!: TemplateService;
+	private ribbonIconEl: HTMLElement | null = null;
 
 	async onload() {
 		this.settingsStore = new SettingsStore(this);
@@ -54,6 +55,13 @@ export default class PeriodicPlannerPlugin extends Plugin {
 		this.addSettingTab(new PeriodicPlannerSettingsTab(this.app, this));
 		this.registerCommands();
 		this.registerVaultEvents();
+		this.updateRibbonIcon();
+
+		this.registerEvent(
+			this.settingsStore.settings$.subscribe(() => {
+				this.updateRibbonIcon();
+			})
+		);
 
 		this.app.workspace.onLayoutReady(() => {
 			void this.initializeOnLayoutReady();
@@ -82,6 +90,19 @@ export default class PeriodicPlannerPlugin extends Plugin {
 				await leaf.setViewState({ type: VIEW_TYPE_PERIOD_BASES, active: true });
 				workspace.revealLeaf(leaf);
 			}
+		}
+	}
+
+	private updateRibbonIcon(): void {
+		const settings = this.settingsStore.currentSettings;
+
+		if (settings.basesView.showRibbonIcon && !this.ribbonIconEl) {
+			this.ribbonIconEl = this.addRibbonIcon("list-checks", "Open Period Tasks", async () => {
+				await this.activatePeriodBasesView();
+			});
+		} else if (!settings.basesView.showRibbonIcon && this.ribbonIconEl) {
+			this.ribbonIconEl.remove();
+			this.ribbonIconEl = null;
 		}
 	}
 
