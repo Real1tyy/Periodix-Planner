@@ -1,6 +1,7 @@
 import { type App, PluginSettingTab } from "obsidian";
 import type PeriodicPlannerPlugin from "../main";
 import { cls, toggleCls } from "../utils/css";
+import { BasesSettings } from "./bases-settings";
 import { CategorySettings } from "./category-settings";
 import { DirectorySettings } from "./directory-settings";
 import { GenerationSettings } from "./generation-settings";
@@ -9,7 +10,7 @@ import { NamingSettings } from "./naming-settings";
 import { PropertySettings } from "./property-settings";
 import { TimeBudgetSettings } from "./time-budget-settings";
 
-type TabId = "directories" | "naming" | "time" | "properties" | "categories" | "generation" | "integrations";
+type TabId = "directories" | "naming" | "time" | "properties" | "categories" | "generation" | "integrations" | "bases";
 
 export class PeriodicPlannerSettingsTab extends PluginSettingTab {
 	private activeTab: TabId = "directories";
@@ -22,6 +23,7 @@ export class PeriodicPlannerSettingsTab extends PluginSettingTab {
 	private categorySettings: CategorySettings;
 	private generationSettings: GenerationSettings;
 	private integrationSettings: IntegrationSettings;
+	private basesSettings: BasesSettings;
 
 	constructor(app: App, plugin: PeriodicPlannerPlugin) {
 		super(app, plugin);
@@ -34,6 +36,7 @@ export class PeriodicPlannerSettingsTab extends PluginSettingTab {
 		this.categorySettings = new CategorySettings(plugin.settingsStore);
 		this.generationSettings = new GenerationSettings(plugin.settingsStore);
 		this.integrationSettings = new IntegrationSettings(plugin.settingsStore, app);
+		this.basesSettings = new BasesSettings(plugin.settingsStore);
 	}
 
 	display(): void {
@@ -71,6 +74,7 @@ export class PeriodicPlannerSettingsTab extends PluginSettingTab {
 			{ id: "properties", label: "Properties", icon: "list" },
 			{ id: "generation", label: "Generation", icon: "play" },
 			{ id: "integrations", label: "Integrations", icon: "plug" },
+			{ id: "bases", label: "Bases", icon: "database" },
 		];
 
 		for (const tab of tabs) {
@@ -89,7 +93,16 @@ export class PeriodicPlannerSettingsTab extends PluginSettingTab {
 
 	private updateTabStyles(tabsContainer: HTMLElement): void {
 		const tabs = tabsContainer.querySelectorAll(`.${cls("tab")}`);
-		const tabIds: TabId[] = ["directories", "naming", "time", "categories", "properties", "generation", "integrations"];
+		const tabIds: TabId[] = [
+			"directories",
+			"naming",
+			"time",
+			"categories",
+			"properties",
+			"generation",
+			"integrations",
+			"bases",
+		];
 
 		tabs.forEach((tab, index) => {
 			toggleCls(tab as HTMLElement, "active", tabIds[index] === this.activeTab);
@@ -121,6 +134,9 @@ export class PeriodicPlannerSettingsTab extends PluginSettingTab {
 				break;
 			case "integrations":
 				this.integrationSettings.display(this.contentEl);
+				break;
+			case "bases":
+				this.basesSettings.display(this.contentEl);
 				break;
 		}
 	}

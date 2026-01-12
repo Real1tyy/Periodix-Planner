@@ -70,6 +70,11 @@ export const createMockSettings = (overrides?: Partial<PeriodicPlannerSettings>)
 		quarterlyTemplate: "",
 		yearlyTemplate: "",
 	},
+	basesView: {
+		tasksDirectory: SETTINGS_DEFAULTS.BASES_TASKS_DIRECTORY,
+		dateProperty: SETTINGS_DEFAULTS.BASES_DATE_PROPERTY,
+		propertiesToShow: SETTINGS_DEFAULTS.BASES_PROPERTIES_TO_SHOW,
+	},
 	categories: [],
 	...overrides,
 });

@@ -171,6 +171,17 @@ const TemplaterSettingsSchema = z
 
 export type TemplaterSettings = z.infer<typeof TemplaterSettingsSchema>;
 
+// ===== Bases View Settings Schema =====
+const BasesViewSettingsSchema = z
+	.object({
+		tasksDirectory: z.string().catch(SETTINGS_DEFAULTS.BASES_TASKS_DIRECTORY),
+		dateProperty: z.string().catch(SETTINGS_DEFAULTS.BASES_DATE_PROPERTY),
+		propertiesToShow: z.string().catch(SETTINGS_DEFAULTS.BASES_PROPERTIES_TO_SHOW),
+	})
+	.strip();
+
+export type BasesViewSettings = z.infer<typeof BasesViewSettingsSchema>;
+
 // ===== Main Plugin Settings Schema =====
 export const PeriodicPlannerSettingsSchema = z
 	.object({
@@ -199,6 +210,9 @@ export const PeriodicPlannerSettingsSchema = z
 
 		// Templater integration
 		templater: TemplaterSettingsSchema.default(TemplaterSettingsSchema.parse({})),
+
+		// Bases view configuration
+		basesView: BasesViewSettingsSchema.default(BasesViewSettingsSchema.parse({})),
 
 		// User-defined time categories
 		categories: z.array(CategorySchema).catch([]),
