@@ -12,8 +12,8 @@ importers:
   .:
     dependencies:
       '@real1ty-obsidian-plugins/utils':
-        specifier: ^2.24.0
-        version: 2.24.0(@codemirror/state@6.5.2)(@codemirror/view@6.38.8)
+        specifier: ^2.26.0
+        version: 2.26.0(@codemirror/state@6.5.2)(@codemirror/view@6.38.8)
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
@@ -524,8 +524,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@real1ty-obsidian-plugins/utils@2.24.0':
-    resolution: {integrity: sha512-gVyKOniJBjOmnlk6/juwM67uv79oRGR9do265wc81z2UY5qzu0TpLfHtp2bC9DF8s71u5WhjaIj/h8mf60H3kw==}
+  '@real1ty-obsidian-plugins/utils@2.26.0':
+    resolution: {integrity: sha512-Xi3weBK0PXI7QPEVz1pOWJtkzGSpqaQUmyDoYJQ0vVy4QMZTjTIn1culZ+C/ZOq88T35JWnw3fnKdXeQQA/H3A==}
 
   '@rollup/rollup-android-arm-eabi@4.55.1':
     resolution: {integrity: sha512-9R0DM/ykwfGIlNu6+2U09ga0WXeZ9MRC2Ter8jnz8415VbuIykVuc6bhdrbORFZANDmTDvq26mJrEVTl8TdnDg==}
@@ -1820,7 +1820,7 @@ snapshots:
   '@oxc-resolver/binding-win32-x64-msvc@11.16.2':
     optional: true
 
-  '@real1ty-obsidian-plugins/utils@2.24.0(@codemirror/state@6.5.2)(@codemirror/view@6.38.8)':
+  '@real1ty-obsidian-plugins/utils@2.26.0(@codemirror/state@6.5.2)(@codemirror/view@6.38.8)':
     dependencies:
       colord: 2.9.3
       gray-matter: 4.0.3

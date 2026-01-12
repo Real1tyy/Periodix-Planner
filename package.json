@@ -64,7 +64,7 @@
 		"vitest": "^3.2.4"
 	},
 	"dependencies": {
-		"@real1ty-obsidian-plugins/utils": "^2.24.0",
+		"@real1ty-obsidian-plugins/utils": "^2.26.0",
 		"chart.js": "^4.5.1",
 		"luxon": "^3.7.2",
 		"nanoid": "^5.1.6",
