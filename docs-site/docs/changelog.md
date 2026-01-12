@@ -12,6 +12,12 @@ All notable changes to this project will be documented here.
 
 ### New Features
 
+- **Auto-Open Yesterday's PDF on Startup**: New optional setting to automatically open yesterday's daily note PDF in a detached window when Obsidian loads
+  - Configurable in Settings → Generation → Startup behavior
+  - Only opens if the PDF exists and isn't already open
+  - Opens in a new detached window for easy reference
+  - Off by default - enable to automatically access previous day's notes
+
 - **Bases Plugin Integration**: Seamlessly filter and view tasks by period intervals using the Bases plugin. [Learn more](/features/bases-integration)
   - **Period Tasks Sidebar**: Persistent sidebar view that automatically filters tasks based on the current periodic note
   - **Inline Generation**: Automatically embed Bases views in newly generated periodic notes (configurable)

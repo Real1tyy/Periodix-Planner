@@ -111,6 +111,9 @@ export const SETTINGS_DEFAULTS = {
 	// ===== Bases Generation Settings =====
 	INCLUDE_BASES_IN_GENERATION: false,
 	BASES_HEADING: "## Bases",
+
+	// ===== Startup Settings =====
+	OPEN_YESTERDAY_PDF_ON_STARTUP: false,
 } as const;
 
 /**

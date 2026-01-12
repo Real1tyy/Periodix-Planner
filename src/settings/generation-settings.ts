@@ -313,5 +313,31 @@ export class GenerationSettings {
 						}));
 					});
 			});
+
+		new Setting(containerEl).setName("Startup behavior").setHeading();
+
+		containerEl.createEl("p", {
+			text: "Configure actions to perform when the plugin loads.",
+			cls: "setting-item-description",
+		});
+
+		new Setting(containerEl)
+			.setName("Open yesterday's PDF on startup")
+			.setDesc(
+				"Automatically open yesterday's daily note PDF in a detached window when Obsidian loads (only if not already open)"
+			)
+			.addToggle((toggle) => {
+				toggle
+					.setValue(this.settingsStore.currentSettings.generation.openYesterdayPdfOnStartup)
+					.onChange(async (value) => {
+						await this.settingsStore.updateSettings((s) => ({
+							...s,
+							generation: {
+								...s.generation,
+								openYesterdayPdfOnStartup: value,
+							},
+						}));
+					});
+			});
 	}
 }

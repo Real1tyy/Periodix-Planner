@@ -133,6 +133,9 @@ const GenerationSettingsSchema = z
 		// Bases Generation Settings
 		includeBasesInGeneration: z.boolean().catch(SETTINGS_DEFAULTS.INCLUDE_BASES_IN_GENERATION),
 		basesHeading: z.string().catch(SETTINGS_DEFAULTS.BASES_HEADING),
+
+		// Startup Settings
+		openYesterdayPdfOnStartup: z.boolean().catch(SETTINGS_DEFAULTS.OPEN_YESTERDAY_PDF_ON_STARTUP),
 	})
 	.strip();
 

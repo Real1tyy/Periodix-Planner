@@ -29,6 +29,7 @@ const allEnabledSettings: GenerationSettings = {
 	planHeadingContent: "## Plan",
 	includeBasesInGeneration: false,
 	basesHeading: "## Bases",
+	openYesterdayPdfOnStartup: false,
 };
 
 const allDisabledSettings: GenerationSettings = {

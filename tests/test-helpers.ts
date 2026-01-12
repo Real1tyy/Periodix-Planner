@@ -53,6 +53,7 @@ export const createMockSettings = (overrides?: Partial<PeriodicPlannerSettings>)
 		planHeadingContent: "## Plan",
 		includeBasesInGeneration: SETTINGS_DEFAULTS.INCLUDE_BASES_IN_GENERATION,
 		basesHeading: SETTINGS_DEFAULTS.BASES_HEADING,
+		openYesterdayPdfOnStartup: SETTINGS_DEFAULTS.OPEN_YESTERDAY_PDF_ON_STARTUP,
 	},
 	ui: {
 		warningThresholdPercent: 80,

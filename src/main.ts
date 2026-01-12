@@ -112,6 +112,10 @@ export default class PeriodicPlannerPlugin extends Plugin {
 		if (this.autoGenerator.shouldAutoGenerate()) {
 			await this.runAutoGeneration();
 		}
+
+		if (this.settingsStore.currentSettings.generation.openYesterdayPdfOnStartup) {
+			await this.openYesterdayPdfIfNotOpen();
+		}
 	}
 
 	private async runAutoGeneration(): Promise<void> {
@@ -124,6 +128,36 @@ export default class PeriodicPlannerPlugin extends Plugin {
 			}
 		} catch (error) {
 			console.error("Periodic Planner: Auto-generation failed", error);
+		}
+	}
+
+	private isFileOpen(path: string): boolean {
+		return this.app.workspace.getLeavesOfType("pdf").some((leaf) => {
+			const state = leaf.getViewState();
+			return state.state?.file === path;
+		});
+	}
+
+	private async openInNewWindow(file: TFile): Promise<void> {
+		const leaf = this.app.workspace.getLeaf("window");
+		await leaf.openFile(file, { active: true });
+	}
+
+	private async openYesterdayPdfIfNotOpen(): Promise<void> {
+		try {
+			const yesterday = DateTime.now().minus({ days: 1 });
+			const result = await this.autoGenerator.generateSingleNote(yesterday, "daily");
+			if (!result.success) return;
+
+			const pdfPath = getPdfPath(result.filePath);
+			const pdfFile = this.app.vault.getAbstractFileByPath(pdfPath);
+			if (!(pdfFile instanceof TFile)) return;
+
+			if (!this.isFileOpen(pdfPath)) {
+				await this.openInNewWindow(pdfFile);
+			}
+		} catch (error) {
+			console.error("Periodic Planner: Failed to open yesterday's PDF", error);
 		}
 	}
 

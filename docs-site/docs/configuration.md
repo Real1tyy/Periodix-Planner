@@ -136,6 +136,22 @@ Select which period types to generate and track. Disabled periods will be skippe
 
 **Example:** If you disable weekly notes, daily notes will link directly to monthly notes as their parent, and monthly notes will show daily notes as children.
 
+### Startup Behavior
+
+Configure actions to perform when the plugin loads.
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Open yesterday's PDF on startup** | Automatically open yesterday's daily note PDF in a detached window when Obsidian loads | `false` |
+
+**How it works:**
+- When enabled, the plugin checks for yesterday's daily note PDF on startup
+- Opens the PDF in a new detached window if it exists and isn't already open
+- Useful for reviewing the previous day's notes when starting your work session
+- Fails silently if the PDF doesn't exist
+
+**Note:** This feature requires that PDF notes exist alongside your markdown notes. Enable PDF commands in the PDF note linking section if you want to work with PDF versions of your periodic notes.
+
 ### Bases View Embedding
 
 Automatically embed Bases task filtering views in newly generated periodic notes.
