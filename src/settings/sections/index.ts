@@ -1,6 +1,6 @@
-export { BasesSection } from "./bases-section";
-export { CategoriesSection } from "./categories-section";
-export { GenerationSection } from "./generation-section";
-export { IntegrationsSection } from "./integrations-section";
-export { PeriodicSection } from "./periodic-section";
-export { PropertiesSection } from "./properties-section";
+export { BasesSection } from "./bases";
+export { CategoriesSection } from "./categories";
+export { GenerationSection } from "./generation";
+export { IntegrationsSection } from "./integrations";
+export { PeriodicSection } from "./periodic";
+export { PropertiesSection } from "./properties";
