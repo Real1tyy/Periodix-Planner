@@ -1,12 +1,12 @@
 import type { TFile } from "obsidian";
 import type { PeriodIndex } from "../../core/period-index";
-import type { Category, IndexedPeriodNote, PeriodicPlannerSettings, TimeAllocation } from "../../types";
+import type { IndexedPeriodNote, PeriodicPlannerSettings, TimeAllocation } from "../../types";
 import { resolveFilePath } from "../../utils/frontmatter-utils";
 import { getEnabledParentPeriodType } from "../../utils/period-navigation";
 import { calculateChildAllocatedForNode } from "./child-budget-calculator";
 
 export interface CategoryBudgetInfo {
-	categoryId: string;
+	categoryName: string;
 	total: number;
 	allocated: number;
 	remaining: number;
@@ -43,13 +43,9 @@ export async function getParentBudgets(
 		return emptyResult;
 	}
 
-	const categoryNameToId = buildCategoryNameToIdMap(settings.categories);
 	const parentAllocations: TimeAllocation[] = [];
 	for (const [categoryName, hours] of parentNote.categoryAllocations) {
-		const categoryId = categoryNameToId.get(categoryName);
-		if (categoryId) {
-			parentAllocations.push({ categoryId, hours });
-		}
+		parentAllocations.push({ categoryName, hours });
 	}
 
 	const childAllocatedBudgets = calculateChildAllocatedForNode(
@@ -57,7 +53,6 @@ export async function getParentBudgets(
 		parentNote.periodType,
 		parentAllocations,
 		periodIndex,
-		settings.categories,
 		settings.generation
 	);
 
@@ -65,18 +60,15 @@ export async function getParentBudgets(
 	let totalAllocatedInParent = 0;
 
 	for (const [categoryName, hours] of parentNote.categoryAllocations) {
-		const categoryId = categoryNameToId.get(categoryName);
-		if (categoryId) {
-			const childAllocated = childAllocatedBudgets.get(categoryId);
-			const allocated = childAllocated?.allocated ?? 0;
-			totalAllocatedInParent += allocated;
-			budgets.set(categoryId, {
-				categoryId,
-				total: hours,
-				allocated,
-				remaining: hours - allocated,
-			});
-		}
+		const childAllocated = childAllocatedBudgets.get(categoryName);
+		const allocated = childAllocated?.allocated ?? 0;
+		totalAllocatedInParent += allocated;
+		budgets.set(categoryName, {
+			categoryName,
+			total: hours,
+			allocated,
+			remaining: hours - allocated,
+		});
 	}
 
 	return {
@@ -86,11 +78,3 @@ export async function getParentBudgets(
 		totalAllocatedInParent,
 	};
 }
-
-export const buildCategoryNameToIdMap = (categories: Category[]): Map<string, string> => {
-	const categoryNameToId = new Map<string, string>();
-	for (const category of categories) {
-		categoryNameToId.set(category.name, category.id);
-	}
-	return categoryNameToId;
-};

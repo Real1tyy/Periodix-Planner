@@ -5,11 +5,8 @@ import { ColorSchema, DateTimeSchema } from "../utils/validation-utils";
 // ===== Category Schema =====
 export const CategorySchema = z
 	.object({
-		id: z.string(),
 		name: z.string().min(1, "Category name is required"),
 		color: ColorSchema,
-		createdAt: z.number().int().positive(),
-		updatedAt: z.number().int().positive().optional(),
 	})
 	.strip();
 
@@ -18,7 +15,7 @@ export type Category = z.infer<typeof CategorySchema>;
 // ===== Time Allocation Schema =====
 const TimeAllocationSchema = z
 	.object({
-		categoryId: z.string(),
+		categoryName: z.string(),
 		hours: z.number().nonnegative(),
 	})
 	.strip();

@@ -3,16 +3,16 @@ import { sortAllocationsByCategoryName } from "../../utils/time-budget-utils";
 import { type PieChartData, PieChartRenderer } from "../shared/pie-chart";
 
 function preparePieChartData(allocations: TimeAllocation[], categories: Category[]): PieChartData {
-	const categoryMap = new Map(categories.map((c) => [c.id, c]));
+	const categoryMap = new Map(categories.map((c) => [c.name, c]));
 
 	const labels: string[] = [];
 	const values: number[] = [];
 	const colors: string[] = [];
 
-	const sortedAllocations = sortAllocationsByCategoryName(allocations, categories);
+	const sortedAllocations = sortAllocationsByCategoryName(allocations);
 
 	for (const allocation of sortedAllocations) {
-		const category = categoryMap.get(allocation.categoryId);
+		const category = categoryMap.get(allocation.categoryName);
 		if (category && allocation.hours > 0) {
 			labels.push(category.name);
 			values.push(allocation.hours);

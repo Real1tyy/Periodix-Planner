@@ -5,7 +5,7 @@ import type { PeriodType } from "../constants";
 import type { PeriodIndex } from "../core/period-index";
 import type { IndexedPeriodNote, PeriodChildren, PeriodicPlannerSettings, PeriodLinks } from "../types";
 import { PERIOD_CONFIG } from "../types";
-import type { Category, PropertySettings } from "../types/schemas";
+import type { PropertySettings } from "../types/schemas";
 import { FrontmatterSchema } from "../types/schemas";
 import { createPeriodInfo, getNextPeriod, getPreviousPeriod } from "./date-utils";
 import {
@@ -16,29 +16,40 @@ import {
 import { getEnabledAncestorPeriodTypes, getEnabledParentPeriodType } from "./period-navigation";
 import { getHoursForPeriodType } from "./time-budget-utils";
 
-export async function extractCategoryAllocations(
-	vault: Vault,
-	file: TFile,
-	categories: Category[]
-): Promise<Map<string, number>> {
+const TIME_BUDGET_CODE_FENCE = "periodic-planner";
+
+/**
+ * Extracts the content of a code block from a file.
+ * Returns null if no code block with the specified fence is found.
+ */
+export async function extractCodeBlockContent(vault: Vault, file: TFile, codeFence: string): Promise<string | null> {
+	try {
+		const content = await vault.read(file);
+		const regex = new RegExp(`\`\`\`${codeFence}\\n([\\s\\S]*?)\`\`\``, "");
+		const match = content.match(regex);
+		return match?.[1] ?? null;
+	} catch (error) {
+		console.debug(`Error reading file ${file.path}:`, error);
+		return null;
+	}
+}
+
+/**
+ * Extracts category allocations from a time budget code block.
+ * Returns a map of category names to hours allocated.
+ */
+export async function extractCategoryAllocations(vault: Vault, file: TFile): Promise<Map<string, number>> {
 	const allocations = new Map<string, number>();
 
 	try {
-		const content = await vault.read(file);
-		const codeBlockMatch = content.match(/```periodic-planner\n([\s\S]*?)```/);
-
-		if (!codeBlockMatch) {
+		const blockContent = await extractCodeBlockContent(vault, file, TIME_BUDGET_CODE_FENCE);
+		if (!blockContent) {
 			return allocations;
 		}
 
-		const parsed = parseAllocationBlock(codeBlockMatch[1]);
-		const categoryMap = new Map(categories.map((c) => [c.name.toLowerCase(), c]));
-
+		const parsed = parseAllocationBlock(blockContent);
 		for (const allocation of parsed.allocations) {
-			const category = categoryMap.get(allocation.categoryName.toLowerCase());
-			if (category) {
-				allocations.set(category.id, allocation.hours);
-			}
+			allocations.set(allocation.categoryName, allocation.hours);
 		}
 	} catch (error) {
 		console.debug(`Error extracting allocations from ${file.path}:`, error);
@@ -144,7 +155,7 @@ async function buildIndexedNote(
 	const hoursAvailable =
 		typeof rawHours === "number" ? rawHours : getHoursForPeriodType(settings.timeBudget, validatedData.periodType);
 
-	const categoryAllocations = await extractCategoryAllocations(vault, file, settings.categories);
+	const categoryAllocations = await extractCategoryAllocations(vault, file);
 	const totalHoursSpent = Array.from(categoryAllocations.values()).reduce((sum, hours) => sum + hours, 0);
 	const roundedHoursSpent = Math.round(totalHoursSpent * 10) / 10;
 

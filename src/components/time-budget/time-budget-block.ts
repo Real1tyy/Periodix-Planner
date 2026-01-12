@@ -136,7 +136,6 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 				periodType,
 				finalAllocations,
 				this.periodIndex,
-				this.settings.categories,
 				this.settings.generation
 			);
 
@@ -291,12 +290,12 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		headerRow.createEl("th", { text: "Status" });
 
 		const tbody = table.createEl("tbody");
-		const categoryMap = new Map(categories.map((c) => [c.id, c]));
+		const categoryMap = new Map(categories.map((c) => [c.name, c]));
 
 		const sortedAllocations = this.sortAllocations(allocations, categories, parentBudgets, childBudgets);
 
 		for (const allocation of sortedAllocations) {
-			const category = categoryMap.get(allocation.categoryId);
+			const category = categoryMap.get(allocation.categoryName);
 			if (!category) continue;
 
 			const row = tbody.createEl("tr");
@@ -310,7 +309,7 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 			row.createEl("td", { text: `${formatHours(allocation.hours)}h (${percentage.toFixed(1)}%)` });
 
 			if (showParent) {
-				const parentBudget = parentBudgets.get(allocation.categoryId);
+				const parentBudget = parentBudgets.get(allocation.categoryName);
 				if (parentBudget) {
 					const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
 					row.createEl("td", {
@@ -322,7 +321,7 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 			}
 
 			if (showChild) {
-				const childBudget = childBudgets.get(allocation.categoryId);
+				const childBudget = childBudgets.get(allocation.categoryName);
 				if (childBudget) {
 					const childPercentage = childBudget.total > 0 ? (childBudget.allocated / childBudget.total) * 100 : 0;
 					row.createEl("td", {
@@ -334,8 +333,8 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 			}
 
 			const statusCell = row.createEl("td");
-			const parentBudget = parentBudgets.get(allocation.categoryId);
-			const childBudget = childBudgets.get(allocation.categoryId);
+			const parentBudget = parentBudgets.get(allocation.categoryName);
+			const childBudget = childBudgets.get(allocation.categoryName);
 
 			// Tolerance for floating-point comparison (0.01 hours)
 			const EPSILON = 0.01;
@@ -393,7 +392,7 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		parentBudgets: Map<string, CategoryBudgetInfo>,
 		childBudgets: Map<string, CategoryBudgetInfo>
 	): TimeAllocation[] {
-		const categoryMap = new Map(categories.map((c) => [c.id, c]));
+		const categoryMap = new Map(categories.map((c) => [c.name, c]));
 		const sorted = [...allocations];
 
 		sorted.sort((a, b) => {
@@ -401,8 +400,8 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 
 			switch (this.sortColumn) {
 				case "name": {
-					const nameA = categoryMap.get(a.categoryId)?.name ?? "";
-					const nameB = categoryMap.get(b.categoryId)?.name ?? "";
+					const nameA = categoryMap.get(a.categoryName)?.name ?? "";
+					const nameB = categoryMap.get(b.categoryName)?.name ?? "";
 					comparison = nameA.localeCompare(nameB);
 					break;
 				}
@@ -411,16 +410,16 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 					break;
 				}
 				case "parentBudget": {
-					const parentA = parentBudgets.get(a.categoryId);
-					const parentB = parentBudgets.get(b.categoryId);
+					const parentA = parentBudgets.get(a.categoryName);
+					const parentB = parentBudgets.get(b.categoryName);
 					const totalA = parentA?.total ?? 0;
 					const totalB = parentB?.total ?? 0;
 					comparison = totalA - totalB;
 					break;
 				}
 				case "childAllocated": {
-					const childA = childBudgets.get(a.categoryId);
-					const childB = childBudgets.get(b.categoryId);
+					const childA = childBudgets.get(a.categoryName);
+					const childB = childBudgets.get(b.categoryName);
 					const allocatedA = childA?.allocated ?? 0;
 					const allocatedB = childB?.allocated ?? 0;
 					comparison = allocatedA - allocatedB;
@@ -446,8 +445,8 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		periodType: PeriodType,
 		currentAllocations: TimeAllocation[],
 		totalHours: number,
-		parentBudgets: Map<string, { total: number; allocated: number; remaining: number; categoryId: string }>,
-		childBudgets: Map<string, { categoryId: string; total: number; allocated: number; remaining: number }>,
+		parentBudgets: Map<string, { total: number; allocated: number; remaining: number; categoryName: string }>,
+		childBudgets: Map<string, { categoryName: string; total: number; allocated: number; remaining: number }>,
 		ctx: MarkdownPostProcessorContext
 	): void {
 		const buttonContainer = el.createDiv({ cls: cls("edit-button-container") });
@@ -493,7 +492,7 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		_ctx: MarkdownPostProcessorContext
 	): Promise<void> {
 		const content = await this.app.vault.read(file);
-		const newContent = serializeAllocations(allocations, this.settings.categories);
+		const newContent = serializeAllocations(allocations);
 
 		const updatedContent = content.replace(
 			/```periodic-planner\n[\s\S]*?```/,

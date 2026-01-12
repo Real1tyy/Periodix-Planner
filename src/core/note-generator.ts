@@ -204,7 +204,7 @@ export class NoteGenerator {
 	}
 
 	private formatTimeBudgetBlock(allocations: TimeAllocation[]): string {
-		const allocContent = serializeAllocations(allocations, this.settings.categories);
+		const allocContent = serializeAllocations(allocations);
 
 		let blockContent = "";
 		if (this.settings.generation.includePlanHeading && this.settings.generation.planHeadingContent) {
@@ -301,7 +301,7 @@ export class NoteGenerator {
 		totalCurrentHours: number
 	): TimeAllocation[] {
 		const scaledAllocations = parentAllocations.map((alloc) => ({
-			categoryId: alloc.categoryId,
+			categoryName: alloc.categoryName,
 			hours: roundHours((alloc.hours / totalParentHours) * totalCurrentHours),
 		}));
 
@@ -350,7 +350,7 @@ export class NoteGenerator {
 	}
 
 	private insertCodeBlockAfterFrontmatter(content: string, allocations: TimeAllocation[]): string {
-		const allocContent = serializeAllocations(allocations, this.settings.categories);
+		const allocContent = serializeAllocations(allocations);
 
 		let blockContent = "";
 		if (this.settings.generation.includePlanHeading && this.settings.generation.planHeadingContent) {

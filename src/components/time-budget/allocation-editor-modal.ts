@@ -46,7 +46,7 @@ export class AllocationEditorModal extends Modal {
 		super(app);
 
 		for (const allocation of initialAllocations) {
-			this.allocations.set(allocation.categoryId, allocation.hours);
+			this.allocations.set(allocation.categoryName, allocation.hours);
 		}
 		this.saveState();
 	}
@@ -225,13 +225,13 @@ export class AllocationEditorModal extends Modal {
 		const sortedCategories = sortCategoriesByName(this.categories);
 
 		for (const category of sortedCategories) {
-			const currentHours = this.allocations.get(category.id) ?? 0;
-			const parentBudget = this.getReactiveParentBudget(category.id);
+			const currentHours = this.allocations.get(category.name) ?? 0;
+			const parentBudget = this.getReactiveParentBudget(category.name);
 			const percentage = this.totalHoursAvailable > 0 ? (currentHours / this.totalHoursAvailable) * 100 : 0;
 
 			const item = this.allocationListEl.createDiv({ cls: cls("allocation-item") });
-			item.dataset.categoryId = category.id;
-			item.id = `allocation-item-${category.id}`;
+			item.dataset.categoryId = category.name;
+			item.id = `allocation-item-${category.name}`;
 
 			const topRow = item.createDiv({ cls: cls("allocation-top-row") });
 
@@ -265,9 +265,9 @@ export class AllocationEditorModal extends Modal {
 					type: "checkbox",
 					cls: cls("fill-from-parent-checkbox"),
 				});
-				checkbox.checked = this.fillFromParent.get(category.id) ?? false;
+				checkbox.checked = this.fillFromParent.get(category.name) ?? false;
 				checkbox.addEventListener("change", () => {
-					this.fillFromParent.set(category.id, checkbox.checked);
+					this.fillFromParent.set(category.name, checkbox.checked);
 				});
 
 				const checkboxLabel = checkboxContainer.createSpan({
@@ -276,11 +276,11 @@ export class AllocationEditorModal extends Modal {
 				});
 				checkboxLabel.addEventListener("click", () => {
 					checkbox.checked = !checkbox.checked;
-					this.fillFromParent.set(category.id, checkbox.checked);
+					this.fillFromParent.set(category.name, checkbox.checked);
 				});
 			}
 
-			const childBudget = this.childBudgets.get(category.id);
+			const childBudget = this.childBudgets.get(category.name);
 			if (childBudget) {
 				const allocated = childBudget.allocated ?? 0;
 				const total = childBudget.total ?? 0;
@@ -304,25 +304,25 @@ export class AllocationEditorModal extends Modal {
 			});
 			input.min = "0";
 			input.step = "0.5";
-			input.dataset.categoryId = category.id;
+			input.dataset.categoryId = category.name;
 
-			this.inputRefs.set(category.id, input);
+			this.inputRefs.set(category.name, input);
 
 			input.addEventListener("focus", () => {
-				this.focusedCategoryId = category.id;
+				this.focusedCategoryId = category.name;
 			});
 
 			input.addEventListener("input", () => {
 				const value = Number.parseFloat(input.value) || 0;
 				this.saveState();
-				this.allocations.set(category.id, value);
+				this.allocations.set(category.name, value);
 				this.scheduleUpdate();
 			});
 
 			inputContainer.createSpan({ text: "hours", cls: cls("input-suffix") });
 
 			const quickFillContainer = inputRow.createDiv({ cls: cls("quick-fill-container") });
-			this.createQuickFillButtons(quickFillContainer, category.id, input);
+			this.createQuickFillButtons(quickFillContainer, category.name, input);
 
 			const percentageContainer = inputRow.createDiv({ cls: cls("percentage-container") });
 
@@ -330,15 +330,15 @@ export class AllocationEditorModal extends Modal {
 			const percentageBar = percentageBarWrapper.createDiv({ cls: cls("percentage-bar") });
 			percentageBar.style.width = `${Math.min(percentage, 100)}%`;
 			percentageBar.style.backgroundColor = category.color;
-			this.percentageBarRefs.set(category.id, percentageBar);
+			this.percentageBarRefs.set(category.name, percentageBar);
 
-			this.setupBarDragHandlers(percentageBarWrapper, category.id);
+			this.setupBarDragHandlers(percentageBarWrapper, category.name);
 
 			const percentageLabel = percentageContainer.createSpan({
 				text: `${percentage.toFixed(1)}%`,
 				cls: cls("percentage-label"),
 			});
-			this.percentageLabelRefs.set(category.id, percentageLabel);
+			this.percentageLabelRefs.set(category.name, percentageLabel);
 
 			if (parentBudget) {
 				const EPSILON = 0.01;
@@ -508,10 +508,10 @@ export class AllocationEditorModal extends Modal {
 		const sortedCategories = sortCategoriesByName(this.categories);
 
 		for (const category of sortedCategories) {
-			const currentHours = this.allocations.get(category.id) ?? 0;
-			const parentBudget = this.getReactiveParentBudget(category.id);
+			const currentHours = this.allocations.get(category.name) ?? 0;
+			const parentBudget = this.getReactiveParentBudget(category.name);
 			const percentage = this.totalHoursAvailable > 0 ? (currentHours / this.totalHoursAvailable) * 100 : 0;
-			const item = this.allocationListEl.querySelector(`[data-category-id="${category.id}"]`);
+			const item = this.allocationListEl.querySelector(`[data-category-id="${category.name}"]`);
 
 			if (!item) continue;
 
@@ -532,7 +532,7 @@ export class AllocationEditorModal extends Modal {
 					}
 				}
 
-				const childBudget = this.childBudgets.get(category.id);
+				const childBudget = this.childBudgets.get(category.name);
 				let childBudgetInfo = budgetInfoContainer.querySelector(`.${cls("child-budget-info")}`);
 				if (childBudget) {
 					const allocated = childBudget.allocated ?? 0;
@@ -547,12 +547,12 @@ export class AllocationEditorModal extends Modal {
 				}
 			}
 
-			const percentageBar = this.percentageBarRefs.get(category.id);
+			const percentageBar = this.percentageBarRefs.get(category.name);
 			if (percentageBar) {
 				percentageBar.style.width = `${Math.min(percentage, 100)}%`;
 			}
 
-			const percentageLabel = this.percentageLabelRefs.get(category.id);
+			const percentageLabel = this.percentageLabelRefs.get(category.name);
 			if (percentageLabel) {
 				percentageLabel.textContent = `${percentage.toFixed(1)}%`;
 			}
@@ -604,21 +604,17 @@ export class AllocationEditorModal extends Modal {
 	 * Calculate reactive parent budget that includes current (unsaved) allocations.
 	 * This shows how the parent budget would look if we saved right now.
 	 */
-	private getReactiveParentBudget(categoryId: string): CategoryBudgetInfo | undefined {
-		const parentBudget = this.parentBudgets.get(categoryId);
+	private getReactiveParentBudget(categoryName: string): CategoryBudgetInfo | undefined {
+		const parentBudget = this.parentBudgets.get(categoryName);
 		if (!parentBudget) return undefined;
 
-		// Get the current allocation for this category in the modal
-		const currentAllocation = this.allocations.get(categoryId) ?? 0;
+		const currentAllocation = this.allocations.get(categoryName) ?? 0;
 
-		// Calculate the difference from what was originally allocated
-		// We need to find the original allocation for this category
-		const originalAllocation = this.getOriginalAllocation(categoryId);
+		const originalAllocation = this.getOriginalAllocation(categoryName);
 		const allocationDelta = currentAllocation - originalAllocation;
 
-		// Update the parent budget with the delta
 		return {
-			categoryId: parentBudget.categoryId,
+			categoryName: parentBudget.categoryName,
 			total: parentBudget.total,
 			allocated: parentBudget.allocated + allocationDelta,
 			remaining: parentBudget.remaining - allocationDelta,
@@ -629,20 +625,19 @@ export class AllocationEditorModal extends Modal {
 	 * Get the original allocation (when modal opened) for a category.
 	 * This is needed to calculate the delta for reactive parent budgets.
 	 */
-	private getOriginalAllocation(categoryId: string): number {
-		// The first state in undo stack is the original state
+	private getOriginalAllocation(categoryName: string): number {
 		if (this.undoStack.length > 0) {
 			const originalState = this.undoStack[0];
-			return originalState.get(categoryId) ?? 0;
+			return originalState.get(categoryName) ?? 0;
 		}
-		return this.allocations.get(categoryId) ?? 0;
+		return this.allocations.get(categoryName) ?? 0;
 	}
 
 	private getAllocationsArray(): TimeAllocation[] {
 		const allocations: TimeAllocation[] = [];
-		for (const [categoryId, hours] of this.allocations) {
+		for (const [categoryName, hours] of this.allocations) {
 			if (hours > 0) {
-				allocations.push({ categoryId, hours });
+				allocations.push({ categoryName, hours });
 			}
 		}
 		return allocations;
@@ -722,8 +717,8 @@ export class AllocationEditorModal extends Modal {
 	}
 
 	private updateAllInputs(): void {
-		for (const [categoryId, hours] of this.allocations) {
-			const input = this.inputRefs.get(categoryId);
+		for (const [categoryName, hours] of this.allocations) {
+			const input = this.inputRefs.get(categoryName);
 			if (input) {
 				input.value = hours > 0 ? String(hours) : "";
 			}
@@ -749,7 +744,7 @@ export class AllocationEditorModal extends Modal {
 		this.allocations.clear();
 
 		for (const allocation of filledAllocations) {
-			this.allocations.set(allocation.categoryId, allocation.hours);
+			this.allocations.set(allocation.categoryName, allocation.hours);
 		}
 
 		this.updateAllInputs();

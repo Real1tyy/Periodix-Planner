@@ -1,3 +1,4 @@
+import type { CategoryBudgetInfo } from "../components/time-budget/parent-budget-tracker";
 import type { PeriodType } from "../constants";
 import type { Category, TimeAllocation, TimeBudgetSettings } from "../types";
 
@@ -114,19 +115,12 @@ export function sortCategoriesByName(categories: Category[]): Category[] {
 	return [...categories].sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export function sortAllocationsByCategoryName(allocations: TimeAllocation[], categories: Category[]): TimeAllocation[] {
-	const categoryMap = new Map(categories.map((c) => [c.id, c]));
-	return [...allocations].sort((a, b) => {
-		const categoryA = categoryMap.get(a.categoryId);
-		const categoryB = categoryMap.get(b.categoryId);
-		const nameA = categoryA?.name ?? "";
-		const nameB = categoryB?.name ?? "";
-		return nameA.localeCompare(nameB);
-	});
+export function sortAllocationsByCategoryName(allocations: TimeAllocation[]): TimeAllocation[] {
+	return [...allocations].sort((a, b) => a.categoryName.localeCompare(b.categoryName));
 }
 
 export function fillAllocationsFromParent(
-	parentBudgets: Map<string, { categoryId: string; total: number }>,
+	parentBudgets: Map<string, CategoryBudgetInfo>,
 	childTotalHours: number
 ): TimeAllocation[] {
 	if (parentBudgets.size === 0 || childTotalHours <= 0) return [];
@@ -134,21 +128,17 @@ export function fillAllocationsFromParent(
 	const totalParentHours = Array.from(parentBudgets.values()).reduce((sum, b) => sum + b.total, 0);
 	if (totalParentHours <= 0) return [];
 
-	// Work in cents to avoid floating point errors
 	const totalCents = Math.round(childTotalHours * 100);
 
-	// Calculate floor cents and fractional remainders for each category
-	const rows = Array.from(parentBudgets.values()).map(({ categoryId, total }) => {
+	const rows = Array.from(parentBudgets.values()).map(({ categoryName, total }) => {
 		const raw = (total / totalParentHours) * totalCents;
 		const floor = Math.floor(raw);
-		return { categoryId, floor, frac: raw - floor };
+		return { categoryName, floor, frac: raw - floor };
 	});
 
-	// Calculate remaining cents to distribute
 	const floorSum = rows.reduce((sum, r) => sum + r.floor, 0);
 	let remaining = totalCents - floorSum;
 
-	// Distribute remaining cents to categories with largest fractional remainders
 	rows
 		.slice()
 		.sort((a, b) => b.frac - a.frac)
@@ -158,6 +148,5 @@ export function fillAllocationsFromParent(
 			remaining -= 1;
 		});
 
-	// Convert back to hours and filter out zero allocations
-	return rows.map(({ categoryId, floor }) => ({ categoryId, hours: floor / 100 })).filter((a) => a.hours > 0);
+	return rows.map(({ categoryName, floor }) => ({ categoryName, hours: floor / 100 })).filter((a) => a.hours > 0);
 }

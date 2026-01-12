@@ -5,7 +5,7 @@ import { getTopLevelEnabledPeriod } from "../utils/period-navigation";
 import type { PeriodIndex } from "./period-index";
 
 export interface CategoryStatistics {
-	categoryId: string;
+	categoryName: string;
 	totalHours: number;
 	noteCount: number;
 }
@@ -70,14 +70,14 @@ export class GlobalStatisticsAggregator {
 		const totalNotes = topLevelNotes.length;
 
 		const categoryMap = topLevelNotes.reduce((map, note) => {
-			for (const [categoryId, hours] of note.categoryAllocations) {
-				const existing = map.get(categoryId);
+			for (const [categoryName, hours] of note.categoryAllocations) {
+				const existing = map.get(categoryName);
 				if (existing) {
 					existing.totalHours += hours;
 					existing.noteCount++;
 				} else {
-					map.set(categoryId, {
-						categoryId,
+					map.set(categoryName, {
+						categoryName,
 						totalHours: hours,
 						noteCount: 1,
 					});

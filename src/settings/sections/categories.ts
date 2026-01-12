@@ -1,9 +1,8 @@
-import { nanoid } from "nanoid";
 import { Setting } from "obsidian";
 import type { Subscription } from "rxjs";
 import { PieChartRenderer } from "../../components/shared/pie-chart";
 import { SETTINGS_DEFAULTS } from "../../constants";
-import type { GlobalStatistics, GlobalStatisticsAggregator } from "../../core";
+import type { CategoryTracker, GlobalStatistics, GlobalStatisticsAggregator } from "../../core";
 import type { SettingsStore } from "../../core/settings-store";
 import type { Category } from "../../types";
 import type { SettingsSection } from "../../types/settings";
@@ -17,17 +16,19 @@ export class CategoriesSection implements SettingsSection {
 	private statisticsContainer: HTMLElement | null = null;
 	private pieChartRenderer: PieChartRenderer | null = null;
 	private statsSubscription: Subscription | null = null;
+	private trackerSubscription: Subscription | null = null;
 
 	constructor(
 		private settingsStore: SettingsStore,
-		private globalStatsAggregator?: GlobalStatisticsAggregator
+		private globalStatsAggregator: GlobalStatisticsAggregator,
+		private categoryTracker: CategoryTracker
 	) {}
 
 	render(containerEl: HTMLElement): void {
 		new Setting(containerEl).setName("Time categories").setHeading();
 
 		containerEl.createEl("p", {
-			text: "Define categories for time allocation. These categories will be available when budgeting time in your periodic notes.",
+			text: "Categories are automatically discovered from your periodic notes. Configure their colors below.",
 			cls: "setting-item-description",
 		});
 
@@ -42,6 +43,14 @@ export class CategoriesSection implements SettingsSection {
 
 		this.categoriesContainer = containerEl.createDiv({ cls: cls("categories-list") });
 		this.renderCategories(this.categoriesContainer);
+
+		if (this.categoryTracker) {
+			this.trackerSubscription = this.categoryTracker.events$.subscribe(() => {
+				if (this.categoriesContainer) {
+					this.renderCategories(this.categoriesContainer);
+				}
+			});
+		}
 
 		if (this.globalStatsAggregator) {
 			this.renderGlobalStatisticsSummary(containerEl);
@@ -67,9 +76,6 @@ export class CategoriesSection implements SettingsSection {
 			this.globalStatsAggregator?.events$.subscribe((event) => {
 				if (event.type === "statistics-updated") {
 					this.renderPieChartSummary(event.statistics);
-					if (this.categoriesContainer) {
-						this.renderCategories(this.categoriesContainer);
-					}
 				}
 			}) ?? null;
 	}
@@ -100,17 +106,17 @@ export class CategoriesSection implements SettingsSection {
 			this.pieChartRenderer.destroy();
 		}
 
-		const categoryMap = new Map(categories.map((c) => [c.id, c]));
+		const categoryMap = new Map(categories.map((c) => [c.name, c]));
 		const labels: string[] = [];
 		const values: number[] = [];
 		const colors: string[] = [];
 
 		for (const stat of statistics.categoryStats) {
-			const category = categoryMap.get(stat.categoryId);
-			if (category && stat.totalHours > 0) {
-				labels.push(category.name);
+			const category = categoryMap.get(stat.categoryName);
+			if (stat.totalHours > 0) {
+				labels.push(stat.categoryName);
 				values.push(stat.totalHours);
-				colors.push(category.color);
+				colors.push(category?.color || this.getDefaultColor(labels.length - 1));
 			}
 		}
 
@@ -121,6 +127,8 @@ export class CategoriesSection implements SettingsSection {
 	destroy(): void {
 		this.statsSubscription?.unsubscribe();
 		this.statsSubscription = null;
+		this.trackerSubscription?.unsubscribe();
+		this.trackerSubscription = null;
 		this.pieChartRenderer?.destroy();
 		this.pieChartRenderer = null;
 	}
@@ -129,57 +137,69 @@ export class CategoriesSection implements SettingsSection {
 		containerEl.empty();
 
 		const categories = this.settingsStore.currentSettings.categories;
+		const trackedCategories = this.categoryTracker?.getCategories() || new Map();
 
-		if (categories.length === 0) {
+		if (categories.length === 0 && trackedCategories.size === 0) {
 			containerEl.createEl("p", {
-				text: "No categories defined yet. Add a category to start budgeting your time.",
+				text: "No categories defined yet. Categories will appear here once you allocate time in your periodic notes.",
 				cls: "setting-item-description",
 			});
 			return;
 		}
 
 		const statistics = this.globalStatsAggregator?.getStatistics();
-		const statsMap = new Map(statistics?.categoryStats.map((s) => [s.categoryId, s]) ?? []);
+		const statsMap = new Map(statistics?.categoryStats.map((s) => [s.categoryName, s]) ?? []);
 
-		const sortedCategories = [...categories].sort((a, b) => {
-			const statA = statsMap.get(a.id);
-			const statB = statsMap.get(b.id);
+		const allCategoryNames = new Set<string>();
+		for (const category of categories) {
+			allCategoryNames.add(category.name);
+		}
+		for (const [name] of trackedCategories) {
+			allCategoryNames.add(name);
+		}
+
+		const sortedNames = Array.from(allCategoryNames).sort((a, b) => {
+			const statA = statsMap.get(a);
+			const statB = statsMap.get(b);
 			const hoursA = statA?.totalHours ?? 0;
 			const hoursB = statB?.totalHours ?? 0;
 			return hoursB - hoursA;
 		});
 
-		for (const category of sortedCategories) {
-			this.renderCategory(containerEl, category, statsMap, statistics?.totalHours ?? 0);
+		for (const categoryName of sortedNames) {
+			const category = categories.find((c) => c.name === categoryName);
+			const tracked = trackedCategories.get(categoryName);
+			const stat = statsMap.get(categoryName);
+
+			this.renderCategory(containerEl, categoryName, category, tracked, stat, statistics?.totalHours ?? 0);
 		}
 	}
 
 	private renderCategory(
 		containerEl: HTMLElement,
-		category: Category,
-		statsMap: Map<string, { categoryId: string; totalHours: number; noteCount: number }>,
+		categoryName: string,
+		category: Category | undefined,
+		tracked: { nodeCount: number; color: string } | undefined,
+		stat: { totalHours: number; noteCount: number } | undefined,
 		totalHours: number
 	): void {
-		const stat = statsMap.get(category.id);
 		const noteCount = stat?.noteCount ?? 0;
 		const hours = stat?.totalHours ?? 0;
 		const percentage = totalHours > 0 ? ((hours / totalHours) * 100).toFixed(1) : "0.0";
 
-		const statsText = stat ? `${noteCount} notes · ${hours.toFixed(1)}h (${percentage}%)` : "No time allocated yet";
+		const statsText = stat ? `${noteCount} notes · ${hours.toFixed(1)}h (${percentage}%)` : "Not used in any notes";
 
-		const setting = new Setting(containerEl).setName(category.name).setDesc(statsText);
+		const setting = new Setting(containerEl).setName(categoryName).setDesc(statsText);
 
+		const color = category?.color || tracked?.color || this.getDefaultColor(0);
 		const colorIndicator = setting.nameEl.createSpan({ cls: cls("category-color") });
-		colorIndicator.style.backgroundColor = category.color;
+		colorIndicator.style.backgroundColor = color;
 		setting.nameEl.prepend(colorIndicator);
 
-		setting.addExtraButton((btn) => {
-			btn
-				.setIcon("pencil")
-				.setTooltip("Edit category")
-				.onClick(() => {
-					this.editCategory(category, containerEl);
-				});
+		setting.addColorPicker((picker) => {
+			picker.setValue(color).onChange(async (value) => {
+				await this.updateCategoryColor(categoryName, value);
+			});
 		});
 
 		setting.addExtraButton((btn) => {
@@ -187,7 +207,7 @@ export class CategoriesSection implements SettingsSection {
 				.setIcon("trash")
 				.setTooltip("Delete category")
 				.onClick(async () => {
-					await this.deleteCategory(category.id);
+					await this.deleteCategory(categoryName);
 					this.renderCategories(containerEl.parentElement!.querySelector(`.${cls("categories-list")}`)!);
 				});
 		});
@@ -202,10 +222,8 @@ export class CategoriesSection implements SettingsSection {
 
 		const colorIndex = categories.length % SETTINGS_DEFAULTS.DEFAULT_CATEGORY_COLORS.length;
 		const newCategory: Category = {
-			id: nanoid(),
 			name: `Category ${categories.length + 1}`,
 			color: SETTINGS_DEFAULTS.DEFAULT_CATEGORY_COLORS[colorIndex],
-			createdAt: Date.now(),
 		};
 
 		await this.settingsStore.updateSettings((s) => ({
@@ -218,42 +236,30 @@ export class CategoriesSection implements SettingsSection {
 		}
 	}
 
-	private editCategory(category: Category, containerEl: HTMLElement): void {
-		const setting = new Setting(containerEl).setClass(cls("category-edit"));
-
-		setting.addText((text) => {
-			text
-				.setPlaceholder("Category name")
-				.setValue(category.name)
-				.onChange(async (value) => {
-					await this.updateCategory(category.id, { name: value });
-				});
-		});
-
-		setting.addColorPicker((picker) => {
-			picker.setValue(category.color).onChange(async (value) => {
-				await this.updateCategory(category.id, { color: value });
-			});
-		});
-
-		setting.addButton((btn) => {
-			btn.setButtonText("Done").onClick(() => {
-				this.renderCategories(containerEl.parentElement!.querySelector(`.${cls("categories-list")}`)!);
-			});
+	private async updateCategoryColor(name: string, color: string): Promise<void> {
+		await this.settingsStore.updateSettings((s) => {
+			const existingCategory = s.categories.find((c) => c.name === name);
+			if (existingCategory) {
+				return {
+					...s,
+					categories: s.categories.map((c) => (c.name === name ? { ...c, color } : c)),
+				};
+			}
+			return {
+				...s,
+				categories: [...s.categories, { name, color }],
+			};
 		});
 	}
 
-	private async updateCategory(id: string, updates: Partial<Category>): Promise<void> {
+	private async deleteCategory(name: string): Promise<void> {
 		await this.settingsStore.updateSettings((s) => ({
 			...s,
-			categories: s.categories.map((c) => (c.id === id ? { ...c, ...updates, updatedAt: Date.now() } : c)),
+			categories: s.categories.filter((c) => c.name !== name),
 		}));
 	}
 
-	private async deleteCategory(id: string): Promise<void> {
-		await this.settingsStore.updateSettings((s) => ({
-			...s,
-			categories: s.categories.filter((c) => c.id !== id),
-		}));
+	private getDefaultColor(index: number): string {
+		return SETTINGS_DEFAULTS.DEFAULT_CATEGORY_COLORS[index % SETTINGS_DEFAULTS.DEFAULT_CATEGORY_COLORS.length];
 	}
 }

@@ -44,13 +44,13 @@ export function resolveAllocations(
 	const resolved: TimeAllocation[] = [];
 	const unresolved: string[] = [];
 
-	const categoryMap = new Map(categories.map((c) => [c.name.toLowerCase(), c]));
+	const categoryMap = new Map(categories.map((c) => [c.name.toLowerCase(), c.name]));
 
 	for (const allocation of parsed) {
-		const category = categoryMap.get(allocation.categoryName.toLowerCase());
-		if (category) {
+		const categoryName = categoryMap.get(allocation.categoryName.toLowerCase());
+		if (categoryName) {
 			resolved.push({
-				categoryId: category.id,
+				categoryName,
 				hours: allocation.hours,
 			});
 		} else {
@@ -61,16 +61,8 @@ export function resolveAllocations(
 	return { resolved, unresolved };
 }
 
-export function serializeAllocations(allocations: TimeAllocation[], categories: Category[]): string {
-	const categoryMap = new Map(categories.map((c) => [c.id, c]));
-
-	return allocations
-		.map((a) => {
-			const category = categoryMap.get(a.categoryId);
-			return category ? `${category.name}: ${a.hours}` : null;
-		})
-		.filter(Boolean)
-		.join("\n");
+export function serializeAllocations(allocations: TimeAllocation[]): string {
+	return allocations.map((a) => `${a.categoryName}: ${a.hours}`).join("\n");
 }
 
 export function getTotalAllocatedHours(allocations: TimeAllocation[]): number {

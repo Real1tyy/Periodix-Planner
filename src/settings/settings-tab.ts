@@ -118,7 +118,7 @@ export class PeriodicPlannerSettingsTab extends PluginSettingTab {
 	private createSections(): SettingsSection[] {
 		return [
 			new PeriodicSection(this.uiBuilder, this.plugin.settingsStore),
-			new CategoriesSection(this.plugin.settingsStore, this.plugin.globalStatsAggregator),
+			new CategoriesSection(this.plugin.settingsStore, this.plugin.globalStatsAggregator, this.plugin.categoryTracker),
 			new PropertiesSection(this.uiBuilder),
 			new GenerationSection(this.uiBuilder),
 			new IntegrationsSection(this.uiBuilder, this.plugin.settingsStore, this.app),

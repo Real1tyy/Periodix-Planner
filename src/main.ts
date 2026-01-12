@@ -8,6 +8,7 @@ import { PeriodChildrenBasesModal } from "./components/period-children/bases-mod
 import { TimeBudgetBlockRenderer } from "./components/time-budget";
 import type { PeriodType } from "./constants";
 import { AutoGenerator, formatAutoGenerationSummary } from "./core/auto-generator";
+import { CategoryTracker } from "./core/category-tracker";
 import { GlobalStatisticsAggregator } from "./core/global-statistics";
 import { PeriodIndex } from "./core/period-index";
 import { PeriodicNoteIndexer } from "./core/periodic-note-indexer";
@@ -39,6 +40,7 @@ export default class PeriodicPlannerPlugin extends Plugin {
 	indexer!: PeriodicNoteIndexer;
 	periodIndex!: PeriodIndex;
 	globalStatsAggregator!: GlobalStatisticsAggregator;
+	categoryTracker!: CategoryTracker;
 	templateService!: TemplateService;
 	private ribbonIconEl: HTMLElement | null = null;
 
@@ -115,6 +117,7 @@ export default class PeriodicPlannerPlugin extends Plugin {
 		this.autoGenerator = new AutoGenerator(this.app, this.settingsStore.settings$, this.templateService);
 		this.periodIndex = new PeriodIndex(this.indexer);
 		this.globalStatsAggregator = new GlobalStatisticsAggregator(this.periodIndex, this.settingsStore.currentSettings);
+		this.categoryTracker = new CategoryTracker(this.periodIndex, this.settingsStore.currentSettings);
 
 		await this.indexer.start();
 

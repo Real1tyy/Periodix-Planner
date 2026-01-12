@@ -5,7 +5,7 @@ import { PERIOD_TYPES } from "../src/constants";
 import type { IndexedPeriodNote } from "../src/types";
 import { extractCategoryAllocations, getParentFilePathsFromLinks, parseFileToNote } from "../src/utils/note-utils";
 import { TFile as MockTFile, Vault as MockVault } from "./mocks/obsidian";
-import { createMockCategories, createMockSettings } from "./test-helpers";
+import { createMockSettings } from "./test-helpers";
 
 describe("Note Utilities", () => {
 	const createMockVault = (content: string): Vault => {
@@ -21,18 +21,16 @@ describe("Note Utilities", () => {
 		return file as unknown as TFile;
 	};
 
-	const mockCategories = createMockCategories();
-
 	describe("extractCategoryAllocations", () => {
 		it("should extract single category allocation", async () => {
 			const content = "```periodic-planner\nWork: 8\n```";
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(1);
-			expect(result.get("work-id")).toBe(8);
+			expect(result.get("Work")).toBe(8);
 		});
 
 		it("should extract multiple category allocations", async () => {
@@ -40,12 +38,12 @@ describe("Note Utilities", () => {
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(3);
-			expect(result.get("work-id")).toBe(8);
-			expect(result.get("health-id")).toBe(2);
-			expect(result.get("learning-id")).toBe(3);
+			expect(result.get("Work")).toBe(8);
+			expect(result.get("Health")).toBe(2);
+			expect(result.get("Learning")).toBe(3);
 		});
 
 		it("should handle decimal hours", async () => {
@@ -53,11 +51,11 @@ describe("Note Utilities", () => {
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(2);
-			expect(result.get("work-id")).toBe(8.5);
-			expect(result.get("health-id")).toBe(1.25);
+			expect(result.get("Work")).toBe(8.5);
+			expect(result.get("Health")).toBe(1.25);
 		});
 
 		it("should return empty map when no code block exists", async () => {
@@ -65,7 +63,7 @@ describe("Note Utilities", () => {
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(0);
 		});
@@ -75,7 +73,7 @@ describe("Note Utilities", () => {
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(0);
 		});
@@ -85,7 +83,7 @@ describe("Note Utilities", () => {
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(0);
 		});
@@ -95,11 +93,11 @@ describe("Note Utilities", () => {
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(2);
-			expect(result.get("work-id")).toBe(8);
-			expect(result.get("health-id")).toBe(2);
+			expect(result.get("Work")).toBe(8);
+			expect(result.get("Health")).toBe(2);
 		});
 
 		it("should handle vault.read error gracefully", async () => {
@@ -109,13 +107,10 @@ describe("Note Utilities", () => {
 
 			const consoleSpy = vi.spyOn(console, "debug").mockImplementation(() => {});
 
-			const result = await extractCategoryAllocations(vault as unknown as Vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault as unknown as Vault, file);
 
 			expect(result.size).toBe(0);
-			expect(consoleSpy).toHaveBeenCalledWith(
-				expect.stringContaining("Error extracting allocations"),
-				expect.any(Error)
-			);
+			expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Error reading file"), expect.any(Error));
 
 			consoleSpy.mockRestore();
 		});
@@ -125,20 +120,22 @@ describe("Note Utilities", () => {
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(1);
-			expect(result.get("work-id")).toBe(8);
+			expect(result.get("Work")).toBe(8);
 		});
 
-		it("should skip categories not in settings (including spaces)", async () => {
+		it("should extract categories regardless of whether they're in settings", async () => {
 			const content = "```periodic-planner\nWork Projects: 8\nPersonal Time: 2\n```";
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
-			expect(result.size).toBe(0);
+			expect(result.size).toBe(2);
+			expect(result.get("Work Projects")).toBe(8);
+			expect(result.get("Personal Time")).toBe(2);
 		});
 
 		it("should handle zero hours", async () => {
@@ -146,11 +143,11 @@ describe("Note Utilities", () => {
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(2);
-			expect(result.get("work-id")).toBe(0);
-			expect(result.get("health-id")).toBe(2);
+			expect(result.get("Work")).toBe(0);
+			expect(result.get("Health")).toBe(2);
 		});
 	});
 
@@ -181,7 +178,7 @@ describe("Note Utilities", () => {
 			expect(result?.hoursAvailable).toBe(40);
 			expect(result?.hoursSpent).toBe(8);
 			expect(result?.categoryAllocations.size).toBe(1);
-			expect(result?.categoryAllocations.get("work-id")).toBe(8);
+			expect(result?.categoryAllocations.get("Work")).toBe(8);
 		});
 
 		it("should parse daily note correctly", async () => {
@@ -531,16 +528,16 @@ describe("Note Utilities", () => {
 			expect(result?.noteName).toBe("01-2025");
 			expect(result?.mtime).toBe(9876543210);
 		});
-		it("should handle case-insensitive category names", async () => {
+		it("should handle any category names without case-sensitivity requirements", async () => {
 			const content = "```periodic-planner\nwork: 5\nHEALTH: 3\n```";
 			const vault = createMockVault(content);
 			const file = createMockFile("test.md");
 
-			const result = await extractCategoryAllocations(vault, file, mockCategories);
+			const result = await extractCategoryAllocations(vault, file);
 
 			expect(result.size).toBe(2);
-			expect(result.get("work-id")).toBe(5);
-			expect(result.get("health-id")).toBe(3);
+			expect(result.get("work")).toBe(5);
+			expect(result.get("HEALTH")).toBe(3);
 		});
 		const createMockNote = (
 			periodType: string,

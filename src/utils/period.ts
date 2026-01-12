@@ -4,8 +4,8 @@ import { getParentFilePathsFromLinks } from "./note-utils";
 export function categoryAllocationsEqual(a: Map<string, number>, b: Map<string, number>): boolean {
 	if (a.size !== b.size) return false;
 
-	for (const [categoryId, hours] of a) {
-		const otherHours = b.get(categoryId);
+	for (const [categoryName, hours] of a) {
+		const otherHours = b.get(categoryName);
 		if (otherHours === undefined || Math.abs(hours - otherHours) > 0.01) {
 			return false;
 		}

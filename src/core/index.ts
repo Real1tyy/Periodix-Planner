@@ -1,4 +1,9 @@
 export * from "./auto-generator";
+export {
+	type CategoryStatistics as CategoryTrackerStatistics,
+	CategoryTracker,
+	type TrackedCategory,
+} from "./category-tracker";
 export * from "./global-statistics";
 export * from "./note-generator";
 export * from "./period-index";

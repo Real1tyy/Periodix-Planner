@@ -223,7 +223,7 @@ export class ActivityWatchBlockRenderer extends MarkdownRenderChild {
 		if (!this.data) return;
 
 		const allocations = this.data.apps.map((app, _index) => ({
-			categoryId: app.name,
+			categoryName: app.name,
 			hours: app.duration / 3600,
 		}));
 

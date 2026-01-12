@@ -162,9 +162,9 @@ describe("Time Budget Utilities", () => {
 	describe("fillAllocationsFromParent", () => {
 		it("should distribute child hours based on parent percentages", () => {
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 20 }],
-				["cat2", { categoryId: "cat2", total: 30 }],
-				["cat3", { categoryId: "cat3", total: 10 }],
+				["cat1", { categoryName: "cat1", total: 20, allocated: 0, remaining: 20 }],
+				["cat2", { categoryName: "cat2", total: 30, allocated: 0, remaining: 30 }],
+				["cat3", { categoryName: "cat3", total: 10, allocated: 0, remaining: 10 }],
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 120);
@@ -174,9 +174,9 @@ describe("Time Budget Utilities", () => {
 			// cat2: 30/60 = 50% of 120 = 60h
 			// cat3: 10/60 = 16.67% of 120 = 20h
 			expect(result).toHaveLength(3);
-			expect(result.find((a) => a.categoryId === "cat1")?.hours).toBe(40);
-			expect(result.find((a) => a.categoryId === "cat2")?.hours).toBe(60);
-			expect(result.find((a) => a.categoryId === "cat3")?.hours).toBe(20);
+			expect(result.find((a) => a.categoryName === "cat1")?.hours).toBe(40);
+			expect(result.find((a) => a.categoryName === "cat2")?.hours).toBe(60);
+			expect(result.find((a) => a.categoryName === "cat3")?.hours).toBe(20);
 
 			// CRITICAL: Sum must exactly equal child total (no rounding errors)
 			const sum = result.reduce((acc, a) => acc + a.hours, 0);
@@ -186,12 +186,12 @@ describe("Time Budget Utilities", () => {
 		it("CRITICAL: should ensure exact 100% distribution - no over-allocation", () => {
 			// This is the critical test case that was failing
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 3.32 }],
-				["cat2", { categoryId: "cat2", total: 1.12 }],
-				["cat3", { categoryId: "cat3", total: 6.04 }],
-				["cat4", { categoryId: "cat4", total: 6.04 }],
-				["cat5", { categoryId: "cat5", total: 5.52 }],
-				["cat6", { categoryId: "cat6", total: 1.64 }],
+				["cat1", { categoryName: "cat1", total: 3.32, allocated: 0, remaining: 3.32 }],
+				["cat2", { categoryName: "cat2", total: 1.12, allocated: 0, remaining: 1.12 }],
+				["cat3", { categoryName: "cat3", total: 6.04, allocated: 0, remaining: 6.04 }],
+				["cat4", { categoryName: "cat4", total: 6.04, allocated: 0, remaining: 6.04 }],
+				["cat5", { categoryName: "cat5", total: 5.52, allocated: 0, remaining: 5.52 }],
+				["cat6", { categoryName: "cat6", total: 1.64, allocated: 0, remaining: 1.64 }],
 			]);
 
 			const totalParent = 3.32 + 1.12 + 6.04 + 6.04 + 5.52 + 1.64; // 23.68
@@ -205,7 +205,7 @@ describe("Time Budget Utilities", () => {
 
 			// Each allocation should maintain proper percentage
 			for (const allocation of result) {
-				const parentBudget = parentBudgets.get(allocation.categoryId);
+				const parentBudget = parentBudgets.get(allocation.categoryName);
 				if (parentBudget) {
 					const expectedPercentage = parentBudget.total / totalParent;
 					const actualPercentage = allocation.hours / childTotal;
@@ -218,9 +218,9 @@ describe("Time Budget Utilities", () => {
 		it("should ensure exact sum with challenging rounding scenarios", () => {
 			// Test case with numbers that typically cause rounding issues
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 1 }],
-				["cat2", { categoryId: "cat2", total: 1 }],
-				["cat3", { categoryId: "cat3", total: 1 }],
+				["cat1", { categoryName: "cat1", total: 1, allocated: 0, remaining: 1 }],
+				["cat2", { categoryName: "cat2", total: 1, allocated: 0, remaining: 1 }],
+				["cat3", { categoryName: "cat3", total: 1, allocated: 0, remaining: 1 }],
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 10);
@@ -238,9 +238,9 @@ describe("Time Budget Utilities", () => {
 
 		it("should handle uneven distribution perfectly", () => {
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 7 }],
-				["cat2", { categoryId: "cat2", total: 11 }],
-				["cat3", { categoryId: "cat3", total: 13 }],
+				["cat1", { categoryName: "cat1", total: 7, allocated: 0, remaining: 7 }],
+				["cat2", { categoryName: "cat2", total: 11, allocated: 0, remaining: 11 }],
+				["cat3", { categoryName: "cat3", total: 13, allocated: 0, remaining: 13 }],
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 100);
@@ -251,7 +251,7 @@ describe("Time Budget Utilities", () => {
 		});
 
 		it("should handle single category (100% allocation)", () => {
-			const parentBudgets = new Map([["cat1", { categoryId: "cat1", total: 40 }]]);
+			const parentBudgets = new Map([["cat1", { categoryName: "cat1", total: 40, allocated: 0, remaining: 40 }]]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 100);
 
@@ -267,8 +267,8 @@ describe("Time Budget Utilities", () => {
 
 		it("should handle zero child hours", () => {
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 20 }],
-				["cat2", { categoryId: "cat2", total: 30 }],
+				["cat1", { categoryName: "cat1", total: 20, allocated: 0, remaining: 20 }],
+				["cat2", { categoryName: "cat2", total: 30, allocated: 0, remaining: 30 }],
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 0);
@@ -277,8 +277,8 @@ describe("Time Budget Utilities", () => {
 
 		it("should handle parent with zero total", () => {
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 0 }],
-				["cat2", { categoryId: "cat2", total: 0 }],
+				["cat1", { categoryName: "cat1", total: 0, allocated: 0, remaining: 0 }],
+				["cat2", { categoryName: "cat2", total: 0, allocated: 0, remaining: 0 }],
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 100);
@@ -287,8 +287,8 @@ describe("Time Budget Utilities", () => {
 
 		it("should handle very small child totals", () => {
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 50 }],
-				["cat2", { categoryId: "cat2", total: 50 }],
+				["cat1", { categoryName: "cat1", total: 50, allocated: 0, remaining: 50 }],
+				["cat2", { categoryName: "cat2", total: 50, allocated: 0, remaining: 50 }],
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 1);
@@ -306,8 +306,8 @@ describe("Time Budget Utilities", () => {
 
 		it("should exclude categories with zero hours after calculation", () => {
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 100 }],
-				["cat2", { categoryId: "cat2", total: 0.001 }], // Negligible amount
+				["cat1", { categoryName: "cat1", total: 100, allocated: 0, remaining: 100 }],
+				["cat2", { categoryName: "cat2", total: 0.001, allocated: 0, remaining: 0.001 }], // Negligible amount
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 1);
@@ -319,11 +319,11 @@ describe("Time Budget Utilities", () => {
 
 		it("should handle many categories with precise distribution", () => {
 			const parentBudgets = new Map([
-				["cat1", { categoryId: "cat1", total: 10 }],
-				["cat2", { categoryId: "cat2", total: 15 }],
-				["cat3", { categoryId: "cat3", total: 20 }],
-				["cat4", { categoryId: "cat4", total: 25 }],
-				["cat5", { categoryId: "cat5", total: 30 }],
+				["cat1", { categoryName: "cat1", total: 10, allocated: 0, remaining: 10 }],
+				["cat2", { categoryName: "cat2", total: 15, allocated: 0, remaining: 15 }],
+				["cat3", { categoryName: "cat3", total: 20, allocated: 0, remaining: 20 }],
+				["cat4", { categoryName: "cat4", total: 25, allocated: 0, remaining: 25 }],
+				["cat5", { categoryName: "cat5", total: 30, allocated: 0, remaining: 30 }],
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 200);
