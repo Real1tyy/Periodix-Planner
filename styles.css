@@ -96,8 +96,8 @@
 
 .periodic-planner-statistics-chart {
 	margin-top: 24px;
-	height: 300px;
-	max-width: 600px;
+	height: 500px;
+	max-width: 100%;
 }
 
 .periodic-planner-category-edit {
@@ -508,9 +508,9 @@
 
 /* Pie Chart */
 .periodic-planner-pie-chart-container {
-	max-width: 600px;
+	max-width: 100%;
 	width: 100%;
-	height: 350px;
+	height: 500px;
 	margin: 20px auto;
 	display: flex;
 	justify-content: center;
