@@ -8,7 +8,6 @@ export const CategorySchema = z
 		id: z.string(),
 		name: z.string().min(1, "Category name is required"),
 		color: ColorSchema,
-		description: z.string().optional(),
 		createdAt: z.number().int().positive(),
 		updatedAt: z.number().int().positive().optional(),
 	})

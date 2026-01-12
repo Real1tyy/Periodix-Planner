@@ -165,10 +165,7 @@ export class CategoriesSection implements SettingsSection {
 		const hours = stat?.totalHours ?? 0;
 		const percentage = totalHours > 0 ? ((hours / totalHours) * 100).toFixed(1) : "0.0";
 
-		const description = category.description || "No description";
-		const statsText = stat
-			? `${description} · ${noteCount} notes · ${hours.toFixed(1)}h (${percentage}%)`
-			: description;
+		const statsText = stat ? `${noteCount} notes · ${hours.toFixed(1)}h (${percentage}%)` : "No time allocated yet";
 
 		const setting = new Setting(containerEl).setName(category.name).setDesc(statsText);
 
@@ -237,15 +234,6 @@ export class CategoriesSection implements SettingsSection {
 			picker.setValue(category.color).onChange(async (value) => {
 				await this.updateCategory(category.id, { color: value });
 			});
-		});
-
-		setting.addText((text) => {
-			text
-				.setPlaceholder("Description (optional)")
-				.setValue(category.description || "")
-				.onChange(async (value) => {
-					await this.updateCategory(category.id, { description: value || undefined });
-				});
 		});
 
 		setting.addButton((btn) => {
