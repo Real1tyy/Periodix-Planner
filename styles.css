@@ -69,8 +69,8 @@
 /* Settings Footer */
 .periodic-planner-settings-footer {
 	margin-top: 2rem;
-	padding: 0.75em 0;
-	border-top: 1px solid var(--background-modifier-border);
+	padding: 0.75em 1.25rem;
+	border-top: 2.5px solid var(--background-modifier-border-hover);
 	text-align: center;
 	font-size: var(--font-ui-smaller);
 	color: var(--text-faint);
