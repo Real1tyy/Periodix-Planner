@@ -1008,10 +1008,70 @@
 
 .periodic-planner-allocation-actions {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
+	align-items: center;
 	gap: 8px;
 	padding-top: 12px;
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+.periodic-planner-allocation-actions-left {
+	display: flex;
+	gap: 8px;
+}
+
+.periodic-planner-allocation-actions-right {
+	display: flex;
+	gap: 8px;
+}
+
+.periodic-planner-create-category-input-wrapper {
+	margin-top: 12px;
+	margin-bottom: 16px;
+	padding: 16px;
+	background: var(--background-secondary);
+	border-radius: 10px;
+	border: 2px solid var(--interactive-accent);
+}
+
+.periodic-planner-create-category-input-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.periodic-planner-create-category-input {
+	flex: 1;
+	padding: 8px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background: var(--background-primary);
+	color: var(--text-normal);
+	font-size: 15px;
+}
+
+.periodic-planner-create-category-input:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+}
+
+.periodic-planner-create-category-buttons {
+	display: flex;
+	gap: 4px;
+}
+
+.periodic-planner-action-btn.periodic-planner-small {
+	padding: 6px 12px;
+	font-size: 13px;
+}
+
+.periodic-planner-action-btn.periodic-planner-create-category-btn {
+	color: var(--text-muted);
+}
+
+.periodic-planner-action-btn.periodic-planner-create-category-btn:hover {
+	color: var(--interactive-accent);
+	background: var(--background-modifier-hover);
 }
 
 .periodic-planner-action-btn {

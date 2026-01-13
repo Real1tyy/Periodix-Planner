@@ -62,3 +62,32 @@ export function toggleCls(element: HTMLElement, className: string, force?: boole
 export function hasCls(element: HTMLElement, className: string): boolean {
 	return element.classList.contains(cls(className));
 }
+
+/**
+ * Finds or creates an element with the specified class name.
+ * Avoids unnecessary DOM churn by reusing existing elements.
+ * Returns typed element based on tag name.
+ *
+ * @example
+ * const div = upsertElement(container, "div", cls("summary"));
+ * const button = upsertElement(container, "button", cls("action-btn"), (btn) => {
+ *   btn.textContent = "Click me";
+ * });
+ */
+export function upsertElement<K extends keyof HTMLElementTagNameMap>(
+	parent: ParentNode,
+	tag: K,
+	className: string,
+	init?: (el: HTMLElementTagNameMap[K]) => void
+): HTMLElementTagNameMap[K] {
+	let el = parent.querySelector<HTMLElementTagNameMap[K]>(`.${className}`);
+
+	if (!el) {
+		el = document.createElement(tag);
+		el.className = className;
+		parent.appendChild(el);
+	}
+
+	init?.(el);
+	return el;
+}

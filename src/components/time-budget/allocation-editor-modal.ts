@@ -1,39 +1,51 @@
-import { type App, Modal } from "obsidian";
+import { type App, Modal, Notice } from "obsidian";
+import { getDefaultCategoryColor } from "src/utils/color-utils";
+import { AllocationState } from "../../core/allocation-state";
 import type { Category, TimeAllocation } from "../../types";
-import { addCls, cls, removeCls } from "../../utils/css";
+import { addCls, cls, removeCls, upsertElement } from "../../utils/css";
 import {
+	calculatePercentage,
 	fillAllocationsFromParent,
 	formatHours,
 	roundHours,
 	sortCategoriesByName,
 } from "../../utils/time-budget-utils";
+import { ActionButton } from "../shared/action-button";
+import { HorizontalDragController } from "../shared/horizontal-drag-controller";
 import type { CategoryBudgetInfo } from "./parent-budget-tracker";
 
 const DEBOUNCE_MS = 300;
+const BUDGET_EPSILON = 0.01;
 
 interface AllocationEditorResult {
 	allocations: TimeAllocation[];
 	cancelled: boolean;
 }
 
+interface AllocationRowRefs {
+	item: HTMLElement;
+	input: HTMLInputElement;
+	bar: HTMLElement;
+	label: HTMLElement;
+	barWrapper: HTMLElement;
+	budgetInfoContainer: HTMLElement | null;
+	parentBudgetInfo: HTMLElement | null;
+	childBudgetInfo: HTMLElement | null;
+}
+
 export class AllocationEditorModal extends Modal {
-	private allocations: Map<string, number> = new Map();
-	private fillFromParent: Map<string, boolean> = new Map();
+	private state: AllocationState;
 	private allocationListEl: HTMLElement | null = null;
 	private result: AllocationEditorResult = { allocations: [], cancelled: true };
 	private resolvePromise: ((result: AllocationEditorResult) => void) | null = null;
 	private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 	private focusedCategoryId: string | null = null;
 	private scrollPosition = 0;
-	private inputRefs: Map<string, HTMLInputElement> = new Map();
-	private percentageBarRefs: Map<string, HTMLElement> = new Map();
-	private percentageLabelRefs: Map<string, HTMLElement> = new Map();
-	private isDragging = false;
+	private rowRefs = new Map<string, AllocationRowRefs>();
+	private dragController: HorizontalDragController | null = null;
 	private dragCategoryId: string | null = null;
-	private undoStack: Map<string, number>[] = [];
-	private redoStack: Map<string, number>[] = [];
-	private undoButton: HTMLButtonElement | null = null;
-	private redoButton: HTMLButtonElement | null = null;
+	private undoButton: ActionButton | null = null;
+	private redoButton: ActionButton | null = null;
 
 	constructor(
 		app: App,
@@ -44,11 +56,7 @@ export class AllocationEditorModal extends Modal {
 		private childBudgets: Map<string, CategoryBudgetInfo>
 	) {
 		super(app);
-
-		for (const allocation of initialAllocations) {
-			this.allocations.set(allocation.categoryName, allocation.hours);
-		}
-		this.saveState();
+		this.state = new AllocationState(initialAllocations);
 	}
 
 	async openAndWait(): Promise<AllocationEditorResult> {
@@ -78,66 +86,14 @@ export class AllocationEditorModal extends Modal {
 		if (this.resolvePromise) {
 			this.resolvePromise(this.result);
 		}
-		this.inputRefs.clear();
-		this.percentageBarRefs.clear();
-		this.percentageLabelRefs.clear();
+		this.rowRefs.clear();
 		this.contentEl.empty();
 	}
 
-	private setupGlobalDragListeners(): void {
-		const handleMove = (clientX: number) => {
-			if (!this.isDragging || !this.dragCategoryId) return;
-
-			const barWrapper = this.contentEl.querySelector(
-				`[data-category-id="${this.dragCategoryId}"] .${cls("percentage-bar-wrapper")}`
-			);
-			if (!barWrapper) return;
-
-			const rect = barWrapper.getBoundingClientRect();
-			const relativeX = Math.max(0, Math.min(clientX - rect.left, rect.width));
-			const percentage = (relativeX / rect.width) * 100;
-			const hours = Math.round((percentage / 100) * this.totalHoursAvailable * 10) / 10;
-
-			this.allocations.set(this.dragCategoryId, hours);
-
-			const input = this.inputRefs.get(this.dragCategoryId);
-			if (input) {
-				input.value = hours > 0 ? String(hours) : "";
-			}
-
-			this.updateAllocationItemStates();
-			this.renderSummary();
-		};
-
-		const handleEnd = () => {
-			this.isDragging = false;
-			this.dragCategoryId = null;
-			document.body.classList.remove(cls("dragging"));
-		};
-
-		this.contentEl.addEventListener("mousemove", (e) => {
-			handleMove(e.clientX);
-		});
-		this.contentEl.addEventListener("mouseup", handleEnd);
-		this.contentEl.addEventListener("mouseleave", handleEnd);
-
-		this.contentEl.addEventListener("touchmove", (e) => {
-			if (e.touches.length > 0) {
-				handleMove(e.touches[0].clientX);
-			}
-		});
-		this.contentEl.addEventListener("touchend", handleEnd);
-		this.contentEl.addEventListener("touchcancel", handleEnd);
-	}
-
 	private renderSummary(): void {
-		const existingSummary = this.contentEl.querySelector(`.${cls("allocation-summary")}`);
-		if (existingSummary) {
-			existingSummary.remove();
-		}
-
-		const summary = document.createElement("div");
-		summary.className = cls("allocation-summary");
+		const summary = upsertElement(this.contentEl, "div", cls("allocation-summary"), (el) => {
+			el.empty();
+		});
 
 		const summaryControls = summary.createDiv({ cls: cls("summary-controls") });
 
@@ -147,28 +103,24 @@ export class AllocationEditorModal extends Modal {
 				cls: cls("fill-from-parent-btn"),
 			});
 			fillFromParentBtn.addEventListener("click", () => {
-				this.saveState();
+				this.state.saveState();
 				this.applyFillFromParent();
 			});
 		}
 
-		this.undoButton = summaryControls.createEl("button", {
-			text: "Undo",
-			cls: cls("undo-redo-btn"),
-		});
-		this.undoButton.disabled = this.undoStack.length === 0;
-		this.undoButton.addEventListener("click", () => {
-			this.undo();
-		});
+		this.undoButton = new ActionButton(
+			summaryControls,
+			"Undo",
+			() => this.undo(),
+			() => !this.state.canUndo()
+		);
 
 		const summaryStats = summaryControls.createDiv({ cls: cls("summary-stats") });
 
 		const totalAllocated = this.getTotalAllocated();
 		const remaining = this.totalHoursAvailable - totalAllocated;
-		const allocatedPercentage = this.totalHoursAvailable > 0 ? (totalAllocated / this.totalHoursAvailable) * 100 : 0;
-		const remainingPercentage = this.totalHoursAvailable > 0 ? (remaining / this.totalHoursAvailable) * 100 : 0;
-
-		const statusClass = allocatedPercentage > 100 ? "over" : allocatedPercentage >= 80 ? "warning" : "under";
+		const allocatedPercentage = calculatePercentage(totalAllocated, this.totalHoursAvailable);
+		const remainingPercentage = calculatePercentage(remaining, this.totalHoursAvailable);
 
 		const allocatedItem = summaryStats.createDiv({ cls: cls("summary-item") });
 		allocatedItem.createSpan({ text: "Allocated:", cls: cls("summary-label") });
@@ -176,6 +128,8 @@ export class AllocationEditorModal extends Modal {
 			text: `${formatHours(totalAllocated)}h (${allocatedPercentage.toFixed(1)}%)`,
 			cls: cls("summary-value"),
 		});
+
+		const statusClass = allocatedPercentage > 100 ? "over" : allocatedPercentage >= 80 ? "warning" : "under";
 		addCls(allocatedValue, `status-${statusClass}`);
 
 		const remainingItem = summaryStats.createDiv({ cls: cls("summary-item") });
@@ -184,6 +138,7 @@ export class AllocationEditorModal extends Modal {
 			text: `${formatHours(remaining)}h (${remainingPercentage.toFixed(1)}%)`,
 			cls: cls("summary-value"),
 		});
+
 		if (remaining < 0) {
 			addCls(remainingValue, "status-over");
 		}
@@ -195,39 +150,27 @@ export class AllocationEditorModal extends Modal {
 			cls: cls("summary-value"),
 		});
 
-		this.redoButton = summaryControls.createEl("button", {
-			text: "Redo",
-			cls: cls("undo-redo-btn"),
-		});
-		this.redoButton.disabled = this.redoStack.length === 0;
-		this.redoButton.addEventListener("click", () => {
-			this.redo();
-		});
-
-		this.contentEl.prepend(summary);
+		this.redoButton = new ActionButton(
+			summaryControls,
+			"Redo",
+			() => this.redo(),
+			() => !this.state.canRedo()
+		);
 	}
 
 	private renderAllocationList(): void {
 		this.allocationListEl = this.contentEl.createDiv({ cls: cls("allocation-list") });
-		this.buildAllocationList();
-	}
-
-	private buildAllocationList(): void {
-		if (!this.allocationListEl) return;
-
 		this.saveScrollPosition();
 
 		this.allocationListEl.empty();
-		this.inputRefs.clear();
-		this.percentageBarRefs.clear();
-		this.percentageLabelRefs.clear();
+		this.rowRefs.clear();
 
 		const sortedCategories = sortCategoriesByName(this.categories);
 
 		for (const category of sortedCategories) {
-			const currentHours = this.allocations.get(category.name) ?? 0;
+			const currentHours = this.state.allocations.get(category.name) ?? 0;
 			const parentBudget = this.getReactiveParentBudget(category.name);
-			const percentage = this.totalHoursAvailable > 0 ? (currentHours / this.totalHoursAvailable) * 100 : 0;
+			const percentage = calculatePercentage(currentHours, this.totalHoursAvailable);
 
 			const item = this.allocationListEl.createDiv({ cls: cls("allocation-item") });
 			item.dataset.categoryId = category.name;
@@ -241,12 +184,13 @@ export class AllocationEditorModal extends Modal {
 			topRow.createSpan({ text: category.name, cls: cls("category-name") });
 
 			const budgetInfoContainer = topRow.createDiv({ cls: cls("budget-info-container") });
+			let parentBudgetInfo: HTMLElement | null = null;
+			let childBudgetInfo: HTMLElement | null = null;
 
 			if (parentBudget) {
-				const parentBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("parent-budget-info") });
-				const EPSILON = 0.01;
-				const isOver = parentBudget.allocated > parentBudget.total + EPSILON && parentBudget.total > 0;
-				const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
+				parentBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("parent-budget-info") });
+				const isOver = parentBudget.allocated > parentBudget.total + BUDGET_EPSILON && parentBudget.total > 0;
+				const parentPercentage = calculatePercentage(parentBudget.allocated, parentBudget.total);
 
 				if (isOver) {
 					addCls(parentBudgetInfo, "over-budget");
@@ -265,9 +209,9 @@ export class AllocationEditorModal extends Modal {
 					type: "checkbox",
 					cls: cls("fill-from-parent-checkbox"),
 				});
-				checkbox.checked = this.fillFromParent.get(category.name) ?? false;
+				checkbox.checked = this.state.fillFromParent.get(category.name) ?? false;
 				checkbox.addEventListener("change", () => {
-					this.fillFromParent.set(category.name, checkbox.checked);
+					this.state.fillFromParent.set(category.name, checkbox.checked);
 				});
 
 				const checkboxLabel = checkboxContainer.createSpan({
@@ -276,7 +220,7 @@ export class AllocationEditorModal extends Modal {
 				});
 				checkboxLabel.addEventListener("click", () => {
 					checkbox.checked = !checkbox.checked;
-					this.fillFromParent.set(category.name, checkbox.checked);
+					this.state.fillFromParent.set(category.name, checkbox.checked);
 				});
 			}
 
@@ -284,8 +228,8 @@ export class AllocationEditorModal extends Modal {
 			if (childBudget) {
 				const allocated = childBudget.allocated ?? 0;
 				const total = childBudget.total ?? 0;
-				const percentage = total > 0 ? (allocated / total) * 100 : 0;
-				const childBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("child-budget-info") });
+				const percentage = calculatePercentage(allocated, total);
+				childBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("child-budget-info") });
 				childBudgetInfo.setText(`Child allocated: ${formatHours(allocated)}h (${percentage.toFixed(1)}%)`);
 			}
 
@@ -306,16 +250,14 @@ export class AllocationEditorModal extends Modal {
 			input.step = "0.5";
 			input.dataset.categoryId = category.name;
 
-			this.inputRefs.set(category.name, input);
-
 			input.addEventListener("focus", () => {
 				this.focusedCategoryId = category.name;
 			});
 
 			input.addEventListener("input", () => {
 				const value = Number.parseFloat(input.value) || 0;
-				this.saveState();
-				this.allocations.set(category.name, value);
+				this.state.saveState();
+				this.state.allocations.set(category.name, value);
 				this.scheduleUpdate();
 			});
 
@@ -330,7 +272,6 @@ export class AllocationEditorModal extends Modal {
 			const percentageBar = percentageBarWrapper.createDiv({ cls: cls("percentage-bar") });
 			percentageBar.style.width = `${Math.min(percentage, 100)}%`;
 			percentageBar.style.backgroundColor = category.color;
-			this.percentageBarRefs.set(category.name, percentageBar);
 
 			this.setupBarDragHandlers(percentageBarWrapper, category.name);
 
@@ -338,41 +279,119 @@ export class AllocationEditorModal extends Modal {
 				text: `${percentage.toFixed(1)}%`,
 				cls: cls("percentage-label"),
 			});
-			this.percentageLabelRefs.set(category.name, percentageLabel);
 
 			if (parentBudget) {
-				const EPSILON = 0.01;
-				if (parentBudget.allocated > parentBudget.total + EPSILON && parentBudget.total > 0) {
+				if (parentBudget.allocated > parentBudget.total + BUDGET_EPSILON && parentBudget.total > 0) {
 					addCls(item, "over-budget");
 				}
 			}
+
+			this.rowRefs.set(category.name, {
+				item,
+				input,
+				bar: percentageBar,
+				label: percentageLabel,
+				barWrapper: percentageBarWrapper,
+				budgetInfoContainer: parentBudget || childBudget ? budgetInfoContainer : null,
+				parentBudgetInfo,
+				childBudgetInfo,
+			});
 		}
 
 		this.restoreScrollPosition();
 		this.scrollToFocusedCategory();
 	}
 
+	private renderActions(): void {
+		const actions = this.contentEl.createDiv({ cls: cls("allocation-actions") });
+
+		// Left side: Create new category
+		const leftActions = actions.createDiv({ cls: cls("allocation-actions-left") });
+		const createCategoryBtn = leftActions.createEl("button", {
+			text: "+ Create new category",
+			cls: cls("action-btn", "create-category-btn"),
+		});
+		createCategoryBtn.addEventListener("click", () => {
+			this.showCreateCategoryInput();
+		});
+
+		// Right side: Cancel and Save
+		const rightActions = actions.createDiv({ cls: cls("allocation-actions-right") });
+		const cancelBtn = rightActions.createEl("button", {
+			text: "Cancel",
+			cls: cls("action-btn"),
+		});
+		cancelBtn.addEventListener("click", () => {
+			this.result = { allocations: [], cancelled: true };
+			this.close();
+		});
+
+		const saveBtn = rightActions.createEl("button", {
+			text: "Save allocations",
+			cls: cls("action-btn primary"),
+		});
+		saveBtn.addEventListener("click", () => {
+			this.result = {
+				allocations: this.getAllocationsArray(),
+				cancelled: false,
+			};
+			this.close();
+		});
+	}
+
+	private setupGlobalDragListeners(): void {
+		this.dragController = new HorizontalDragController(
+			(clientX) => this.handleDragMove(clientX),
+			() => this.endDrag()
+		);
+		this.dragController.bind(this.contentEl);
+	}
+
+	private handleDragMove(clientX: number): void {
+		if (!this.dragCategoryId) return;
+
+		const refs = this.rowRefs.get(this.dragCategoryId);
+		if (!refs) return;
+
+		const rect = refs.barWrapper.getBoundingClientRect();
+		const relativeX = Math.max(0, Math.min(clientX - rect.left, rect.width));
+		const percentage = (relativeX / rect.width) * 100;
+		const hours = Math.round((percentage / 100) * this.totalHoursAvailable * 10) / 10;
+
+		this.state.allocations.set(this.dragCategoryId, hours);
+		refs.input.value = hours > 0 ? String(hours) : "";
+
+		this.updateAllocationItemStates();
+		this.renderSummary();
+	}
+
+	private endDrag(): void {
+		this.dragCategoryId = null;
+		document.body.classList.remove(cls("dragging"));
+	}
+
 	private setupBarDragHandlers(barWrapper: HTMLElement, categoryId: string): void {
 		const startDrag = (clientX: number) => {
-			this.isDragging = true;
 			this.dragCategoryId = categoryId;
 			document.body.classList.add(cls("dragging"));
-			this.saveState();
+			this.state.saveState();
 
 			const rect = barWrapper.getBoundingClientRect();
 			const relativeX = Math.max(0, Math.min(clientX - rect.left, rect.width));
 			const percentage = (relativeX / rect.width) * 100;
 			const hours = roundHours((percentage / 100) * this.totalHoursAvailable);
 
-			this.allocations.set(categoryId, hours);
+			this.state.allocations.set(categoryId, hours);
 
-			const input = this.inputRefs.get(categoryId);
-			if (input) {
-				input.value = hours > 0 ? String(hours) : "";
+			const refs = this.rowRefs.get(categoryId);
+			if (refs) {
+				refs.input.value = hours > 0 ? String(hours) : "";
 			}
 
 			this.updateAllocationItemStates();
 			this.renderSummary();
+
+			this.dragController?.start();
 		};
 
 		barWrapper.addEventListener("mousedown", (e) => {
@@ -404,7 +423,7 @@ export class AllocationEditorModal extends Modal {
 
 			btn.addEventListener("click", (e) => {
 				e.preventDefault();
-				this.saveState();
+				this.state.saveState();
 				const newValue = this.calculatePresetValue(preset.value, categoryId);
 				this.applyValue(categoryId, newValue, input);
 			});
@@ -427,10 +446,10 @@ export class AllocationEditorModal extends Modal {
 
 		applyBtn.addEventListener("click", (e) => {
 			e.preventDefault();
-			this.saveState();
+			this.state.saveState();
 			const percentValue = Number.parseFloat(customInput.value) || 0;
 			const clampedPercent = Math.max(0, Math.min(100, percentValue));
-			const useParent = this.fillFromParent.get(categoryId) ?? false;
+			const useParent = this.state.fillFromParent.get(categoryId) ?? false;
 			const parentBudget = this.parentBudgets.get(categoryId);
 			const baseAmount = useParent && parentBudget ? parentBudget.total : this.totalHoursAvailable;
 			const newValue = roundHours((clampedPercent / 100) * baseAmount);
@@ -447,7 +466,7 @@ export class AllocationEditorModal extends Modal {
 	}
 
 	private calculatePresetValue(preset: number | "max", categoryId: string): number {
-		const useParent = this.fillFromParent.get(categoryId) ?? false;
+		const useParent = this.state.fillFromParent.get(categoryId) ?? false;
 		const parentBudget = this.parentBudgets.get(categoryId);
 		const baseAmount = useParent && parentBudget ? parentBudget.total : this.totalHoursAvailable;
 
@@ -455,7 +474,7 @@ export class AllocationEditorModal extends Modal {
 			if (useParent && parentBudget) {
 				return roundHours(parentBudget.remaining);
 			}
-			const currentForThis = this.allocations.get(categoryId) ?? 0;
+			const currentForThis = this.state.allocations.get(categoryId) ?? 0;
 			const otherAllocations = this.getTotalAllocated() - currentForThis;
 			return Math.max(0, this.totalHoursAvailable - otherAllocations);
 		}
@@ -463,7 +482,7 @@ export class AllocationEditorModal extends Modal {
 	}
 
 	private applyValue(categoryId: string, value: number, input: HTMLInputElement): void {
-		this.allocations.set(categoryId, value);
+		this.state.allocations.set(categoryId, value);
 		input.value = value > 0 ? String(value) : "";
 		this.focusedCategoryId = categoryId;
 		this.updateViewsWithFocusPreservation();
@@ -480,9 +499,9 @@ export class AllocationEditorModal extends Modal {
 	}
 
 	private updateViewsWithFocusPreservation(): void {
-		const focusedInput = this.focusedCategoryId ? this.inputRefs.get(this.focusedCategoryId) : null;
-		const selectionStart = focusedInput?.selectionStart ?? null;
-		const selectionEnd = focusedInput?.selectionEnd ?? null;
+		const focusedRefs = this.focusedCategoryId ? this.rowRefs.get(this.focusedCategoryId) : null;
+		const selectionStart = focusedRefs?.input.selectionStart ?? null;
+		const selectionEnd = focusedRefs?.input.selectionEnd ?? null;
 
 		this.saveScrollPosition();
 
@@ -491,264 +510,165 @@ export class AllocationEditorModal extends Modal {
 
 		this.restoreScrollPosition();
 
-		if (this.focusedCategoryId) {
-			const inputToFocus = this.inputRefs.get(this.focusedCategoryId);
-			if (inputToFocus) {
-				inputToFocus.focus();
-				if (selectionStart !== null && selectionEnd !== null) {
-					inputToFocus.setSelectionRange(selectionStart, selectionEnd);
-				}
+		if (this.focusedCategoryId && focusedRefs) {
+			focusedRefs.input.focus();
+			if (selectionStart !== null && selectionEnd !== null) {
+				focusedRefs.input.setSelectionRange(selectionStart, selectionEnd);
 			}
 		}
 	}
 
 	private updateAllocationItemStates(): void {
-		if (!this.allocationListEl) return;
-
 		const sortedCategories = sortCategoriesByName(this.categories);
 
 		for (const category of sortedCategories) {
-			const currentHours = this.allocations.get(category.name) ?? 0;
+			const refs = this.rowRefs.get(category.name);
+			if (!refs) continue;
+
+			const currentHours = this.state.allocations.get(category.name) ?? 0;
 			const parentBudget = this.getReactiveParentBudget(category.name);
-			const percentage = this.totalHoursAvailable > 0 ? (currentHours / this.totalHoursAvailable) * 100 : 0;
-			const item = this.allocationListEl.querySelector(`[data-category-id="${category.name}"]`);
+			const percentage = calculatePercentage(currentHours, this.totalHoursAvailable);
 
-			if (!item) continue;
+			if (refs.budgetInfoContainer) {
+				if (refs.parentBudgetInfo && parentBudget) {
+					const isOver = parentBudget.allocated > parentBudget.total + BUDGET_EPSILON && parentBudget.total > 0;
+					const parentPercentage = calculatePercentage(parentBudget.allocated, parentBudget.total);
 
-			const budgetInfoContainer = item.querySelector(`.${cls("budget-info-container")}`);
-			if (budgetInfoContainer) {
-				const parentBudgetInfo = budgetInfoContainer.querySelector(`.${cls("parent-budget-info")}`);
-				if (parentBudgetInfo && parentBudget) {
-					const EPSILON = 0.01;
-					const isOver = parentBudget.allocated > parentBudget.total + EPSILON && parentBudget.total > 0;
-					const parentPercentage = parentBudget.total > 0 ? (parentBudget.allocated / parentBudget.total) * 100 : 0;
-
-					removeCls(parentBudgetInfo as HTMLElement, "over-budget");
+					removeCls(refs.parentBudgetInfo, "over-budget");
 					if (isOver) {
-						addCls(parentBudgetInfo as HTMLElement, "over-budget");
-						parentBudgetInfo.textContent = `⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${parentPercentage.toFixed(1)}%)`;
+						addCls(refs.parentBudgetInfo, "over-budget");
+						refs.parentBudgetInfo.textContent = `⚠️ Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${parentPercentage.toFixed(1)}%)`;
 					} else {
-						parentBudgetInfo.textContent = `Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${parentPercentage.toFixed(1)}%)`;
+						refs.parentBudgetInfo.textContent = `Parent: ${formatHours(parentBudget.allocated)}h / ${formatHours(parentBudget.total)}h (${parentPercentage.toFixed(1)}%)`;
 					}
 				}
 
 				const childBudget = this.childBudgets.get(category.name);
-				let childBudgetInfo = budgetInfoContainer.querySelector(`.${cls("child-budget-info")}`);
 				if (childBudget) {
 					const allocated = childBudget.allocated ?? 0;
 					const total = childBudget.total ?? 0;
-					const percentage = total > 0 ? (allocated / total) * 100 : 0;
-					if (!childBudgetInfo) {
-						childBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("child-budget-info") });
+					const percentage = calculatePercentage(allocated, total);
+					if (!refs.childBudgetInfo) {
+						refs.childBudgetInfo = refs.budgetInfoContainer.createSpan({ cls: cls("child-budget-info") });
 					}
-					childBudgetInfo.textContent = `Child allocated: ${formatHours(allocated)}h (${percentage.toFixed(1)}%)`;
-				} else if (childBudgetInfo) {
-					childBudgetInfo.remove();
+					refs.childBudgetInfo.textContent = `Child allocated: ${formatHours(allocated)}h (${percentage.toFixed(1)}%)`;
+				} else if (refs.childBudgetInfo) {
+					refs.childBudgetInfo.remove();
+					refs.childBudgetInfo = null;
 				}
 			}
 
-			const percentageBar = this.percentageBarRefs.get(category.name);
-			if (percentageBar) {
-				percentageBar.style.width = `${Math.min(percentage, 100)}%`;
-			}
+			refs.bar.style.width = `${Math.min(percentage, 100)}%`;
+			refs.label.textContent = `${percentage.toFixed(1)}%`;
 
-			const percentageLabel = this.percentageLabelRefs.get(category.name);
-			if (percentageLabel) {
-				percentageLabel.textContent = `${percentage.toFixed(1)}%`;
-			}
-
-			removeCls(item as HTMLElement, "over-budget");
+			removeCls(refs.item, "over-budget");
 			if (parentBudget) {
-				const EPSILON = 0.01;
-				if (parentBudget.allocated > parentBudget.total + EPSILON && parentBudget.total > 0) {
-					addCls(item as HTMLElement, "over-budget");
+				if (parentBudget.allocated > parentBudget.total + BUDGET_EPSILON && parentBudget.total > 0) {
+					addCls(refs.item, "over-budget");
 				}
 			}
 		}
 	}
 
-	private renderActions(): void {
-		const actions = this.contentEl.createDiv({ cls: cls("allocation-actions") });
-
-		const cancelBtn = actions.createEl("button", {
-			text: "Cancel",
-			cls: cls("action-btn"),
-		});
-		cancelBtn.addEventListener("click", () => {
-			this.result = { allocations: [], cancelled: true };
-			this.close();
-		});
-
-		const saveBtn = actions.createEl("button", {
-			text: "Save allocations",
-			cls: cls("action-btn primary"),
-		});
-		saveBtn.addEventListener("click", () => {
-			this.result = {
-				allocations: this.getAllocationsArray(),
-				cancelled: false,
-			};
-			this.close();
-		});
-	}
-
-	private getTotalAllocated(): number {
-		let total = 0;
-		for (const hours of this.allocations.values()) {
-			total += hours;
-		}
-		return total;
-	}
-
-	/**
-	 * Calculate reactive parent budget that includes current (unsaved) allocations.
-	 * This shows how the parent budget would look if we saved right now.
-	 */
-	private getReactiveParentBudget(categoryName: string): CategoryBudgetInfo | undefined {
-		const parentBudget = this.parentBudgets.get(categoryName);
-		if (!parentBudget) return undefined;
-
-		const currentAllocation = this.allocations.get(categoryName) ?? 0;
-
-		const originalAllocation = this.getOriginalAllocation(categoryName);
-		const allocationDelta = currentAllocation - originalAllocation;
-
-		return {
-			categoryName: parentBudget.categoryName,
-			total: parentBudget.total,
-			allocated: parentBudget.allocated + allocationDelta,
-			remaining: parentBudget.remaining - allocationDelta,
-		};
-	}
-
-	/**
-	 * Get the original allocation (when modal opened) for a category.
-	 * This is needed to calculate the delta for reactive parent budgets.
-	 */
-	private getOriginalAllocation(categoryName: string): number {
-		if (this.undoStack.length > 0) {
-			const originalState = this.undoStack[0];
-			return originalState.get(categoryName) ?? 0;
-		}
-		return this.allocations.get(categoryName) ?? 0;
-	}
-
-	private getAllocationsArray(): TimeAllocation[] {
-		const allocations: TimeAllocation[] = [];
-		for (const [categoryName, hours] of this.allocations) {
-			if (hours > 0) {
-				allocations.push({ categoryName, hours });
-			}
-		}
-		return allocations;
-	}
-
-	private saveScrollPosition(): void {
-		if (this.allocationListEl) {
-			this.scrollPosition = this.allocationListEl.scrollTop;
-		}
-	}
-
-	private restoreScrollPosition(): void {
-		if (this.allocationListEl && this.scrollPosition > 0) {
-			this.allocationListEl.scrollTop = this.scrollPosition;
-		}
-	}
-
-	private scrollToFocusedCategory(): void {
-		if (!this.focusedCategoryId || !this.allocationListEl) return;
-
-		const item = this.allocationListEl.querySelector(`#allocation-item-${this.focusedCategoryId}`);
-		if (item) {
-			item.scrollIntoView({ behavior: "smooth", block: "nearest" });
-		}
-	}
-
-	private saveState(): void {
-		const snapshot = new Map<string, number>();
-		for (const [key, value] of this.allocations) {
-			snapshot.set(key, value);
-		}
-		this.undoStack.push(snapshot);
-		this.redoStack = [];
-		this.updateUndoRedoButtons();
-	}
-
-	private undo(): void {
-		if (this.undoStack.length === 0) return;
-
-		const currentState = new Map<string, number>();
-		for (const [key, value] of this.allocations) {
-			currentState.set(key, value);
-		}
-		this.redoStack.push(currentState);
-
-		const previousState = this.undoStack.pop();
-		if (previousState) {
-			this.allocations.clear();
-			for (const [key, value] of previousState) {
-				this.allocations.set(key, value);
-			}
-			this.updateAllInputs();
-			this.updateViewsWithFocusPreservation();
-		}
-		this.updateUndoRedoButtons();
-	}
-
-	private redo(): void {
-		if (this.redoStack.length === 0) return;
-
-		const currentState = new Map<string, number>();
-		for (const [key, value] of this.allocations) {
-			currentState.set(key, value);
-		}
-		this.undoStack.push(currentState);
-
-		const nextState = this.redoStack.pop();
-		if (nextState) {
-			this.allocations.clear();
-			for (const [key, value] of nextState) {
-				this.allocations.set(key, value);
-			}
-			this.updateAllInputs();
-			this.updateViewsWithFocusPreservation();
-		}
-		this.updateUndoRedoButtons();
-	}
-
-	private updateAllInputs(): void {
-		for (const [categoryName, hours] of this.allocations) {
-			const input = this.inputRefs.get(categoryName);
-			if (input) {
-				input.value = hours > 0 ? String(hours) : "";
-			}
-		}
-	}
-
-	private updateUndoRedoButtons(): void {
-		if (this.undoButton) {
-			this.undoButton.disabled = this.undoStack.length === 0;
-		}
-		if (this.redoButton) {
-			this.redoButton.disabled = this.redoStack.length === 0;
-		}
-	}
-
-	private applyFillFromParent(): void {
-		if (this.parentBudgets.size === 0) {
+	private showCreateCategoryInput(): void {
+		const existingInput = this.contentEl.querySelector<HTMLInputElement>(
+			`.${cls("create-category-input-wrapper")} input`
+		);
+		if (existingInput) {
+			existingInput.focus();
 			return;
 		}
 
-		const filledAllocations = fillAllocationsFromParent(this.parentBudgets, this.totalHoursAvailable);
+		const inputWrapper = upsertElement(this.contentEl, "div", cls("create-category-input-wrapper"), (el) => {
+			el.empty();
+		});
 
-		this.allocations.clear();
-
-		for (const allocation of filledAllocations) {
-			this.allocations.set(allocation.categoryName, allocation.hours);
+		const actionsEl = this.contentEl.querySelector(`.${cls("allocation-actions")}`);
+		if (actionsEl && this.allocationListEl && inputWrapper.parentElement !== this.contentEl) {
+			this.contentEl.insertBefore(inputWrapper, actionsEl);
 		}
 
-		this.updateAllInputs();
-		this.updateViewsWithFocusPreservation();
+		const inputContainer = inputWrapper.createDiv({ cls: cls("create-category-input-container") });
+
+		const input = inputContainer.createEl("input", {
+			type: "text",
+			placeholder: "Enter category name...",
+			cls: cls("create-category-input"),
+		});
+
+		const buttonGroup = inputContainer.createDiv({ cls: cls("create-category-buttons") });
+
+		const confirmBtn = buttonGroup.createEl("button", {
+			text: "Add",
+			cls: cls("action-btn primary small"),
+		});
+
+		const cancelBtn = buttonGroup.createEl("button", {
+			text: "Cancel",
+			cls: cls("action-btn small"),
+		});
+
+		// Focus input
+		input.focus();
+
+		// Confirm handler
+		const handleConfirm = () => {
+			const categoryName = input.value.trim();
+			if (categoryName) {
+				inputWrapper.remove();
+				this.createNewCategory(categoryName);
+			}
+		};
+
+		// Cancel handler
+		const handleCancel = () => {
+			inputWrapper.remove();
+		};
+
+		confirmBtn.addEventListener("click", handleConfirm);
+		cancelBtn.addEventListener("click", handleCancel);
+
+		// Enter to confirm, Escape to cancel
+		input.addEventListener("keydown", (e) => {
+			if (e.key === "Enter") {
+				e.preventDefault();
+				handleConfirm();
+			} else if (e.key === "Escape") {
+				e.preventDefault();
+				handleCancel();
+			}
+		});
+	}
+
+	private createNewCategory(categoryName: string): void {
+		if (this.state.allocations.has(categoryName)) {
+			new Notice(`Category "${categoryName}" already exists`);
+			this.focusedCategoryId = categoryName;
+			this.updateViewsWithFocusPreservation();
+			return;
+		}
+
+		// Save current state for undo
+		this.state.saveState();
+
+		this.state.allocations.set(categoryName, 0);
+
+		const categoryIndex = this.categories.length;
+		const defaultColor = getDefaultCategoryColor(categoryIndex);
+		this.categories.push({
+			name: categoryName,
+			color: defaultColor,
+		});
+
+		this.focusedCategoryId = categoryName;
+
+		this.saveScrollPosition();
+		this.renderAllocationList();
+		this.renderSummary();
+		this.restoreScrollPosition();
+		this.scrollToFocusedCategory();
+
+		new Notice(`Category "${categoryName}" added`);
 	}
 
 	private setupScopeHandlers(): void {
@@ -788,5 +708,103 @@ export class AllocationEditorModal extends Modal {
 			this.close();
 			return false;
 		});
+	}
+
+	private getTotalAllocated(): number {
+		return Array.from(this.state.allocations.values()).reduce((total, hours) => total + hours, 0);
+	}
+
+	/**
+	 * Calculate reactive parent budget that includes current (unsaved) allocations.
+	 * This shows how the parent budget would look if we saved right now.
+	 */
+	private getReactiveParentBudget(categoryName: string): CategoryBudgetInfo | undefined {
+		const parentBudget = this.parentBudgets.get(categoryName);
+		if (!parentBudget) return undefined;
+
+		const currentAllocation = this.state.allocations.get(categoryName) ?? 0;
+
+		const originalAllocation = this.state.getOriginalAllocation(categoryName);
+		const allocationDelta = currentAllocation - originalAllocation;
+
+		return {
+			categoryName: parentBudget.categoryName,
+			total: parentBudget.total,
+			allocated: parentBudget.allocated + allocationDelta,
+			remaining: parentBudget.remaining - allocationDelta,
+		};
+	}
+
+	private getAllocationsArray(): TimeAllocation[] {
+		const allocations: TimeAllocation[] = [];
+		for (const [categoryName, hours] of this.state.allocations) {
+			if (hours > 0) {
+				allocations.push({ categoryName, hours });
+			}
+		}
+		return allocations;
+	}
+
+	private saveScrollPosition(): void {
+		this.scrollPosition = this.allocationListEl?.scrollTop ?? 0;
+	}
+
+	private restoreScrollPosition(): void {
+		if (this.allocationListEl && this.scrollPosition > 0) {
+			this.allocationListEl.scrollTop = this.scrollPosition;
+		}
+	}
+
+	private scrollToFocusedCategory(): void {
+		if (!this.focusedCategoryId) return;
+
+		const refs = this.rowRefs.get(this.focusedCategoryId);
+		if (refs) {
+			refs.item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+		}
+	}
+
+	private executeHistoryOperation(operation: () => Map<string, number> | null): void {
+		const state = operation();
+		if (state) {
+			this.updateAllInputs();
+			this.updateViewsWithFocusPreservation();
+		}
+		this.undoButton?.update();
+		this.redoButton?.update();
+	}
+
+	private undo(): void {
+		this.executeHistoryOperation(() => this.state.undo());
+	}
+
+	private redo(): void {
+		this.executeHistoryOperation(() => this.state.redo());
+	}
+
+	private updateAllInputs(): void {
+		for (const [categoryName, hours] of this.state.allocations) {
+			const refs = this.rowRefs.get(categoryName);
+			if (refs) {
+				refs.input.value = hours > 0 ? String(hours) : "";
+			}
+		}
+	}
+
+	private applyFillFromParent(): void {
+		if (this.parentBudgets.size === 0) {
+			return;
+		}
+
+		const filledAllocations = fillAllocationsFromParent(this.parentBudgets, this.totalHoursAvailable);
+
+		this.state.allocations.clear();
+
+		for (const allocation of filledAllocations) {
+			this.state.allocations.set(allocation.categoryName, allocation.hours);
+		}
+
+		this.updateAllInputs();
+		this.updateViewsWithFocusPreservation();
 	}
 }

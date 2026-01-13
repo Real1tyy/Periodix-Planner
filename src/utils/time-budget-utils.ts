@@ -68,6 +68,10 @@ export function calculateAllocationPercentage(totalHours: number, allocatedHours
 	return Math.round((allocatedHours / totalHours) * 100);
 }
 
+export function calculatePercentage(value: number, total: number): number {
+	return total > 0 ? (value / total) * 100 : 0;
+}
+
 type BudgetStatus = "under" | "warning" | "over";
 
 export function getBudgetStatus(
