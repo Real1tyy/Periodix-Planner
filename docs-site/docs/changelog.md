@@ -12,6 +12,12 @@ All notable changes to this project will be documented here.
 
 ### New Features
 
+- **Category Edit and Delete**: Bulk category management operations
+  - **Rename categories**: Edit button allows renaming categories across all notes at once
+  - **Delete categories**: Delete button removes categories from all notes with confirmation
+  - **Bulk operations**: Changes are applied to all notes automatically using Promise.all
+  - **Error handling**: Failed operations are tracked and reported with detailed error messages
+
 - **Fully Reactive Category System**: Categories now auto-register and update in real-time
   - **No more "unknown categories"**: All categories in time allocations are automatically recognized
   - **Create categories on-the-fly**: Add categories directly in the allocation editor - they appear instantly

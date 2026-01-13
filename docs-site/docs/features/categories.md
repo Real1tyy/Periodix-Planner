@@ -96,6 +96,30 @@ Personalize category colors in settings:
 
 **Visual Feedback**: Category rows have a subtle background tint matching their color, and pie charts update immediately when colors change.
 
+## ✏️ Editing Categories
+
+### Rename Categories
+
+To rename a category across all your notes:
+
+1. Go to **Settings → Periodix-Planner → Categories**
+2. Click the **pencil (edit)** button next to the category
+3. Enter the new category name
+4. Click **Rename**
+
+The system will automatically update the category name in all notes that use it.
+
+### Delete Categories
+
+To completely remove a category:
+
+1. Go to **Settings → Periodix-Planner → Categories**
+2. Click the **trash (delete)** button next to the category
+3. Confirm the deletion in the dialog
+4. The category will be removed from all notes and settings
+
+**Note**: Deletion is permanent and will remove the category from all time budget blocks across your vault.
+
 ## 📊 Category Statistics
 
 The Categories settings tab serves as your analytics hub. See comprehensive usage data for all your categories:
@@ -148,6 +172,7 @@ The Categories tab shows comprehensive statistics:
 - How many notes per period type
 - Total hours and percentages
 - Interactive pie chart visualization
+- Edit and delete buttons for category management
 
 ### In Notes
 
@@ -158,11 +183,14 @@ Categories appear wherever you allocate time:
 
 ## 🚫 Removing Categories
 
-Categories are automatically removed when no longer used:
+To remove a category from your system:
 
-1. **Remove Allocations**: Delete the category from all periodic notes
-2. **Automatic Cleanup**: System detects no usage and removes it
-3. **No Manual Deletion**: No need to manually delete in settings
+1. Go to **Settings → Periodix-Planner → Categories**
+2. Click the **trash (delete)** button next to the category
+3. Confirm the deletion
+4. The category will be removed from all notes and settings automatically
+
+**Alternative**: You can also manually remove allocations from all notes. Once a category is no longer used anywhere, it will be automatically cleaned up from settings.
 
 **Note**: Category colors are preserved even if temporarily unused - they'll reappear with the same color if you use the category again.
 

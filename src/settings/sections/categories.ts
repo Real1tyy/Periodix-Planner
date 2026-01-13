@@ -1,8 +1,8 @@
-import { Setting } from "obsidian";
+import { type App, Setting } from "obsidian";
 import type { Subscription } from "rxjs";
 import { PieChartRenderer } from "../../components/shared/pie-chart";
 import { PERIOD_TYPE_LABELS, type PeriodType } from "../../constants";
-import type { CategoryTracker, GlobalStatisticsAggregator, PeriodTypeStatistics } from "../../core";
+import type { CategoryTracker, GlobalStatisticsAggregator, PeriodIndex, PeriodTypeStatistics } from "../../core";
 import type { SettingsStore } from "../../core/settings-store";
 import type { Category } from "../../types";
 import { ORDERED_PERIOD_TYPES } from "../../types/config";
@@ -10,6 +10,8 @@ import type { SettingsSection } from "../../types/settings";
 import { getDefaultCategoryColor, hexToRgb } from "../../utils/color-utils";
 import { cls } from "../../utils/css";
 import { getEnabledPeriodTypes } from "../../utils/period-navigation";
+import { CategoryDeleteModal } from "../modals/category-delete-modal";
+import { CategoryRenameModal } from "../modals/category-rename-modal";
 
 type CatPeriodStat = { noteCount: number; totalHours: number };
 type StatsIndex = Map<PeriodType, Map<string, CatPeriodStat>>;
@@ -37,9 +39,11 @@ export class CategoriesSection implements SettingsSection {
 	private selectedPeriodType: PeriodType | null = null;
 
 	constructor(
+		private app: App,
 		private settingsStore: SettingsStore,
 		private globalStatsAggregator: GlobalStatisticsAggregator,
-		private categoryTracker: CategoryTracker
+		private categoryTracker: CategoryTracker,
+		private periodIndex: PeriodIndex
 	) {}
 
 	render(containerEl: HTMLElement): void {
@@ -49,6 +53,10 @@ export class CategoriesSection implements SettingsSection {
 			text: "Categories are automatically discovered from your periodic notes. Configure their colors below.",
 			cls: "setting-item-description",
 		});
+
+		const noticeEl = containerEl.createDiv({ cls: cls("category-restart-notice") });
+		noticeEl.createEl("strong", { text: "Note: " });
+		noticeEl.appendText("Restart Obsidian after renaming or deleting categories for changes to fully propagate.");
 
 		this.renderPeriodTypeSelector(containerEl);
 
@@ -294,6 +302,26 @@ export class CategoriesSection implements SettingsSection {
 			descContainer.createDiv({ text: line, cls: "setting-item-description" });
 		}
 
+		setting.addButton((button) => {
+			button
+				.setIcon("pencil")
+				.setTooltip("Rename category")
+				.onClick(() => {
+					void this.handleRenameCategory(vm.name);
+				});
+			button.buttonEl.addClass(cls("category-edit-button"));
+		});
+
+		setting.addButton((button) => {
+			button
+				.setIcon("trash")
+				.setTooltip("Delete category")
+				.onClick(() => {
+					void this.handleDeleteCategory(vm.name);
+				});
+			button.buttonEl.addClass(cls("category-delete-button"));
+		});
+
 		setting.addColorPicker((picker) => {
 			picker.setValue(vm.color).onChange(async (value) => {
 				await this.updateCategoryColor(vm.name, value);
@@ -313,5 +341,23 @@ export class CategoriesSection implements SettingsSection {
 		if (this.categoriesContainer) {
 			this.renderCategories(this.categoriesContainer);
 		}
+	}
+
+	private async handleRenameCategory(categoryName: string): Promise<void> {
+		const modal = new CategoryRenameModal(this.app, this.periodIndex, this.settingsStore, categoryName, () => {
+			if (this.categoriesContainer) {
+				this.renderCategories(this.categoriesContainer);
+			}
+		});
+		modal.open();
+	}
+
+	private async handleDeleteCategory(categoryName: string): Promise<void> {
+		const modal = new CategoryDeleteModal(this.app, this.periodIndex, categoryName, () => {
+			if (this.categoriesContainer) {
+				this.renderCategories(this.categoriesContainer);
+			}
+		});
+		modal.open();
 	}
 }
