@@ -1,11 +1,7 @@
 import type { DateTime } from "luxon";
 import type { App, TFile } from "obsidian";
 import type { Observable, Subscription } from "rxjs";
-import {
-	parseAllocationBlock,
-	resolveAllocations,
-	serializeAllocations,
-} from "../components/time-budget/allocation-parser";
+import { parseAllocationBlock, serializeAllocations } from "../components/time-budget/allocation-parser";
 import type { PeriodType } from "../constants";
 import type { TemplateService } from "../services/template";
 import type {
@@ -280,7 +276,7 @@ export class NoteGenerator {
 		if (!parentCodeMatch) return [];
 
 		const parentParsed = parseAllocationBlock(parentCodeMatch[1]);
-		const { resolved: parentAllocations } = resolveAllocations(parentParsed.allocations, this.settings.categories);
+		const parentAllocations = parentParsed.allocations;
 		if (parentAllocations.length === 0) return [];
 
 		const parentCache = this.app.metadataCache.getFileCache(parentFile);

@@ -795,6 +795,7 @@
 	height: 16px;
 	border-radius: 50%;
 	flex-shrink: 0;
+	background-color: var(--category-color, var(--interactive-accent));
 }
 
 .periodic-planner-allocation-info {
@@ -988,9 +989,11 @@
 
 .periodic-planner-percentage-bar {
 	height: 100%;
+	width: var(--percentage-width, 0%);
 	border-radius: 6px;
 	transition: width 0.1s ease;
 	pointer-events: none;
+	background-color: var(--category-color, var(--interactive-accent));
 }
 
 .periodic-planner-dragging {

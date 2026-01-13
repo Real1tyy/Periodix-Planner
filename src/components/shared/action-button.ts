@@ -14,10 +14,19 @@ export class ActionButton {
 		this.button = container.createEl("button", {
 			text: label,
 			cls: buttonClass ?? cls("undo-redo-btn"),
+			attr: { type: "button" },
 		});
 		this.disabledGetter = disabledGetter;
 		this.update();
-		this.button.addEventListener("click", onClick);
+		// Use capture so this still fires even if some parent handler stops bubbling clicks.
+		this.button.addEventListener(
+			"click",
+			(e) => {
+				e.preventDefault();
+				onClick();
+			},
+			{ capture: true }
+		);
 	}
 
 	update(): void {

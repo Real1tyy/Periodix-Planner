@@ -1,17 +1,12 @@
-import type { Category, TimeAllocation } from "../../types";
-
-interface ParsedAllocation {
-	categoryName: string;
-	hours: number;
-}
+import type { TimeAllocation } from "../../types";
 
 interface AllocationParseResult {
-	allocations: ParsedAllocation[];
+	allocations: TimeAllocation[];
 	errors: string[];
 }
 
 export function parseAllocationBlock(content: string): AllocationParseResult {
-	const allocations: ParsedAllocation[] = [];
+	const allocations: TimeAllocation[] = [];
 	const errors: string[] = [];
 
 	const lines = content.split("\n").filter((line) => line.trim().length > 0);
@@ -35,30 +30,6 @@ export function parseAllocationBlock(content: string): AllocationParseResult {
 	}
 
 	return { allocations, errors };
-}
-
-export function resolveAllocations(
-	parsed: ParsedAllocation[],
-	categories: Category[]
-): { resolved: TimeAllocation[]; unresolved: string[] } {
-	const resolved: TimeAllocation[] = [];
-	const unresolved: string[] = [];
-
-	const categoryMap = new Map(categories.map((c) => [c.name.toLowerCase(), c.name]));
-
-	for (const allocation of parsed) {
-		const categoryName = categoryMap.get(allocation.categoryName.toLowerCase());
-		if (categoryName) {
-			resolved.push({
-				categoryName,
-				hours: allocation.hours,
-			});
-		} else {
-			unresolved.push(allocation.categoryName);
-		}
-	}
-
-	return { resolved, unresolved };
 }
 
 export function serializeAllocations(allocations: TimeAllocation[]): string {

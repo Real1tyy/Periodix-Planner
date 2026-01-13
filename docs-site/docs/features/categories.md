@@ -20,14 +20,19 @@ Categories are the foundation of the time budgeting system. They represent diffe
 
 ## ✨ Automatic Discovery
 
-**No manual category creation needed!** Categories are automatically detected when you use them in your periodic notes.
+**No manual category creation needed!** Categories are automatically detected and registered when you use them in your periodic notes.
 
 ### How It Works
 
-1. **Use a Category**: Add time allocation with any category name in a periodic note
-2. **Instant Detection**: The category appears in settings automatically
-3. **Real-Time Tracking**: Usage statistics update as you work
-4. **Automatic Cleanup**: Remove all instances of a category, and it's automatically cleaned up
+1. **Write a Time Allocation**: Add any category name in your time budget code fence
+   ```
+   ​```periodic-planner
+   NewCategory: 5
+   ​```
+   ```
+2. **Instant Registration**: CategoryTracker detects it and adds it to settings automatically with a default color
+3. **Real-Time Tracking**: Usage statistics update as you work across all notes
+4. **Automatic Cleanup**: Remove all instances of a category, and it's automatically removed from settings
 
 ### Example
 
@@ -35,13 +40,23 @@ When you create a time budget in any periodic note:
 
 ```
 ​```periodic-planner
-- Work: 40
-- Health: 10
-- Learning: 5
+Work: 40
+Health: 10
+Learning: 5
 ​```
 ```
 
-The categories "Work", "Health", and "Learning" automatically appear in **Settings → Categories** - no manual setup required.
+The categories "Work", "Health", and "Learning" automatically appear in **Settings → Categories** with default colors - no manual setup required!
+
+### Create Categories in the Allocation Editor
+
+You can also create categories on-the-fly in the allocation editor:
+
+1. Open the allocation editor in any note
+2. Click **"+ Create new category"**
+3. Enter the category name
+4. Assign hours to it
+5. Save - the category is instantly registered with a default color
 
 ## 🎨 Using Categories
 
@@ -58,6 +73,16 @@ Categories work seamlessly across:
 ### Default Colors
 
 When a category is first discovered, it's automatically assigned a color from the default palette:
+- Blue (#3B82F6)
+- Green (#10B981)
+- Purple (#8B5CF6)
+- Amber (#F59E0B)
+- Red (#EF4444)
+- Pink (#EC4899)
+- Cyan (#06B6D4)
+- Lime (#84CC16)
+
+The system cycles through these colors as you add new categories.
 
 ### Changing Colors
 
@@ -67,9 +92,9 @@ Personalize category colors in settings:
 2. Find the category you want to customize
 3. Click the color picker next to the category name
 4. Choose a new color from the wheel or enter a hex code
-5. Changes apply instantly - no save needed
+5. Changes apply instantly across all notes and visualizations
 
-**Visual Feedback**: Category rows have a subtle background tint matching their color, and the pie chart updates immediately when colors change.
+**Visual Feedback**: Category rows have a subtle background tint matching their color, and pie charts update immediately when colors change.
 
 ## 📊 Category Statistics
 
@@ -95,14 +120,24 @@ Categories are automatically ordered:
 
 ## 🔄 Category Lifecycle
 
-### Reactive System
+### Fully Reactive System
 
-Categories automatically sync as you work:
+Categories automatically sync as you work - no manual management needed:
 
-- **Add New**: Use a new category name → appears instantly in settings
-- **Track Usage**: See note counts update in real-time
-- **Color Changes**: Update colors → charts and UI reflect immediately
-- **Auto-Cleanup**: Remove all allocations → category automatically removed
+- **Auto-Registration**: Use a new category name → CategoryTracker adds it to settings with a default color
+- **Real-Time Tracking**: See note counts and hours update instantly
+- **Color Changes**: Update colors → all charts and UI reflect immediately
+- **Auto-Cleanup**: Remove all allocations → category automatically removed from settings
+- **Undo/Redo Support**: Create categories in the allocation editor with full undo/redo functionality
+
+### Behind the Scenes
+
+The **Plugin**:
+1. Monitors all periodic notes for category usage
+2. Automatically registers new categories when detected
+3. Updates usage statistics in real-time
+4. Removes categories when no longer used
+5. Provides color management with automatic defaults
 
 ## 🔍 Finding Category Usage
 

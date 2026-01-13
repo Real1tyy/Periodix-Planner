@@ -6,7 +6,7 @@ import { ActivityWatchBlockRenderer } from "./components/activity-watch/activity
 import { PeriodBasesItemView, VIEW_TYPE_PERIOD_BASES } from "./components/period-bases/period-bases-item-view";
 import { PeriodChildrenBasesModal } from "./components/period-children/bases-modal";
 import { TimeBudgetBlockRenderer } from "./components/time-budget";
-import type { PeriodType } from "./constants";
+import { type PeriodType, SETTINGS_DEFAULTS } from "./constants";
 import { AutoGenerator, formatAutoGenerationSummary } from "./core/auto-generator";
 import { CategoryTracker } from "./core/category-tracker";
 import { GlobalStatisticsAggregator } from "./core/global-statistics";
@@ -489,7 +489,8 @@ export default class PeriodicPlannerPlugin extends Plugin {
 	}
 
 	private registerCodeBlockProcessor(): void {
-		this.registerMarkdownCodeBlockProcessor("periodic-planner", (source, el, ctx) => {
+		const codeFence = SETTINGS_DEFAULTS.TIME_BUDGET_CODE_FENCE;
+		this.registerMarkdownCodeBlockProcessor(codeFence, (source, el, ctx) => {
 			if (el.hasClass("periodic-planner-initialized")) {
 				return;
 			}
@@ -500,7 +501,8 @@ export default class PeriodicPlannerPlugin extends Plugin {
 			const renderer = new TimeBudgetBlockRenderer(
 				el,
 				this.app,
-				this.settingsStore.currentSettings,
+				this.settingsStore,
+				this.categoryTracker,
 				this.periodIndex,
 				source,
 				ctx

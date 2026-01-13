@@ -64,6 +64,17 @@ export function hasCls(element: HTMLElement, className: string): boolean {
 }
 
 /**
+ * Sets a CSS custom property (variable) on an element.
+ *
+ * @example
+ * setCssVar(element, "category-color", "#ff0000");
+ * setCssVar(element, "percentage-width", "75%");
+ */
+export function setCssVar(element: HTMLElement, name: string, value: string): void {
+	element.style.setProperty(`--${name}`, value);
+}
+
+/**
  * Finds or creates an element with the specified class name.
  * Avoids unnecessary DOM churn by reusing existing elements.
  * Returns typed element based on tag name.

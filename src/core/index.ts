@@ -1,7 +1,9 @@
 export * from "./allocation-state";
 export * from "./auto-generator";
 export {
-	CategoryTracker, type CategoryStatistics as CategoryTrackerStatistics, type TrackedCategory
+	type CategoryStatistics as CategoryTrackerStatistics,
+	CategoryTracker,
+	type TrackedCategory,
 } from "./category-tracker";
 export * from "./global-statistics";
 export * from "./note-generator";

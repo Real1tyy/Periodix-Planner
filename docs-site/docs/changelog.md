@@ -12,11 +12,19 @@ All notable changes to this project will be documented here.
 
 ### New Features
 
-- **Automatic Category Discovery**: Categories are now automatically detected from your periodic notes in real-time
-  - No manual category creation needed - just use category names in your time allocations
-  - Categories appear in settings automatically when first used
-  - Real-time tracking shows which categories are active and in how many notes
-  - Settings now focus on statistics and color customization rather than manual management
+- **Fully Reactive Category System**: Categories now auto-register and update in real-time
+  - **No more "unknown categories"**: All categories in time allocations are automatically recognized
+  - **Create categories on-the-fly**: Add categories directly in the allocation editor - they appear instantly
+  - **Auto-registration**: CategoryTracker automatically adds new categories to settings with default colors
+  - **Auto-cleanup**: Unused categories are automatically removed from settings
+  - **Undo/Redo support**: Full undo/redo functionality works seamlessly with newly created categories
+  - Just write `NewCategory: 5` in your code fence and it works immediately!
+
+- **Simplified Time Budget Workflow**: Streamlined allocation editor experience
+  - Create new categories directly in the modal without manual setup
+  - Categories get default colors automatically (blue, green, purple, amber, red, pink, cyan, lime)
+  - All allocations render immediately regardless of whether they exist in settings
+  - CategoryTracker handles all category management behind the scenes
 
 - **Enhanced Global Statistics**: Comprehensive time allocation analytics across all your periodic notes. [Learn more](/features/statistics)
   - **Period Type Selector**: View statistics filtered by period type (daily, weekly, monthly, quarterly, yearly)
@@ -32,11 +40,7 @@ All notable changes to this project will be documented here.
   - Track which period types use each category
   - See total hours and percentages for selected period type
   - Background colors update instantly when you change category colors
-
-- **Reactive Category System**: Categories automatically sync across the plugin as you work
-  - Add a new category in any note - it appears in settings immediately
-  - No restart required for category changes to take effect
-  - Category tracker monitors all periodic notes and updates statistics in real-time
+  - Categories auto-sync as you work - no manual management needed
 
 - **Global Statistics**: View comprehensive time allocation statistics across all periodic notes in the Categories settings tab
   - Aggregates data from top-level periodic notes (yearly, quarterly, monthly, weekly, or daily)

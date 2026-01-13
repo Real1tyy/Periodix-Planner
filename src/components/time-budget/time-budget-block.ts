@@ -1,17 +1,15 @@
 import { type App, type MarkdownPostProcessorContext, MarkdownRenderChild, TFile } from "obsidian";
 import type { Subscription } from "rxjs";
 import type { PeriodType } from "../../constants";
+import type { CategoryTracker } from "../../core/category-tracker";
 import type { PeriodIndex } from "../../core/period-index";
-import type { Category, IndexedPeriodNote, PeriodicPlannerSettings, TimeAllocation } from "../../types";
+import type { SettingsStore } from "../../core/settings-store";
+import type { Category, PeriodicPlannerSettings, TimeAllocation } from "../../types";
 import { addCls, cls } from "../../utils/css";
+import { retryGetEntryForFile, updateTimeBudgetCodeBlock } from "../../utils/file-operations";
 import { fillAllocationsFromParent, formatHours, roundHours } from "../../utils/time-budget-utils";
 import { AllocationEditorModal } from "./allocation-editor-modal";
-import {
-	getTotalAllocatedHours,
-	parseAllocationBlock,
-	resolveAllocations,
-	serializeAllocations,
-} from "./allocation-parser";
+import { getTotalAllocatedHours, parseAllocationBlock } from "./allocation-parser";
 import { getChildBudgetsFromIndex } from "./child-budget-calculator";
 import { EnlargedChartModal } from "./enlarged-chart-modal";
 import { type CategoryBudgetInfo, getParentBudgets } from "./parent-budget-tracker";
@@ -40,7 +38,8 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 	constructor(
 		containerEl: HTMLElement,
 		private app: App,
-		private settings: PeriodicPlannerSettings,
+		private settingsStore: SettingsStore,
+		private categoryTracker: CategoryTracker,
 		private periodIndex: PeriodIndex,
 		private sourceContent: string,
 		private context: MarkdownPostProcessorContext
@@ -107,7 +106,7 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 				this.renderError(el, "Cannot find file");
 				return;
 			}
-			const entry = await this.retryGetEntryForFile(file);
+			const entry = await retryGetEntryForFile(this.periodIndex, file);
 			if (!entry) {
 				this.renderError(el, "This note is not indexed yet. Please wait for indexing to complete.");
 				return;
@@ -115,24 +114,26 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 
 			const { periodType, hoursAvailable: totalHours } = entry;
 
+			const settings = this.settingsStore.currentSettings;
 			const parsed = parseAllocationBlock(source);
-			const { unresolved, resolved: allocations } = resolveAllocations(parsed.allocations, this.settings.categories);
+			const allocations = parsed.allocations;
 
-			if (unresolved.length > 0) {
-				this.renderWarnings(el, unresolved);
-			}
+			const categories = allocations.map((alloc) => ({
+				name: alloc.categoryName,
+				color: this.categoryTracker.getCategoryColor(alloc.categoryName),
+			}));
 
-			const parentBudgets = await getParentBudgets(entry, this.settings, this.periodIndex);
+			const parentBudgets = await getParentBudgets(entry, settings, this.periodIndex);
 
 			let finalAllocations = allocations;
 			if (
-				this.settings.timeBudget.autoInheritParentPercentages &&
+				settings.timeBudget.autoInheritParentPercentages &&
 				allocations.length === 0 &&
 				parentBudgets.budgets.size > 0
 			) {
 				const inheritedAllocations = fillAllocationsFromParent(parentBudgets.budgets, totalHours);
 				if (inheritedAllocations.length > 0) {
-					await this.updateCodeBlock(file, inheritedAllocations, ctx);
+					await updateTimeBudgetCodeBlock(this.app, file, inheritedAllocations);
 					finalAllocations = inheritedAllocations;
 				}
 			}
@@ -142,14 +143,14 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 				periodType,
 				finalAllocations,
 				this.periodIndex,
-				this.settings.generation
+				settings.generation
 			);
 
-			this.renderHeader(el, totalHours, finalAllocations, periodType, childBudgets.totalChildrenAllocated);
+			this.renderHeader(el, totalHours, finalAllocations, periodType, childBudgets.totalChildrenAllocated, settings);
 
 			this.tableData = {
-				allocations: finalAllocations,
-				categories: this.settings.categories,
+				allocations,
+				categories,
 				periodType,
 				parentBudgets: parentBudgets.budgets,
 				childBudgets: childBudgets.budgets,
@@ -161,16 +162,16 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 			this.tableInsertBefore = pieChartContainer;
 
 			this.renderAllocationTable();
-			this.renderPieChart(pieChartContainer, finalAllocations, this.settings.categories);
+			this.renderPieChart(pieChartContainer, allocations, categories);
 			this.renderEditButton(
 				el,
 				file,
 				periodType,
-				finalAllocations,
+				allocations,
 				totalHours,
 				parentBudgets.budgets,
 				childBudgets.budgets,
-				ctx
+				categories
 			);
 		} finally {
 			this.isRendering = false;
@@ -182,18 +183,13 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		errorEl.setText(`⚠️ ${message}`);
 	}
 
-	private renderWarnings(el: HTMLElement, unresolvedCategories: string[]): void {
-		const warningEl = el.createDiv({ cls: cls("time-budget-warnings") });
-		warningEl.createEl("strong", { text: "Unknown categories (ignored): " });
-		warningEl.createSpan({ text: unresolvedCategories.join(", ") });
-	}
-
 	private renderHeader(
 		el: HTMLElement,
 		totalHours: number,
 		allocations: TimeAllocation[],
 		periodType: PeriodType,
-		totalChildrenAllocated: number
+		totalChildrenAllocated: number,
+		settings: PeriodicPlannerSettings
 	): void {
 		const header = el.createDiv({ cls: cls("time-budget-header") });
 
@@ -204,8 +200,8 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		const remaining = roundHours(totalHours - totalAllocated);
 		const percentage = totalHours > 0 ? (totalAllocated / totalHours) * 100 : 0;
 
-		const overBudgetThreshold = this.settings.ui.overBudgetThresholdPercent;
-		const warningThreshold = this.settings.ui.warningThresholdPercent;
+		const overBudgetThreshold = settings.ui.overBudgetThresholdPercent;
+		const warningThreshold = settings.ui.warningThresholdPercent;
 
 		// Tolerance for floating-point comparison (0.01%)
 		const EPSILON = 0.01;
@@ -453,7 +449,7 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		totalHours: number,
 		parentBudgets: Map<string, { total: number; allocated: number; remaining: number; categoryName: string }>,
 		childBudgets: Map<string, { categoryName: string; total: number; allocated: number; remaining: number }>,
-		ctx: MarkdownPostProcessorContext
+		categories: Category[]
 	): void {
 		const buttonContainer = el.createDiv({ cls: cls("edit-button-container") });
 
@@ -463,9 +459,10 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		});
 
 		editBtn.addEventListener("click", () => {
+			const settingsCategories = this.settingsStore.currentSettings.categories;
 			const modal = new AllocationEditorModal(
 				this.app,
-				this.settings.categories,
+				settingsCategories,
 				currentAllocations,
 				totalHours,
 				parentBudgets,
@@ -474,7 +471,7 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 
 			void modal.openAndWait().then((result) => {
 				if (!result.cancelled) {
-					void this.updateCodeBlock(file, result.allocations, ctx);
+					void updateTimeBudgetCodeBlock(this.app, file, result.allocations);
 				}
 			});
 		});
@@ -487,43 +484,8 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 
 			enlargeBtn.addEventListener("click", () => {
 				const periodLabel = `${periodType.charAt(0).toUpperCase() + periodType.slice(1)}: ${file.basename}`;
-				new EnlargedChartModal(this.app, currentAllocations, this.settings.categories, periodLabel).open();
+				new EnlargedChartModal(this.app, currentAllocations, categories, periodLabel).open();
 			});
 		}
-	}
-
-	private async updateCodeBlock(
-		file: TFile,
-		allocations: TimeAllocation[],
-		_ctx: MarkdownPostProcessorContext
-	): Promise<void> {
-		const content = await this.app.vault.read(file);
-		const newContent = serializeAllocations(allocations);
-
-		const updatedContent = content.replace(
-			/```periodic-planner\n[\s\S]*?```/,
-			`\`\`\`periodic-planner\n${newContent}\n\`\`\``
-		);
-
-		await this.app.vault.modify(file, updatedContent);
-	}
-
-	private async retryGetEntryForFile(
-		file: TFile,
-		maxRetries: number = 3,
-		delayMs: number = 50
-	): Promise<IndexedPeriodNote | undefined> {
-		for (let attempt = 0; attempt < maxRetries; attempt++) {
-			const entry = this.periodIndex.getEntryForFile(file);
-			if (entry) {
-				return entry;
-			}
-
-			if (attempt < maxRetries - 1) {
-				await new Promise((resolve) => setTimeout(resolve, delayMs));
-			}
-		}
-
-		return undefined;
 	}
 }

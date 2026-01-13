@@ -119,6 +119,7 @@ export class CategoryTracker {
 				nodeCount: 1,
 				color,
 			});
+			this.addCategoryToSettings(categoryName, color);
 		}
 	}
 
@@ -148,6 +149,18 @@ export class CategoryTracker {
 			await this.settingsStore.updateSettings((s) => ({
 				...s,
 				categories: s.categories.filter((c) => c.name !== categoryName),
+			}));
+		}
+	}
+
+	private async addCategoryToSettings(categoryName: string, color: string): Promise<void> {
+		const settings = this.settingsStore.currentSettings;
+		const categoryExists = settings.categories.some((c) => c.name === categoryName);
+
+		if (!categoryExists) {
+			await this.settingsStore.updateSettings((s) => ({
+				...s,
+				categories: [...s.categories, { name: categoryName, color }],
 			}));
 		}
 	}

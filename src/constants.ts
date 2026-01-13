@@ -93,6 +93,9 @@ export const SETTINGS_DEFAULTS = {
 	ACTIVITY_WATCH_HEADING: "## ActivityWatch",
 	ACTIVITY_WATCH_CODE_FENCE: "periodic-planner-activity-watch",
 
+	// ===== Time Budget Code Fence =====
+	TIME_BUDGET_CODE_FENCE: "periodic-planner",
+
 	// ===== Templater Settings =====
 	ENABLE_TEMPLATER: false,
 	TEMPLATER_DAILY_TEMPLATE: "",

@@ -13,6 +13,7 @@ The Allocation Editor is an interactive modal that provides powerful tools for e
 The Allocation Editor allows you to:
 
 - Set hours for each category
+- **Create new categories on-the-fly** with the "+ Create new category" button
 - Use quick-fill buttons for common percentages
 - Drag percentage bars to adjust allocations
 - Enter custom percentages
@@ -42,6 +43,15 @@ At the top of the editor, you'll see:
 - **Redo** button: Restore undone changes
 - **Status indicators**: Color-coded (green/yellow/red)
 
+At the bottom left:
+
+- **+ Create new category** button: Add a new category without leaving the editor
+
+At the bottom right:
+
+- **Cancel** button: Discard all changes and close
+- **Save allocations** button: Save changes to your note
+
 ### Category List
 
 Each category displays:
@@ -58,7 +68,27 @@ Each category displays:
 
 ## 🎮 Interaction Methods
 
-### 1. Direct Input
+### 1. Creating New Categories
+
+Add categories without leaving the editor:
+
+1. Click the **+ Create new category** button at the bottom left
+2. An input field appears at the bottom, just above the action buttons
+3. Type the category name (e.g., `Exercise`)
+4. Click **Add** or press Enter
+5. The new category appears in the list with 0 hours
+6. The category is assigned a default color from the palette
+7. When you save allocations, the category is automatically discovered and tracked
+
+**Features:**
+- Create categories instantly without switching to settings
+- New categories start with 0 hours
+- Automatically scrolls to and focuses the new category
+- Shows a notice if the category already exists
+- Click **Cancel** or press Escape to cancel category creation
+- Supports undo/redo for category creation
+
+### 2. Direct Input
 
 Type hours directly in the input field:
 
@@ -72,7 +102,7 @@ Type hours directly in the input field:
 - Auto-updates on input
 - Validates against total available hours
 
-### 2. Quick-Fill Buttons
+### 3. Quick-Fill Buttons
 
 Click preset percentage buttons:
 
@@ -86,7 +116,7 @@ Click preset percentage buttons:
 - Respects "Fill from parent" setting
 - Updates input field and percentage bar
 
-### 3. Drag Percentage Bar
+### 4. Drag Percentage Bar
 
 Drag the percentage bar to adjust allocation:
 
@@ -100,7 +130,7 @@ Drag the percentage bar to adjust allocation:
 - Visual feedback during drag
 - Works on desktop and touch devices
 
-### 4. Custom Percentage Input
+### 5. Custom Percentage Input
 
 Enter exact percentages:
 

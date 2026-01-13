@@ -26,13 +26,19 @@ Each level tracks total hours available, allocated hours per category, remaining
 
 **Configure base hours:** Set your weekly hours in Settings → Time budget. The plugin automatically calculates monthly, quarterly, and yearly hours. [Learn more](/configuration#time-budget-tab)
 
-**Define categories:** Add your time investment categories (Work, Health, Learning, etc.) with custom colors. [Learn more](/features/categories)
+**Categories auto-register:** No setup needed! Just start using category names in your time allocations. Categories are automatically created with default colors and appear in settings instantly. [Learn more](/features/categories)
 
 ## Allocating Time
 
 1. Open any periodic note
 2. Click **Edit allocations** button
-3. Use the allocation editor to distribute hours across categories
+3. Distribute hours across categories:
+   - Use existing categories from the dropdown
+   - Create new categories on-the-fly with the "+ Create new category" button
+   - New categories get default colors automatically (blue, green, purple, etc.)
+   - All changes are reactive - categories appear in settings immediately
+
+4. Categories are automatically tracked across all your notes
 
 [Learn more about the Allocation Editor](/features/allocation-editor)
 
