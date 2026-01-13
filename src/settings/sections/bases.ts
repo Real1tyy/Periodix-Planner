@@ -54,5 +54,15 @@ export class BasesSection implements SettingsSection {
 			name: "Show ribbon icon",
 			desc: "Display a ribbon icon in the left sidebar to quickly open the Period Tasks view.",
 		});
+
+		this.uiBuilder.addDropdown(containerEl, {
+			key: "basesView.sidebarPosition",
+			name: "Sidebar position",
+			desc: "Choose which sidebar (left or right) to open the Period Tasks view in.",
+			options: {
+				left: "Left sidebar",
+				right: "Right sidebar",
+			},
+		});
 	}
 }

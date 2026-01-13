@@ -80,7 +80,8 @@ export default class PeriodicPlannerPlugin extends Plugin {
 			const firstLeaf = existingLeaves[0];
 			workspace.revealLeaf(firstLeaf);
 		} else {
-			const leaf = workspace.getRightLeaf(false);
+			const sidebarPosition = this.settingsStore.currentSettings.basesView.sidebarPosition;
+			const leaf = sidebarPosition === "left" ? workspace.getLeftLeaf(false) : workspace.getRightLeaf(false);
 			if (leaf) {
 				await leaf.setViewState({ type: VIEW_TYPE_PERIOD_BASES, active: true });
 				workspace.revealLeaf(leaf);

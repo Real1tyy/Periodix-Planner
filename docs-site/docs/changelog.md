@@ -12,6 +12,10 @@ All notable changes to this project will be documented here.
 
 ### New Features
 
+- **Configurable Period Tasks Sidebar Position**: Choose where the Period Tasks view opens
+  - **Left or right sidebar**: Select your preferred sidebar position in settings (Bases section)
+  - **Default: Left sidebar**: Opens in left sidebar by default for quick access
+
 - **Improved Input Precision in Allocation Editor**: Enhanced number input handling
   - **3 decimal places**: Input fields now support up to 3 decimal places (e.g., `8.125` hours)
   - **Auto-formatting**: Values automatically format to show maximum 3 decimals when you finish typing

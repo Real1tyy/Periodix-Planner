@@ -53,7 +53,15 @@ The view always shows `file.name` and your configured date property, plus any ad
 
 - **Show ribbon icon**: Toggle to show/hide the ribbon icon (default: enabled)
 
-### 5. Configure Inline Generation (Optional)
+### 5. Configure Sidebar Position
+
+Choose which sidebar to open the Period Tasks view:
+
+- **Sidebar position**: Select "Left sidebar" or "Right sidebar" (default: Left sidebar)
+
+This controls where the Period Tasks view opens when you click the ribbon icon or use the command.
+
+### 6. Configure Inline Generation (Optional)
 
 In **Settings** → **Generation** tab:
 

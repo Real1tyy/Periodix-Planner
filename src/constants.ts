@@ -113,6 +113,7 @@ export const SETTINGS_DEFAULTS = {
 	BASES_PROPERTIES_TO_SHOW: "",
 	BASES_SHOW_RIBBON_ICON: true,
 	BASES_DATE_COLUMN_SIZE: 150,
+	BASES_SIDEBAR_POSITION: "left" as "left" | "right",
 
 	// ===== Bases Generation Settings =====
 	INCLUDE_BASES_IN_GENERATION: false,
