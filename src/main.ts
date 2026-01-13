@@ -59,7 +59,7 @@ export default class PeriodicPlannerPlugin extends Plugin {
 			settingsSubscription.unsubscribe();
 		});
 
-		await this.initializePlugin();
+		this.initializePlugin();
 	}
 
 	onunload() {
