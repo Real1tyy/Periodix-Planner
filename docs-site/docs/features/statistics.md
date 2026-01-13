@@ -218,6 +218,6 @@ If category colors don't change:
 
 ## Next Steps
 
-- **[Time Budget Block](/features/time-budget)**: Learn how to allocate time in your periodic notes
-- **[Auto-Inherit](/features/auto-inherit)**: Automatically inherit parent allocations
+- **[Time Budget Blocks](/features/time-budget-blocks)**: Learn how to allocate time in your periodic notes
+- **[Time Budgeting](/features/time-budgeting)**: Automatically inherit parent allocations
 - **[Period Navigation](/features/navigation)**: Navigate between periodic notes

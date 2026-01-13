@@ -72,48 +72,52 @@ const config: Config = {
 				src: "img/logo2.jpeg",
 				href: "/",
 			},
-			items: [
-				{
-					to: "/features/overview",
-					label: "Features",
-					position: "left",
-				},
-				{
-					href: "https://www.youtube.com/watch?v=bIVNj6fkTc8",
-					label: "YouTube",
-					position: "right",
-				},
-				{
-					href: "https://github.com/Real1tyy/Periodix-Planner",
-					label: "GitHub",
-					position: "right",
-				},
-			],
+		items: [
+			{
+				to: "/features/overview",
+				label: "Features",
+				position: "left",
+			},
+			{
+				to: "/videos",
+				label: "Video Tutorial",
+				position: "right",
+			},
+			{
+				href: "https://github.com/Real1tyy/Periodix-Planner",
+				label: "GitHub",
+				position: "right",
+			},
+		],
 		},
 		footer: {
 			style: "dark",
 			links: [
-				{
-					title: "Docs",
-					items: [
-						{
-							label: "Periodix-Planner",
-							to: "/",
-						},
-						{
-							label: "Installation",
-							to: "/installation",
-						},
-						{
-							label: "Quick Start",
-							to: "/quickstart",
-						},
-						{
-							label: "Changelog",
-							to: "/changelog",
-						},
-					],
-				},
+			{
+				title: "Docs",
+				items: [
+					{
+						label: "Periodix-Planner",
+						to: "/",
+					},
+					{
+						label: "Installation",
+						to: "/installation",
+					},
+					{
+						label: "Quick Start",
+						to: "/quickstart",
+					},
+					{
+						label: "Video Tutorials",
+						to: "/videos",
+					},
+					{
+						label: "Changelog",
+						to: "/changelog",
+					},
+				],
+			},
 				{
 					title: "Community",
 					items: [
@@ -127,23 +131,23 @@ const config: Config = {
 						},
 					],
 				},
-				{
-					title: "More",
-					items: [
-						{
-							label: "YouTube Video",
-							href: "https://www.youtube.com/watch?v=bIVNj6fkTc8",
-						},
-						{
-							label: "Repository",
-							href: "https://github.com/Real1tyy/Periodix-Planner",
-						},
-						{
-							label: "Releases",
-							href: "https://github.com/Real1tyy/Periodix-Planner/releases",
-						},
-					],
-				},
+			{
+				title: "More",
+				items: [
+					{
+						label: "Video Tutorials",
+						to: "/videos",
+					},
+					{
+						label: "Repository",
+						href: "https://github.com/Real1tyy/Periodix-Planner",
+					},
+					{
+						label: "Releases",
+						href: "https://github.com/Real1tyy/Periodix-Planner/releases",
+					},
+				],
+			},
 				{
 					title: "Support",
 					items: [

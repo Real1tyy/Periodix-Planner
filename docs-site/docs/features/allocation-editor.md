@@ -35,6 +35,7 @@ The Allocation Editor allows you to:
 
 At the top of the editor, you'll see:
 
+- **Hide unused** checkbox: Toggle visibility of categories without parent budget allocation (only for non-yearly periods)
 - **Fill parent** button: Inherit allocations from parent period (only shown if parent exists)
 - **Undo** button: Revert recent changes
 - **Allocated**: Total hours allocated across all categories
@@ -144,6 +145,22 @@ Enter exact percentages:
 - Rounds to nearest 0.1 hours
 
 ## 🔄 Inherit from Parent Period
+
+### Hide Unused Categories
+
+Click the **"Hide unused"** checkbox at the top to toggle visibility of categories that have no budget allocated from the parent period. This helps reduce clutter when working with child periods.
+
+**When to use:**
+- Working on daily/weekly/monthly/quarterly notes (not yearly)
+- Want to focus only on categories with parent budget allocation
+- Need a cleaner view without irrelevant categories
+
+**How it works:**
+- Shows categories that have either current allocation OR parent budget allocation
+- Default behavior is configurable in Settings → Time budget
+- Yearly notes always show all categories
+
+[Learn more](/features/time-budgeting#hide-unused-categories)
 
 ### Fill Parent Button
 

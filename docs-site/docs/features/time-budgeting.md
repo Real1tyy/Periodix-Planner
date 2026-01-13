@@ -72,6 +72,19 @@ The time budget block displays pie charts and allocation tables showing category
 
 ## Advanced Features
 
+### Hide Unused Categories {#hide-unused-categories}
+
+Reduce clutter in the Allocation Editor by hiding categories with no parent budget allocation.
+
+- **Configure default:** Settings → Time budget → "Hide unused categories by default" (default: ON)
+- **Toggle in editor:** Use the "Hide unused" checkbox at the top of the Allocation Editor
+- **Smart filtering:** Shows categories that have either:
+  - Current allocation in the note being edited
+  - Budget allocated in the parent period
+- **Yearly exception:** Yearly notes always show all categories (top-level planning)
+
+This helps focus on relevant categories while editing child periods (daily, weekly, monthly, quarterly).
+
 ### Auto-Inherit Parent Percentages {#auto-inherit-parent-percentages}
 
 Automatically fill child periods based on the parent period's percentage distribution.

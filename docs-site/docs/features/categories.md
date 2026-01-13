@@ -202,4 +202,4 @@ To remove a category from your system:
 - **[Statistics](/features/statistics)** - Learn about comprehensive analytics and pie charts
 - **[Time Budget Blocks](/features/time-budget-blocks)** - Understand how to allocate time in notes
 - **[Allocation Editor](/features/allocation-editor)** - Use the interactive editor for time management
-- **[Auto-Inherit](/features/auto-inherit)** - Automatically inherit parent allocations
+- **[Time Budgeting](/features/time-budgeting)** - Automatically inherit parent allocations

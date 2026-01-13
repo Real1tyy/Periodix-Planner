@@ -12,6 +12,13 @@ All notable changes to this project will be documented here.
 
 ### New Features
 
+- **Hide Unused Categories in Allocation Editor**: Reduce clutter by hiding categories with no parent budget allocation
+  - **Configurable default**: Toggle default behavior in settings (Time Budget section)
+  - **Per-session toggle**: "Hide unused" checkbox in the allocation editor header
+  - **Smart filtering**: Shows categories with current allocation or parent budget allocation
+  - **Yearly exception**: Always shows all categories for yearly notes (top-level planning)
+  - **Default: ON**: By default hides unused categories to reduce visual clutter
+
 - **Category Edit and Delete**: Bulk category management operations
   - **Rename categories**: Edit button allows renaming categories across all notes at once
   - **Delete categories**: Delete button removes categories from all notes with confirmation

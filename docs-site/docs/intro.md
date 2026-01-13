@@ -83,7 +83,7 @@ Periodix-Planner helps you decide what deserves your time in the first place.
 
 ## 🎬 Video Walkthrough
 
-**[Watch the full feature breakdown on YouTube](https://www.youtube.com/watch?v=bIVNj6fkTc8)** to see Periodix-Planner in action.
+**[Watch the full video tutorial](/videos)** to see Periodix-Planner in action.
 
 ## 📸 Screenshots
 

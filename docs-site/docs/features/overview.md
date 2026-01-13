@@ -6,7 +6,7 @@ sidebar_position: 1
 
 Periodix-Planner provides a comprehensive set of features for managing periodic notes and time budgets. This page gives you an overview of all available features.
 
-**Prefer video?** [Watch the full feature breakdown on YouTube](https://www.youtube.com/watch?v=bIVNj6fkTc8) to see everything in action.
+**Prefer video?** [Watch the full video tutorial](/videos) to see everything in action.
 
 ## 📅 Automatic Note Generation
 

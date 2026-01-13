@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Quick Start
 
-**Prefer video?** [Watch the full feature breakdown on YouTube](https://www.youtube.com/watch?v=bIVNj6fkTc8) to see everything in action.
+**Prefer video?** [Watch the full video tutorial](/videos) to see everything in action.
 
 ## Step 1: Open settings
 
