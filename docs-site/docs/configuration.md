@@ -89,8 +89,16 @@ Define your time investment categories for budget tracking.
 4. Click **Save**
 
 **Managing categories:**
-- Click category to edit
-- Delete removes category from all allocations
+- Click category name to view all notes with that category in Bases (requires Bases plugin)
+- Click pencil icon to rename
+- Click trash icon to delete (removes category from all allocations)
+- Adjust color using the color picker
+
+**Viewing category notes:**
+- Click on any category name to open a Bases view
+- Shows all periodic notes containing that category
+- Organized by period type (yearly, quarterly, monthly, weekly, daily)
+- Requires the Bases plugin to be installed
 
 [Learn more about categories](/features/categories)
 

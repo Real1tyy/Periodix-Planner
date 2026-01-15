@@ -20,6 +20,13 @@ All notable changes to this project will be documented here.
   - **Configure in settings**: Settings → Time budget → "Default time budget sorting"
   - **Applies to all time budgets**: Sorting is consistent across all periodic notes
 
+- **Category Bases View**: View all periodic notes for a specific category using the Bases plugin
+  - **Click category name** in settings to open Bases view
+  - **Shows all periods**: Displays yearly, quarterly, monthly, weekly, and daily notes containing that category
+  - **Multiple views**: Switch between "All Periods" and individual period type views
+  - **Quick filtering**: Find all notes where you've allocated time to a specific category
+  - **Requires Bases plugin**: Must have Bases plugin installed to use this feature
+
 ---
 
 ## 1.4.0

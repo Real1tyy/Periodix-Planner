@@ -10,6 +10,7 @@ import type { SettingsSection } from "../../types/settings";
 import { getDefaultCategoryColor, hexToRgb } from "../../utils/color-utils";
 import { cls } from "../../utils/css";
 import { getEnabledPeriodTypes } from "../../utils/period-navigation";
+import { CategoryBasesModal } from "../modals/category-bases-modal";
 import { CategoryDeleteModal } from "../modals/category-delete-modal";
 import { CategoryRenameModal } from "../modals/category-rename-modal";
 
@@ -293,6 +294,15 @@ export class CategoriesSection implements SettingsSection {
 		if (rgb) {
 			settingEl.style.setProperty("--category-color-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
 		}
+
+		const nameEl = setting.nameEl;
+		nameEl.addClass(cls("category-name-clickable"));
+		nameEl.style.cursor = "pointer";
+		nameEl.addEventListener("click", () => {
+			const notes = this.categoryTracker.getNotesForCategory(vm.name);
+			const modal = new CategoryBasesModal(this.app, vm.name, notes, this.settingsStore);
+			modal.open();
+		});
 
 		const descContainer = setting.descEl;
 		descContainer.empty();
