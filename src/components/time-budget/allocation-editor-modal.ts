@@ -49,6 +49,7 @@ export class AllocationEditorModal extends Modal {
 	private undoButton: ActionButton | null = null;
 	private redoButton: ActionButton | null = null;
 	private typingInputs = new Set<string>();
+	private typingStartValues = new Map<string, number>();
 	private summaryAllocatedValue: HTMLElement | null = null;
 	private summaryRemainingValue: HTMLElement | null = null;
 	private hideUnusedCategories: boolean;
@@ -184,9 +185,9 @@ export class AllocationEditorModal extends Modal {
 					cls: cls("fill-from-parent-btn"),
 				});
 				fillFromParentBtn.addEventListener("click", () => {
-					this.withUndoSnapshot(() => {
-						this.applyFillFromParent();
-					});
+					this.applyFillFromParent();
+					this.state.saveState();
+					this.updateHistoryButtons();
 				});
 			}
 
@@ -302,7 +303,10 @@ export class AllocationEditorModal extends Modal {
 			input.dataset.categoryId = categoryName;
 
 			input.addEventListener("focus", () => {
-				this.typingInputs.add(categoryName);
+				if (!this.typingInputs.has(categoryName)) {
+					this.typingInputs.add(categoryName);
+					this.typingStartValues.set(categoryName, this.state.allocations.get(categoryName) ?? 0);
+				}
 			});
 
 			input.addEventListener("blur", () => {
@@ -311,11 +315,18 @@ export class AllocationEditorModal extends Modal {
 					this.debounceTimer = null;
 				}
 				if (this.typingInputs.has(categoryName)) {
-					this.withUndoSnapshot(() => {
-						const value = Number.parseFloat(input.value) || 0;
-						this.state.allocations.set(categoryName, value);
-					});
+					const value = Number.parseFloat(input.value) || 0;
+					this.state.allocations.set(categoryName, value);
 					this.typingInputs.delete(categoryName);
+
+					const startValue = this.typingStartValues.get(categoryName) ?? 0;
+					this.typingStartValues.delete(categoryName);
+
+					if (value !== startValue) {
+						this.state.saveState();
+						this.updateHistoryButtons();
+					}
+
 					input.value = formatInputValue(this.state.allocations.get(categoryName) ?? 0);
 					this.scheduleUpdate();
 				}
@@ -496,6 +507,8 @@ export class AllocationEditorModal extends Modal {
 	private endDrag(): void {
 		this.dragCategoryId = null;
 		document.body.classList.remove(cls("dragging"));
+		this.state.saveState();
+		this.updateHistoryButtons();
 	}
 
 	private setupBarDragHandlers(barWrapper: HTMLElement, categoryId: string): void {
@@ -508,9 +521,7 @@ export class AllocationEditorModal extends Modal {
 			const percentage = (relativeX / rect.width) * 100;
 			const hours = roundHours((percentage / 100) * this.totalHoursAvailable);
 
-			this.withUndoSnapshot(() => {
-				this.state.allocations.set(categoryId, hours);
-			});
+			this.state.allocations.set(categoryId, hours);
 
 			const refs = this.rowRefs.get(categoryId);
 			if (refs) {
@@ -552,10 +563,14 @@ export class AllocationEditorModal extends Modal {
 
 			btn.addEventListener("click", (e) => {
 				e.preventDefault();
-				this.withUndoSnapshot(() => {
-					const newValue = this.calculatePresetValue(preset.value, categoryId);
+				const oldValue = this.state.allocations.get(categoryId) ?? 0;
+				const newValue = this.calculatePresetValue(preset.value, categoryId);
+
+				if (newValue !== oldValue) {
 					this.applyValue(categoryId, newValue, input);
-				});
+					this.state.saveState();
+					this.updateHistoryButtons();
+				}
 			});
 		}
 
@@ -576,15 +591,20 @@ export class AllocationEditorModal extends Modal {
 
 		applyBtn.addEventListener("click", (e) => {
 			e.preventDefault();
-			this.withUndoSnapshot(() => {
-				const percentValue = Number.parseFloat(customInput.value) || 0;
-				const clampedPercent = Math.max(0, Math.min(100, percentValue));
-				const useParent = this.state.fillFromParent.get(categoryId) ?? false;
-				const parentBudget = this.parentBudgets.get(categoryId);
-				const baseAmount = useParent && parentBudget ? parentBudget.total : this.totalHoursAvailable;
-				const newValue = roundHours((clampedPercent / 100) * baseAmount);
+			const percentValue = Number.parseFloat(customInput.value) || 0;
+			const clampedPercent = Math.max(0, Math.min(100, percentValue));
+			const useParent = this.state.fillFromParent.get(categoryId) ?? false;
+			const parentBudget = this.parentBudgets.get(categoryId);
+			const baseAmount = useParent && parentBudget ? parentBudget.total : this.totalHoursAvailable;
+			const newValue = roundHours((clampedPercent / 100) * baseAmount);
+			const oldValue = this.state.allocations.get(categoryId) ?? 0;
+
+			if (newValue !== oldValue) {
 				this.applyValue(categoryId, newValue, input);
-			});
+				this.state.saveState();
+				this.updateHistoryButtons();
+			}
+
 			customInput.value = "";
 		});
 
@@ -766,14 +786,14 @@ export class AllocationEditorModal extends Modal {
 			return;
 		}
 
-		this.withUndoSnapshot(() => {
-			this.state.allocations.set(categoryName, 0);
-		});
+		this.state.allocations.set(categoryName, 0);
+		this.state.saveState();
 
 		this.reRenderAllocationList();
 		this.renderSummary();
 
 		this.scrollToCategoryById(categoryName);
+		this.updateHistoryButtons();
 
 		new Notice(`Category "${categoryName}" added. Assign time to save it.`);
 	}
@@ -828,9 +848,7 @@ export class AllocationEditorModal extends Modal {
 		this.typingInputs.clear();
 	}
 
-	private withUndoSnapshot(fn: () => void): void {
-		this.state.saveState();
-		fn();
+	private updateHistoryButtons(): void {
 		this.undoButton?.update();
 		this.redoButton?.update();
 	}

@@ -29,6 +29,13 @@ All notable changes to this project will be documented here.
 
 ### Improvements
 
+- **Improved Undo/Redo System in Allocation Editor**: Enhanced history management for better user experience
+  - **Separate undo entries**: Each button press, input change, or drag operation now creates its own undoable action
+  - **No redundant saves**: State is only saved when values actually change, preventing empty undo operations
+  - **Smart change detection**: Input blur and button clicks only save state if the value differs from the starting value
+  - **Consistent behavior**: All user actions (preset buttons, custom percentage, drag, typing) properly track history
+  - **Better undo/redo buttons**: History buttons accurately reflect available undo/redo operations
+
 - **Simplified Period Children Bases Modal**: Removed custom view selector buttons
   - **Leverages Bases plugin views**: Now uses native Bases view tabs instead of custom buttons
   - **Smart view filtering**: Only shows views for child period types (e.g., Yearly modal shows Quarterly/Monthly/Weekly/Daily, but not Yearly)
