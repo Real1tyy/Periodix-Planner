@@ -190,6 +190,204 @@ describe("Time Budget Utilities", () => {
 			expect(roundHours(sum)).toBe(120);
 		});
 
+		it("CRITICAL: should never exceed 100% even when parent is at 100%", () => {
+			// Real-world scenario: Parent has 40h allocated at 100%, child has 40h available
+			const parentBudgets = new Map([
+				["Development", { categoryName: "Development", total: 20, allocated: 20, remaining: 0 }],
+				["Design", { categoryName: "Design", total: 10, allocated: 10, remaining: 0 }],
+				["Meetings", { categoryName: "Meetings", total: 10, allocated: 10, remaining: 0 }],
+			]);
+
+			const childTotal = 40;
+			const result = fillAllocationsFromParent(parentBudgets, childTotal);
+
+			// Sum must NEVER exceed childTotal
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			expect(sum).toBeLessThanOrEqual(childTotal);
+			expect(roundHours(sum)).toBeLessThanOrEqual(childTotal);
+
+			// Should equal exactly 100% (not 100.01% or 100.1%)
+			expect(roundHours(sum)).toBe(childTotal);
+
+			// Percentage should be exactly 100%, not 100.x%
+			const percentage = (sum / childTotal) * 100;
+			expect(percentage).toBeLessThanOrEqual(100);
+		});
+
+		it("CRITICAL: should clamp total when rounding would cause overflow", () => {
+			// Scenario that commonly causes overflow due to rounding
+			const parentBudgets = new Map([
+				["cat1", { categoryName: "cat1", total: 13.33, allocated: 0, remaining: 13.33 }],
+				["cat2", { categoryName: "cat2", total: 13.33, allocated: 0, remaining: 13.33 }],
+				["cat3", { categoryName: "cat3", total: 13.34, allocated: 0, remaining: 13.34 }],
+			]);
+
+			const childTotal = 40;
+			const result = fillAllocationsFromParent(parentBudgets, childTotal);
+
+			// Must not exceed total
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			expect(sum).toBeLessThanOrEqual(childTotal);
+			expect(roundHours(sum)).toBeLessThanOrEqual(childTotal);
+			expect(roundHours(sum)).toBe(childTotal);
+		});
+
+		it("CRITICAL: should handle floating point precision issues", () => {
+			// Numbers that commonly cause floating point issues
+			const parentBudgets = new Map([
+				["cat1", { categoryName: "cat1", total: 10.1, allocated: 0, remaining: 10.1 }],
+				["cat2", { categoryName: "cat2", total: 20.2, allocated: 0, remaining: 20.2 }],
+				["cat3", { categoryName: "cat3", total: 9.7, allocated: 0, remaining: 9.7 }],
+			]);
+
+			const childTotal = 100;
+			const result = fillAllocationsFromParent(parentBudgets, childTotal);
+
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+
+			// Must never exceed total (even by 0.01)
+			expect(sum).toBeLessThanOrEqual(childTotal);
+			expect(roundHours(sum)).toBeLessThanOrEqual(childTotal);
+			expect(roundHours(sum)).toBe(childTotal);
+		});
+
+		it("CRITICAL: should clamp when sum would trigger red warning (>100%)", () => {
+			// Test the exact scenario: parent at 100%, child gets filled but goes slightly over
+			const parentBudgets = new Map([
+				["Work", { categoryName: "Work", total: 6.5, allocated: 6.5, remaining: 0 }],
+				["Email", { categoryName: "Email", total: 1.5, allocated: 1.5, remaining: 0 }],
+				["Meetings", { categoryName: "Meetings", total: 2.0, allocated: 2.0, remaining: 0 }],
+			]);
+
+			const childTotal = 10; // Weekly has 10h available
+			const result = fillAllocationsFromParent(parentBudgets, childTotal);
+
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			const percentage = (sum / childTotal) * 100;
+
+			// CRITICAL: Percentage must be ≤ 100% to avoid red warning
+			expect(percentage).toBeLessThanOrEqual(100);
+
+			// Sum must not exceed childTotal (even by tiny amount)
+			expect(sum).toBeLessThanOrEqual(childTotal);
+
+			// Rounded sum must equal childTotal exactly
+			expect(roundHours(sum)).toBe(childTotal);
+		});
+
+		it("CRITICAL: edge case with prime number divisions", () => {
+			// Prime numbers that commonly cause distribution issues
+			const parentBudgets = new Map([
+				["cat1", { categoryName: "cat1", total: 7, allocated: 0, remaining: 7 }],
+				["cat2", { categoryName: "cat2", total: 11, allocated: 0, remaining: 11 }],
+				["cat3", { categoryName: "cat3", total: 13, allocated: 0, remaining: 13 }],
+				["cat4", { categoryName: "cat4", total: 17, allocated: 0, remaining: 17 }],
+			]);
+
+			const childTotal = 100;
+			const result = fillAllocationsFromParent(parentBudgets, childTotal);
+
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			const percentage = (sum / childTotal) * 100;
+
+			// Must not exceed 100%
+			expect(percentage).toBeLessThanOrEqual(100);
+			expect(sum).toBeLessThanOrEqual(childTotal);
+			expect(roundHours(sum)).toBe(childTotal);
+		});
+
+		it("CRITICAL: should handle the reported bug scenario exactly", () => {
+			// Simulating: parent has some allocation, child should be filled without exceeding
+			// This tests the specific case where "Fill from parent" causes red warning
+			const parentBudgets = new Map([
+				["Development", { categoryName: "Development", total: 16.67, allocated: 10, remaining: 6.67 }],
+				["Design", { categoryName: "Design", total: 8.33, allocated: 5, remaining: 3.33 }],
+				["Admin", { categoryName: "Admin", total: 5.0, allocated: 3, remaining: 2.0 }],
+			]);
+
+			const childTotal = 30;
+			const result = fillAllocationsFromParent(parentBudgets, childTotal);
+
+			const sum = result.reduce((acc, a) => acc + a.hours, 0);
+			const percentage = (sum / childTotal) * 100;
+
+			// The bug: this would show >100% and trigger red warning
+			// After fix: should be exactly 100%
+			expect(percentage).toBeLessThanOrEqual(100);
+			expect(sum).toBeLessThanOrEqual(childTotal);
+			expect(roundHours(sum)).toBe(childTotal);
+
+			// Verify each category maintains correct proportion
+			const totalParent = 16.67 + 8.33 + 5.0;
+			for (const allocation of result) {
+				const parentBudget = parentBudgets.get(allocation.categoryName);
+				if (parentBudget) {
+					const expectedRatio = parentBudget.total / totalParent;
+					const actualRatio = allocation.hours / childTotal;
+					// Allow 1% deviation for rounding
+					expect(Math.abs(actualRatio - expectedRatio)).toBeLessThan(0.01);
+				}
+			}
+		});
+
+		it("STRESS TEST: should never exceed 100% with random values", () => {
+			// Generate 10 random test cases
+			for (let test = 0; test < 10; test++) {
+				const categoryCount = Math.floor(Math.random() * 10) + 3; // 3-12 categories
+				const parentBudgets = new Map<
+					string,
+					{ categoryName: string; total: number; allocated: number; remaining: number }
+				>();
+
+				for (let i = 0; i < categoryCount; i++) {
+					const total = Math.round((Math.random() * 50 + 1) * 100) / 100; // 0.01 to 50.00
+					parentBudgets.set(`cat${i}`, {
+						categoryName: `cat${i}`,
+						total,
+						allocated: 0,
+						remaining: total,
+					});
+				}
+
+				const childTotal = Math.round((Math.random() * 200 + 10) * 100) / 100; // 10.00 to 210.00
+				const result = fillAllocationsFromParent(parentBudgets, childTotal);
+
+				const sum = result.reduce((acc, a) => acc + a.hours, 0);
+				const percentage = (sum / childTotal) * 100;
+
+				// CRITICAL: Must never exceed 100%
+				expect(percentage).toBeLessThanOrEqual(100);
+				expect(sum).toBeLessThanOrEqual(childTotal);
+				expect(roundHours(sum)).toBeLessThanOrEqual(childTotal);
+			}
+		});
+
+		it("STRESS TEST: pathological floating point edge cases", () => {
+			// Test with numbers known to cause floating point issues
+			const problematicValues = [
+				{ parent: 0.1 + 0.2, child: 1 }, // Classic 0.30000000000000004
+				{ parent: 0.57, child: 10 },
+				{ parent: 0.33 + 0.33 + 0.34, child: 100 },
+				{ parent: 1.23 + 4.56 + 7.89, child: 50 },
+			];
+
+			for (const { parent, child } of problematicValues) {
+				const parentBudgets = new Map([
+					["cat1", { categoryName: "cat1", total: parent / 3, allocated: 0, remaining: parent / 3 }],
+					["cat2", { categoryName: "cat2", total: parent / 3, allocated: 0, remaining: parent / 3 }],
+					["cat3", { categoryName: "cat3", total: parent / 3, allocated: 0, remaining: parent / 3 }],
+				]);
+
+				const result = fillAllocationsFromParent(parentBudgets, child);
+				const sum = result.reduce((acc, a) => acc + a.hours, 0);
+				const percentage = (sum / child) * 100;
+
+				expect(percentage).toBeLessThanOrEqual(100);
+				expect(sum).toBeLessThanOrEqual(child);
+				expect(roundHours(sum)).toBeLessThanOrEqual(child);
+			}
+		});
+
 		it("CRITICAL: should ensure exact 100% distribution - no over-allocation", () => {
 			// This is the critical test case that was failing
 			const parentBudgets = new Map([

@@ -168,5 +168,29 @@ export function fillAllocationsFromParent(
 			remaining -= 1;
 		});
 
-	return rows.map(({ categoryName, floor }) => ({ categoryName, hours: floor / 100 })).filter((a) => a.hours > 0);
+	const allocations = rows.map(({ categoryName, floor }) => ({ categoryName, hours: floor / 100 }));
+
+	// CRITICAL: Defensive clamping to ensure sum never exceeds childTotalHours
+	// This handles edge cases where floating point arithmetic might cause tiny overflows
+	let sum = allocations.reduce((acc, a) => acc + a.hours, 0);
+
+	// If sum exceeds childTotalHours (even by floating point error), clamp it down
+	while (sum > childTotalHours) {
+		// Find the largest allocation and reduce it by the smallest possible amount
+		const sorted = [...allocations].sort((a, b) => b.hours - a.hours);
+		if (sorted.length === 0) break;
+
+		const largest = allocations.find((a) => a.categoryName === sorted[0].categoryName);
+		if (!largest || largest.hours <= 0) break;
+
+		// Reduce by 0.01 (smallest unit we work with)
+		largest.hours = roundHours(largest.hours - 0.01);
+
+		// Recalculate sum
+		sum = allocations.reduce((acc, a) => acc + a.hours, 0);
+
+		if (allocations.filter((a) => a.hours > 0).length === 0) break;
+	}
+
+	return allocations.filter((a) => a.hours > 0);
 }
