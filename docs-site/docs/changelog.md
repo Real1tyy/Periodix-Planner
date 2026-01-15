@@ -56,6 +56,9 @@ All notable changes to this project will be documented here.
   - **Natural focus transitions**: You can now freely click between rows without the UI fighting against you
   - **Preserved scroll position**: Scroll position is maintained during updates without interfering with focus
 
+- **Fixed Note Scroll Position After Saving Allocations**: Resolved issue where submitting the allocation editor modal would cause the note to jump to the bottom
+  - **Preserved editor state**: Note now maintains its scroll position and cursor location after saving allocations
+
 ---
 
 ## 1.4.0

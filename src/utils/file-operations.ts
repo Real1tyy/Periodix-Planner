@@ -1,4 +1,4 @@
-import type { App, TFile } from "obsidian";
+import { type App, MarkdownView, type TFile } from "obsidian";
 import { serializeAllocations } from "../components/time-budget/allocation-parser";
 import { SETTINGS_DEFAULTS } from "../constants";
 import type { PeriodIndex } from "../core/period-index";
@@ -23,6 +23,12 @@ export function removeFileExtension(filePath: string): string {
 }
 
 export async function updateTimeBudgetCodeBlock(app: App, file: TFile, allocations: TimeAllocation[]): Promise<void> {
+	const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+	const shouldPreserveEditorState = activeView?.file?.path === file.path;
+
+	const cursor = shouldPreserveEditorState ? activeView.editor.getCursor() : null;
+	const scrollInfo = shouldPreserveEditorState ? activeView.editor.getScrollInfo() : null;
+
 	const content = await app.vault.read(file);
 	const newContent = serializeAllocations(allocations);
 	const codeFence = SETTINGS_DEFAULTS.TIME_BUDGET_CODE_FENCE;
@@ -33,6 +39,19 @@ export async function updateTimeBudgetCodeBlock(app: App, file: TFile, allocatio
 	);
 
 	await app.vault.modify(file, updatedContent);
+
+	// `vault.modify()` can reset editor scroll/cursor; restore when we modified the currently-open note.
+	if (shouldPreserveEditorState && cursor && scrollInfo) {
+		// Let Obsidian refresh the view first.
+		await new Promise<void>((resolve) => setTimeout(resolve, 0));
+		requestAnimationFrame(() => {
+			const viewAfter = app.workspace.getActiveViewOfType(MarkdownView);
+			if (viewAfter?.file?.path !== file.path) return;
+
+			viewAfter.editor.setCursor(cursor);
+			viewAfter.editor.scrollTo(scrollInfo.left, scrollInfo.top);
+		});
+	}
 }
 
 export async function retryGetEntryForFile(
