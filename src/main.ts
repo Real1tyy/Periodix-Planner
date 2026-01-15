@@ -326,7 +326,8 @@ export default class PeriodicPlannerPlugin extends Plugin {
 						entry,
 						settings.directories,
 						settings.properties,
-						settings.generation
+						settings.generation,
+						this.settingsStore
 					).open();
 				}
 				return true;

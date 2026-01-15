@@ -27,6 +27,13 @@ All notable changes to this project will be documented here.
   - **Quick filtering**: Find all notes where you've allocated time to a specific category
   - **Requires Bases plugin**: Must have Bases plugin installed to use this feature
 
+### Improvements
+
+- **Simplified Period Children Bases Modal**: Removed custom view selector buttons
+  - **Leverages Bases plugin views**: Now uses native Bases view tabs instead of custom buttons
+  - **Smart view filtering**: Only shows views for child period types (e.g., Yearly modal shows Quarterly/Monthly/Weekly/Daily, but not Yearly)
+  - **Better UX**: Consistent with Bases plugin's native interface
+
 ---
 
 ## 1.4.0
