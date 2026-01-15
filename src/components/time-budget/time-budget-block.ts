@@ -4,7 +4,7 @@ import { type PeriodType, TIME_BUDGET_SORT_CONFIG } from "../../constants";
 import type { CategoryTracker } from "../../core/category-tracker";
 import type { PeriodIndex } from "../../core/period-index";
 import type { SettingsStore } from "../../core/settings-store";
-import type { Category, PeriodicPlannerSettings, TimeAllocation } from "../../types";
+import type { Category, IndexedPeriodNote, PeriodicPlannerSettings, TimeAllocation } from "../../types";
 import { addCls, cls } from "../../utils/css";
 import { retryGetEntryForFile, updateTimeBudgetCodeBlock } from "../../utils/file-operations";
 import { fillAllocationsFromParent, formatHours, roundHours } from "../../utils/time-budget-utils";
@@ -34,6 +34,7 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 	private tableInsertBefore: HTMLElement | null = null;
 	private indexSubscription: Subscription | null = null;
 	private isRendering: boolean = false;
+	private activeModal: AllocationEditorModal | null = null;
 
 	constructor(
 		containerEl: HTMLElement,
@@ -73,16 +74,49 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		const filePath = this.context.sourcePath;
 
 		this.indexSubscription = this.periodIndex.events$.subscribe((event) => {
-			if (
-				(event.type === "note-added" ||
-					event.type === "note-updated" ||
-					event.type === "note-deleted" ||
-					event.type === "parent-children-updated") &&
-				event.filePath === filePath
-			) {
+			if (event.filePath === filePath) {
 				void this.renderContent();
+
+				const currentNote = this.periodIndex.getEntryByPath(filePath);
+				if (currentNote) {
+					void this.updateModalIfOpen(currentNote);
+				}
 			}
 		});
+	}
+
+	private async updateModalIfOpen(currentNote: IndexedPeriodNote): Promise<void> {
+		if (!this.activeModal) {
+			return;
+		}
+
+		const budgets = await this.calculateBudgets(currentNote, this.tableData?.allocations ?? []);
+		this.activeModal.updateBudgets(budgets.parentBudgets, budgets.childBudgets);
+	}
+
+	private async calculateBudgets(
+		currentNote: IndexedPeriodNote,
+		allocations: TimeAllocation[]
+	): Promise<{
+		parentBudgets: Map<string, CategoryBudgetInfo>;
+		childBudgets: Map<string, CategoryBudgetInfo>;
+		totalChildrenAllocated: number;
+	}> {
+		const settings = this.settingsStore.currentSettings;
+		const parentBudgets = await getParentBudgets(currentNote, settings, this.periodIndex);
+		const childBudgetsResult = getChildBudgetsFromIndex(
+			currentNote.file,
+			currentNote.periodType,
+			allocations,
+			this.periodIndex,
+			settings.generation
+		);
+
+		return {
+			parentBudgets: parentBudgets.budgets,
+			childBudgets: childBudgetsResult.budgets,
+			totalChildrenAllocated: childBudgetsResult.totalChildrenAllocated,
+		};
 	}
 
 	private async renderContent(): Promise<void> {
@@ -128,37 +162,30 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 				color: this.categoryTracker.getCategoryColor(alloc.categoryName),
 			}));
 
-			const parentBudgets = await getParentBudgets(entry, settings, this.periodIndex);
-
 			let finalAllocations = allocations;
+			let budgets = await this.calculateBudgets(entry, finalAllocations);
+
 			if (
 				settings.timeBudget.autoInheritParentPercentages &&
 				allocations.length === 0 &&
-				parentBudgets.budgets.size > 0
+				budgets.parentBudgets.size > 0
 			) {
-				const inheritedAllocations = fillAllocationsFromParent(parentBudgets.budgets, totalHours);
+				const inheritedAllocations = fillAllocationsFromParent(budgets.parentBudgets, totalHours);
 				if (inheritedAllocations.length > 0) {
 					await updateTimeBudgetCodeBlock(this.app, file, inheritedAllocations);
 					finalAllocations = inheritedAllocations;
+					budgets = await this.calculateBudgets(entry, finalAllocations);
 				}
 			}
 
-			const childBudgets = getChildBudgetsFromIndex(
-				file,
-				periodType,
-				finalAllocations,
-				this.periodIndex,
-				settings.generation
-			);
-
-			this.renderHeader(el, totalHours, finalAllocations, periodType, childBudgets.totalChildrenAllocated, settings);
+			this.renderHeader(el, totalHours, finalAllocations, periodType, budgets.totalChildrenAllocated, settings);
 
 			this.tableData = {
 				allocations,
 				categories,
 				periodType,
-				parentBudgets: parentBudgets.budgets,
-				childBudgets: childBudgets.budgets,
+				parentBudgets: budgets.parentBudgets,
+				childBudgets: budgets.childBudgets,
 				totalHours,
 			};
 			this.tableContainer = el;
@@ -174,8 +201,8 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 				periodType,
 				allocations,
 				totalHours,
-				parentBudgets.budgets,
-				childBudgets.budgets,
+				budgets.parentBudgets,
+				budgets.childBudgets,
 				categories
 			);
 		} finally {
@@ -476,7 +503,11 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 				this.settingsStore.currentSettings
 			);
 
+			this.activeModal = modal;
+
 			void modal.openAndWait().then((result) => {
+				this.activeModal = null;
+
 				if (!result.cancelled) {
 					void updateTimeBudgetCodeBlock(this.app, file, result.allocations);
 				}

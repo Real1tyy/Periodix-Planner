@@ -114,6 +114,14 @@ export class PeriodIndex {
 					filePath: parentPath,
 				});
 			}
+
+			const affectedChildren = this.getAffectedChildren(note.filePath);
+			for (const childPath of affectedChildren) {
+				this.eventsSubject.next({
+					type: "parent-children-updated",
+					filePath: childPath,
+				});
+			}
 		}
 	}
 
@@ -121,6 +129,7 @@ export class PeriodIndex {
 		const note = this.notesByPath.get(filePath);
 		if (note) {
 			const affectedParents = this.removeFromParentsCaches(note);
+			const affectedChildren = this.getAffectedChildren(filePath);
 			this.childrenCache.delete(filePath);
 			this.notesByPath.delete(filePath);
 
@@ -137,7 +146,31 @@ export class PeriodIndex {
 					filePath: parentPath,
 				});
 			}
+
+			for (const childPath of affectedChildren) {
+				this.eventsSubject.next({
+					type: "parent-children-updated",
+					filePath: childPath,
+				});
+			}
 		}
+	}
+
+	private getAffectedChildren(parentFilePath: string): Set<string> {
+		const affectedChildren = new Set<string>();
+		const children = this.childrenCache.get(parentFilePath);
+
+		if (children) {
+			for (const childArray of Object.values(children)) {
+				if (childArray) {
+					for (const child of childArray) {
+						affectedChildren.add(child.filePath);
+					}
+				}
+			}
+		}
+
+		return affectedChildren;
 	}
 
 	private addToParentsCaches(note: IndexedPeriodNote): Set<string> {

@@ -126,6 +126,17 @@ export class AllocationEditorModal extends Modal {
 		this.contentEl.empty();
 	}
 
+	/**
+	 * Updates parent and child budget data with new values.
+	 * Called by TimeBudgetBlock when related notes change.
+	 */
+	updateBudgets(parentBudgets: Map<string, CategoryBudgetInfo>, childBudgets: Map<string, CategoryBudgetInfo>): void {
+		this.parentBudgets = parentBudgets;
+		this.childBudgets = childBudgets;
+
+		this.renderAllocationList();
+	}
+
 	private renderSummary(): void {
 		this.renderSummaryShell();
 		this.updateSummaryValues();

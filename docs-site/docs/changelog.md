@@ -29,6 +29,14 @@ All notable changes to this project will be documented here.
 
 ### Improvements
 
+- **Real-Time Hierarchy Synchronization**: Time budget displays now stay perfectly synchronized across the entire period hierarchy
+  - **Automatic updates**: When you edit allocations in any note, all related notes update instantly
+  - **Multi-window support**: Changes made in one Obsidian window immediately appear in all other windows
+  - **Parent budget tracking**: Child notes automatically show updated parent budget values when parent allocations change
+  - **Child allocation tracking**: Parent notes automatically show updated child allocated values when children change
+  - **Always accurate**: No more stale budget information - everything stays in sync in real-time
+  - **Allocation editor updates**: Even when the allocation editor modal is open, it receives live updates from hierarchy changes
+
 - **Improved Undo/Redo System in Allocation Editor**: Enhanced history management for better user experience
   - **Separate undo entries**: Each button press, input change, or drag operation now creates its own undoable action
   - **No redundant saves**: State is only saved when values actually change, preventing empty undo operations
