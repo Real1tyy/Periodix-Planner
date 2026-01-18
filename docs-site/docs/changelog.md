@@ -10,6 +10,10 @@ All notable changes to this project will be documented here.
 
 ## 1.5.0 - 1/14/2026
 
+### New Video
+
+- [Periodix Planner — Advanced Time Planning & Budgeting in Obsidian](https://www.youtube.com/watch?v=ggijBVSo1to)
+
 ### New Features
 
 - **Configurable Time Budget Sorting**: Choose how categories are displayed in time budget tables
@@ -161,6 +165,10 @@ All notable changes to this project will be documented here.
 ---
 
 ## 1.3.0 - 12/19/2025
+
+### New Video
+
+- [Periodix Planner — A Time-First Planning System for Obsidian](https://www.youtube.com/watch?v=bIVNj6fkTc8)
 
 ### New Features
 
