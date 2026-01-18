@@ -8,7 +8,7 @@ All notable changes to this project will be documented here.
 
 ---
 
-## 1.5.0
+## 1.5.0 - 1/14/2026
 
 ### New Features
 
@@ -61,7 +61,7 @@ All notable changes to this project will be documented here.
 
 ---
 
-## 1.4.0
+## 1.4.0 - 1/13/2026
 
 ### New Features
 
@@ -160,7 +160,7 @@ All notable changes to this project will be documented here.
 
 ---
 
-## 1.3.0
+## 1.3.0 - 12/19/2025
 
 ### New Features
 
@@ -177,7 +177,7 @@ All notable changes to this project will be documented here.
 
 ---
 
-## 1.2.0
+## 1.2.0 - 12/19/2025
 
 ### New Features
 
@@ -222,7 +222,7 @@ All notable changes to this project will be documented here.
 
 ---
 
-## 1.1.1
+## 1.1.1 - 12/17/2025
 
 ### Bug Fixes
 
@@ -230,7 +230,7 @@ All notable changes to this project will be documented here.
 
 ---
 
-## 1.1.0
+## 1.1.0 - 12/17/2025
 
 ### New Features
 
@@ -242,6 +242,6 @@ All notable changes to this project will be documented here.
 
 ---
 
-## 1.0.0
+## 1.0.0 - 12/11/2025
 
 Initial release of Periodix-Planner.
