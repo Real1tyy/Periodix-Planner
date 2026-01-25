@@ -178,9 +178,9 @@ Select which period types to generate and track. Disabled periods will be skippe
 
 Automatically generate all missing periodic notes from a specific starting date to today.
 
-| Setting                             | Description                                                                                                  | Default |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------- |
-| **Starting period generation date** | When set, generates all missing periodic notes from this date to today on startup (format: YYYY-MM-DD)      | Empty   |
+| Setting                             | Description                                                                                            | Default |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------ | ------- |
+| **Starting period generation date** | When set, generates all missing periodic notes from this date to today on startup (format: YYYY-MM-DD) | Empty   |
 
 **How it works:**
 
@@ -199,6 +199,7 @@ Automatically generate all missing periodic notes from a specific starting date 
 **Example:**
 
 If today is January 25, 2026 and you set the starting date to January 1, 2025:
+
 - Generates all daily notes from January 1, 2025 to January 25, 2026
 - Generates all weekly notes covering that period
 - Generates all monthly notes (January 2025 through January 2026)

@@ -18,6 +18,13 @@ export class GenerationSection implements SettingsSection {
 			cls: "setting-item-description",
 		});
 
+		this.uiBuilder.addText(containerEl, {
+			key: "generation.startingPeriodDate",
+			name: "Starting period generation date",
+			desc: "When set, the plugin will automatically generate all missing periodic notes (daily, weekly, monthly, quarterly, yearly) from this date to today on startup. Leave empty to disable past generation. Use format: YYYY-MM-DD (e.g., 2025-01-01)",
+			placeholder: "YYYY-MM-DD",
+		});
+
 		this.uiBuilder.addToggle(containerEl, {
 			key: "generation.readOnly",
 			name: "Disable automatic generation",
@@ -172,20 +179,6 @@ export class GenerationSection implements SettingsSection {
 			key: "generation.openYesterdayPdfOnStartup",
 			name: "Open yesterday's PDF on startup",
 			desc: "Automatically open yesterday's daily note PDF in a detached window when Obsidian loads (only if not already open)",
-		});
-
-		new Setting(containerEl).setName("Past period generation").setHeading();
-
-		containerEl.createEl("p", {
-			text: "Generate all periodic notes from a specific starting date to today. Useful for backfilling past notes when starting to use the plugin.",
-			cls: "setting-item-description",
-		});
-
-		this.uiBuilder.addText(containerEl, {
-			key: "generation.startingPeriodDate",
-			name: "Starting period generation date",
-			desc: "When set, the plugin will automatically generate all missing periodic notes (daily, weekly, monthly, quarterly, yearly) from this date to today on startup. Leave empty to disable past generation. Use format: YYYY-MM-DD (e.g., 2025-01-01)",
-			placeholder: "YYYY-MM-DD",
 		});
 	}
 }
