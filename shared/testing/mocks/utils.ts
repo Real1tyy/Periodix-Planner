@@ -74,9 +74,13 @@ export function setupMockImplementation(
 	implementation: (...args: unknown[]) => unknown
 ) {
 	if (mockName in mockFileOperations) {
-		(mockFileOperations as unknown)[mockName].mockImplementation(implementation);
+		const mock = mockFileOperations[mockName as keyof typeof mockFileOperations];
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(mock as any).mockImplementation(implementation);
 	} else if (mockName in mockLinkParser) {
-		(mockLinkParser as unknown)[mockName].mockImplementation(implementation);
+		const mock = mockLinkParser[mockName as keyof typeof mockLinkParser];
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(mock as any).mockImplementation(implementation);
 	}
 }
 
@@ -86,9 +90,13 @@ export function setupMockReturnValue(
 	value: unknown
 ) {
 	if (mockName in mockFileOperations) {
-		(mockFileOperations as unknown)[mockName].mockReturnValue(value);
+		const mock = mockFileOperations[mockName as keyof typeof mockFileOperations];
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(mock as any).mockReturnValue(value);
 	} else if (mockName in mockLinkParser) {
-		(mockLinkParser as unknown)[mockName].mockReturnValue(value);
+		const mock = mockLinkParser[mockName as keyof typeof mockLinkParser];
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(mock as any).mockReturnValue(value);
 	}
 }
 
@@ -98,7 +106,9 @@ export function verifyMockCalls(
 	expectedCalls: unknown[][]
 ) {
 	const mock =
-		mockName in mockFileOperations ? (mockFileOperations as unknown)[mockName] : (mockLinkParser as unknown)[mockName];
+		mockName in mockFileOperations
+			? (mockFileOperations[mockName as keyof typeof mockFileOperations] as unknown)
+			: (mockLinkParser[mockName as keyof typeof mockLinkParser] as unknown);
 
 	expect(mock).toHaveBeenCalledTimes(expectedCalls.length);
 	expectedCalls.forEach((args, index) => {

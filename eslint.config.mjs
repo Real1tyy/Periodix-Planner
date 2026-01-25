@@ -8,7 +8,6 @@ export default tseslint.config(
 	// Base recommended configs
 	js.configs.recommended,
 	...tseslint.configs.recommended,
-	...obsidianmd.configs.recommended,
 	eslintConfigPrettier,
 
 	// Global ignores

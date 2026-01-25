@@ -30,7 +30,10 @@ async function waitForTemplater(app: App, timeoutMs = 8000): Promise<TemplaterLi
 
 	const started = Date.now();
 	while (Date.now() - started < timeoutMs) {
-		const plug: unknown = (app as unknown).plugins?.getPlugin?.(TEMPLATER_ID);
+		const appWithPlugins = app as App & {
+			plugins?: { getPlugin?: (id: string) => { templater?: TemplaterLike } | null | undefined };
+		};
+		const plug = appWithPlugins.plugins?.getPlugin?.(TEMPLATER_ID) as { templater?: TemplaterLike } | null | undefined;
 		const api = plug?.templater ?? null;
 
 		const createFn: CreateFn | undefined = api?.create_new_note_from_template?.bind(api);
@@ -43,7 +46,10 @@ async function waitForTemplater(app: App, timeoutMs = 8000): Promise<TemplaterLi
 }
 
 export function isTemplaterAvailable(app: App): boolean {
-	const instance = (app as unknown).plugins?.getPlugin?.(TEMPLATER_ID);
+	const appWithPlugins = app as App & {
+		plugins?: { getPlugin?: (id: string) => unknown | null | undefined };
+	};
+	const instance = appWithPlugins.plugins?.getPlugin?.(TEMPLATER_ID);
 	return !!instance;
 }
 

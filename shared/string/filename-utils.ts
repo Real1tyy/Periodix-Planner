@@ -24,7 +24,6 @@ export const normalizeDirectoryPath = (directory: string): string => {
  * Extracts the date and suffix (everything after the date) from a physical instance filename.
  * Physical instance format: "[title] [date]-[ZETTELID]"
  *
- * @param basename - The filename without extension
  * @returns Object with dateStr and suffix, or null if no date found
  *
  * @example

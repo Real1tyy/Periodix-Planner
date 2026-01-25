@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import type { TFile } from "obsidian";
 import { describe, expect, it } from "vitest";
 import { buildPeriodLinksForNote, detectPeriodTypeFromFilename } from "../src/utils/note-utils";
 import { createMockSettings } from "./test-helpers";
@@ -20,12 +21,12 @@ const mockSettings = createMockSettings({
 	},
 });
 
-function createMockFile(path: string, basename: string) {
+function createMockFile(path: string, basename: string): TFile {
 	return {
 		path,
 		basename,
 		extension: "md",
-	} as any;
+	} as TFile;
 }
 
 describe("detectPeriodTypeFromFilename", () => {

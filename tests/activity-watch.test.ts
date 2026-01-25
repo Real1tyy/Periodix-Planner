@@ -196,7 +196,7 @@ describe("ActivityWatch Utils", () => {
 			const mockService = {
 				getDailyAppUsage: vi.fn().mockResolvedValue(mockAppData),
 			};
-			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as any);
+			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as unknown as ActivityWatchService);
 			vi.spyOn(ActivityWatchService, "generateActivityWatchCodeBlock").mockReturnValue(
 				"**Total Active Time:** 3.00 hours\n\n```\nobsidian    7200s\n```"
 			);
@@ -221,7 +221,7 @@ describe("ActivityWatch Utils", () => {
 			const mockService = {
 				getDailyAppUsage: vi.fn().mockResolvedValue([]),
 			};
-			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as any);
+			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as unknown as ActivityWatchService);
 			vi.spyOn(ActivityWatchService, "generateActivityWatchCodeBlock").mockReturnValue("No data");
 
 			await injectActivityWatchContent(app, file, yesterday, settings);
@@ -241,7 +241,7 @@ describe("ActivityWatch Utils", () => {
 			const mockService = {
 				getDailyAppUsage: vi.fn().mockRejectedValue(new Error("API connection failed")),
 			};
-			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as any);
+			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as unknown as ActivityWatchService);
 
 			await injectActivityWatchContent(app, file, yesterday, settings);
 
@@ -366,7 +366,7 @@ describe("ActivityWatch Utils", () => {
 			const mockService = {
 				getDailyAppUsage: vi.fn().mockResolvedValue([]),
 			};
-			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as any);
+			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as unknown as ActivityWatchService);
 			vi.spyOn(ActivityWatchService, "generateActivityWatchCodeBlock").mockReturnValue("No data");
 
 			await processAllDailyNotesForActivityWatch(app, settings);
@@ -400,7 +400,7 @@ describe("ActivityWatch Utils", () => {
 			const mockService = {
 				getDailyAppUsage: vi.fn().mockResolvedValue([]),
 			};
-			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as any);
+			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as unknown as ActivityWatchService);
 			vi.spyOn(ActivityWatchService, "generateActivityWatchCodeBlock").mockReturnValue("No data");
 
 			await processAllDailyNotesForActivityWatch(app, settings);

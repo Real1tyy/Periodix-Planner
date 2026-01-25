@@ -1,5 +1,5 @@
 import { SettingsUIBuilder } from "@real1ty-obsidian-plugins";
-import { type App, PluginSettingTab } from "obsidian";
+import { type App, PluginSettingTab, Setting } from "obsidian";
 import type PeriodicPlannerPlugin from "../main";
 import type { PeriodicPlannerSettingsSchema } from "../types";
 import type { SettingsSection } from "../types/settings";

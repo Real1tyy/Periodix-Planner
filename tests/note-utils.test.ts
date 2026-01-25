@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import type { TFile, Vault } from "obsidian";
 import { describe, expect, it, vi } from "vitest";
-import { PERIOD_TYPES } from "../src/constants";
+import { PERIOD_TYPES, type PeriodType } from "../src/constants";
 import type { IndexedPeriodNote } from "../src/types";
 import {
 	extractCategoryAllocations,
@@ -22,8 +22,8 @@ describe("Note Utilities", () => {
 	const createMockFile = (path: string, basename?: string, mtime?: number): TFile => {
 		const file = new MockTFile(path);
 		if (basename) file.basename = basename;
-		(file as any).stat = { mtime: mtime ?? Date.now() };
-		return file as unknown as TFile;
+		(file as { stat?: { mtime: number } }).stat = { mtime: mtime ?? Date.now() };
+		return file as TFile;
 	};
 
 	describe("extractCodeBlockContent", () => {
@@ -665,7 +665,7 @@ describe("Note Utilities", () => {
 			return {
 				file,
 				filePath: file.path,
-				periodType: periodType as any,
+				periodType: periodType as PeriodType,
 				periodStart: DateTime.fromISO("2025-01-06T00:00:00.000Z"),
 				periodEnd: DateTime.fromISO("2025-01-12T23:59:59.999Z"),
 				noteName: "test",

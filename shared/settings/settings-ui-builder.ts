@@ -68,13 +68,13 @@ export class SettingsUIBuilder<TSchema extends ZodObject<ZodRawShape>> {
 	 */
 	private getNestedValue(key: string): unknown {
 		const keys = key.split(".");
-		let value: unknown = this.settings;
+		let value: any = this.settings;
 
 		for (const k of keys) {
 			if (value === undefined || value === null) {
 				return undefined;
 			}
-			value = value[k];
+			value = (value as Record<string, any>)[k];
 		}
 
 		return value;
@@ -85,9 +85,9 @@ export class SettingsUIBuilder<TSchema extends ZodObject<ZodRawShape>> {
 	 */
 	private setNestedValue(key: string, value: unknown): z.infer<TSchema> {
 		const keys = key.split(".");
-		const newSettings = JSON.parse(JSON.stringify(this.settings)); // Deep clone
+		const newSettings = JSON.parse(JSON.stringify(this.settings)) as Record<string, any>; // Deep clone
 
-		let current: unknown = newSettings;
+		let current: Record<string, any> = newSettings;
 
 		// Navigate to the parent of the target property
 		for (let i = 0; i < keys.length - 1; i++) {
@@ -95,14 +95,14 @@ export class SettingsUIBuilder<TSchema extends ZodObject<ZodRawShape>> {
 			if (!(k in current)) {
 				current[k] = {};
 			}
-			current = current[k];
+			current = current[k] as Record<string, any>;
 		}
 
 		// Set the final property
 		const lastKey = keys[keys.length - 1];
 		current[lastKey] = value;
 
-		return newSettings;
+		return newSettings as z.infer<TSchema>;
 	}
 
 	private async updateSetting(key: string, value: unknown): Promise<void> {
@@ -125,37 +125,70 @@ export class SettingsUIBuilder<TSchema extends ZodObject<ZodRawShape>> {
 		try {
 			// Navigate nested schema using dot notation
 			const keys = key.split(".");
-			let fieldSchema: unknown = this.schema.shape;
+			let fieldSchema: any = this.schema.shape;
 
 			for (const k of keys) {
 				if (!fieldSchema) return {};
 
 				// Unwrap nested schemas
-				while (fieldSchema._def?.innerType) {
-					fieldSchema = fieldSchema._def.innerType;
+
+				while (
+					fieldSchema &&
+					typeof fieldSchema === "object" &&
+					"_def" in fieldSchema &&
+					(fieldSchema as any)._def?.innerType
+				) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					fieldSchema = (fieldSchema as any)._def.innerType;
 				}
 
-				fieldSchema = fieldSchema.shape?.[k] ?? fieldSchema[k];
+				if (fieldSchema && typeof fieldSchema === "object" && "shape" in fieldSchema) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					fieldSchema = (fieldSchema as any).shape?.[k];
+				} else if (fieldSchema && typeof fieldSchema === "object" && k in fieldSchema) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					fieldSchema = (fieldSchema as any)[k];
+				} else {
+					return {};
+				}
 			}
 
 			if (!fieldSchema) return {};
 
-			let innerSchema = fieldSchema;
-			while (innerSchema._def?.innerType) {
-				innerSchema = innerSchema._def.innerType;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			let innerSchema: any = fieldSchema;
+
+			while (
+				innerSchema &&
+				typeof innerSchema === "object" &&
+				"_def" in innerSchema &&
+				(innerSchema as any)._def?.innerType
+			) {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				innerSchema = (innerSchema as any)._def.innerType;
 			}
 
-			if (innerSchema._def?.typeName === "ZodNumber") {
-				const checks = ((innerSchema as ZodNumber)._def as unknown).checks || [];
+			if (
+				innerSchema &&
+				typeof innerSchema === "object" &&
+				"_def" in innerSchema &&
+				(innerSchema as any)._def?.typeName === "ZodNumber"
+			) {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const checks = ((innerSchema as ZodNumber)._def as any).checks || [];
 				let min: number | undefined;
 				let max: number | undefined;
 
 				for (const check of checks) {
-					if (check.kind === "min") {
-						min = check.value;
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					if ((check as any).kind === "min") {
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						min = (check as any).value;
 					}
-					if (check.kind === "max") {
-						max = check.value;
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					if ((check as any).kind === "max") {
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						max = (check as any).value;
 					}
 				}
 
@@ -172,32 +205,64 @@ export class SettingsUIBuilder<TSchema extends ZodObject<ZodRawShape>> {
 		try {
 			// Navigate nested schema using dot notation
 			const keys = key.split(".");
-			let fieldSchema: unknown = this.schema.shape;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			let fieldSchema: any = this.schema.shape;
 
 			for (const k of keys) {
 				if (!fieldSchema) return undefined;
 
 				// Unwrap nested schemas
-				while (fieldSchema._def?.innerType) {
-					fieldSchema = fieldSchema._def.innerType;
+
+				while (
+					fieldSchema &&
+					typeof fieldSchema === "object" &&
+					"_def" in fieldSchema &&
+					(fieldSchema as any)._def?.innerType
+				) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					fieldSchema = (fieldSchema as any)._def.innerType;
 				}
 
-				fieldSchema = fieldSchema.shape?.[k] ?? fieldSchema[k];
+				if (fieldSchema && typeof fieldSchema === "object" && "shape" in fieldSchema) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					fieldSchema = (fieldSchema as any).shape?.[k];
+				} else if (fieldSchema && typeof fieldSchema === "object" && k in fieldSchema) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					fieldSchema = (fieldSchema as any)[k];
+				} else {
+					return undefined;
+				}
 			}
 
 			if (!fieldSchema) return undefined;
 
-			let innerSchema = fieldSchema;
-			while (innerSchema._def?.innerType) {
-				innerSchema = innerSchema._def.innerType;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			let innerSchema: any = fieldSchema;
+
+			while (
+				innerSchema &&
+				typeof innerSchema === "object" &&
+				"_def" in innerSchema &&
+				(innerSchema as any)._def?.innerType
+			) {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				innerSchema = (innerSchema as any)._def.innerType;
 			}
 
-			if (innerSchema._def?.typeName === "ZodArray") {
-				const elementType = ((innerSchema as ZodArray<unknown>)._def as unknown).type;
-				if (elementType._def?.typeName === "ZodNumber") {
+			if (
+				innerSchema &&
+				typeof innerSchema === "object" &&
+				"_def" in innerSchema &&
+				(innerSchema as any)._def?.typeName === "ZodArray"
+			) {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const elementType = ((innerSchema as ZodArray<any>)._def as any).type;
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				if (elementType && (elementType as any)._def?.typeName === "ZodNumber") {
 					return "number";
 				}
-				if (elementType._def?.typeName === "ZodString") {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				if (elementType && (elementType as any)._def?.typeName === "ZodString") {
 					return "string";
 				}
 			}

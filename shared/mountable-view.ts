@@ -1,20 +1,20 @@
 import type { ItemView } from "obsidian";
 
-type AbstractCtor<T = Record<string, never>> = abstract new (...args: unknown[]) => T;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AbstractCtor<T = Record<string, never>> = abstract new (...args: any[]) => T;
 
 export function MountableView<TBase extends AbstractCtor<ItemView>>(Base: TBase, prefix?: string) {
 	abstract class Mountable extends Base {
+		constructor(..._args: any[]) {
+			super(..._args);
+			this.#classPrefix = prefix ? `${prefix}-mountable` : "mountable";
+		}
 		// use ECMAScript private fields to avoid TS4094
 		#mounted = false;
 		#resizeObserver: ResizeObserver | null = null;
 		#resizeTimeout: ReturnType<typeof setTimeout> | null = null;
 		#loadingEl: HTMLElement | null = null;
 		#classPrefix: string;
-
-		constructor(...args: unknown[]) {
-			super(...args);
-			this.#classPrefix = prefix ? `${prefix}-mountable` : "mountable";
-		}
 
 		abstract mount(): Promise<void>;
 		abstract unmount(): Promise<void>;
@@ -142,7 +142,10 @@ export function MountableView<TBase extends AbstractCtor<ItemView>>(Base: TBase,
 		}
 
 		addWorkspaceEventSub(eventName: string, callback: (...args: unknown[]) => void): void {
-			const ref = this.app.workspace.on(eventName as unknown, callback);
+			// Type assertion needed because workspace.on() has specific event name overloads
+			// but we need to support custom event names from plugins
+			// @ts-expect-error - We need to support custom event names that aren't in the type definition
+			const ref = this.app.workspace.on(eventName, callback);
 			this.registerEvent(ref);
 		}
 

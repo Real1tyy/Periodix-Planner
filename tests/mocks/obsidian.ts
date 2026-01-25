@@ -3,7 +3,7 @@ import { vi } from "vitest";
 
 export class Plugin {
 	app: App;
-	manifest: any;
+	manifest: unknown;
 
 	constructor() {
 		this.app = new App();
@@ -41,7 +41,7 @@ class Workspace {
 
 class FileManager {
 	processFrontMatter = vi.fn().mockImplementation(async (_file, fn) => {
-		const fm: Record<string, any> = {};
+		const fm: Record<string, unknown> = {};
 		fn(fm);
 		return fm;
 	});
@@ -97,28 +97,28 @@ export class Setting {
 	setClass(_cls: string): this {
 		return this;
 	}
-	addText(_cb: (text: any) => void): this {
+	addText(_cb: (text: unknown) => void): this {
 		return this;
 	}
-	addTextArea(_cb: (textarea: any) => void): this {
+	addTextArea(_cb: (textarea: unknown) => void): this {
 		return this;
 	}
-	addToggle(_cb: (toggle: any) => void): this {
+	addToggle(_cb: (toggle: unknown) => void): this {
 		return this;
 	}
-	addSlider(_cb: (slider: any) => void): this {
+	addSlider(_cb: (slider: unknown) => void): this {
 		return this;
 	}
-	addDropdown(_cb: (dropdown: any) => void): this {
+	addDropdown(_cb: (dropdown: unknown) => void): this {
 		return this;
 	}
-	addButton(_cb: (button: any) => void): this {
+	addButton(_cb: (button: unknown) => void): this {
 		return this;
 	}
-	addExtraButton(_cb: (button: any) => void): this {
+	addExtraButton(_cb: (button: unknown) => void): this {
 		return this;
 	}
-	addColorPicker(_cb: (picker: any) => void): this {
+	addColorPicker(_cb: (picker: unknown) => void): this {
 		return this;
 	}
 }
