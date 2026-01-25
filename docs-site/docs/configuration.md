@@ -131,11 +131,26 @@ Control automatic note generation behavior and which period types to enable.
 
 ### Note Generation
 
-| Setting                    | Description                                                       | Default |
-| -------------------------- | ----------------------------------------------------------------- | ------- |
-| **Auto-generate on load**  | Automatically generate the next period's note when Obsidian loads | `true`  |
-| **Generate periods ahead** | How many periods into the future to generate (1-5)                | `1`     |
+| Setting                          | Description                                                                        | Default |
+| -------------------------------- | ---------------------------------------------------------------------------------- | ------- |
+| **Disable automatic generation** | Prevents automatic file generation and modifications (on startup, file open, etc.) | `false` |
+| **Auto-generate on load**        | Automatically generate the next period's note when Obsidian loads                  | `true`  |
+| **Generate periods ahead**       | How many periods into the future to generate (1-5)                                 | `1`     |
 
+**Disable automatic generation:**
+
+- When enabled, the plugin will NOT automatically create or modify files
+- Prevents automatic generation on startup, file open, and during indexing
+- Manual commands (like "Generate all periods for today") will still work
+- Useful for preventing conflicts during sync or when you want full control
+- Blocks automatic operations:
+  - Auto-generation on Obsidian startup
+  - Automatic frontmatter property updates when opening notes
+  - Automatic time budget block insertion
+  - ActivityWatch data injection during indexing
+  - Hours spent property updates
+
+**Auto-generate on load:**
 When enabled, the plugin generates notes when Obsidian opens and creates future periods automatically while respecting existing notes.
 
 ### Enabled Period Types
