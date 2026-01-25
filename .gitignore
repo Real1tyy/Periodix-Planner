@@ -185,5 +185,3 @@ __pycache__/
 *.egg-info/
 dist/
 *.egg
-eslint.config.mjs
-esbuild.config.mjs

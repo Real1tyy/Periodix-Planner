@@ -8,7 +8,7 @@ All notable changes to this project will be documented here.
 
 ---
 
-## 1.6.0 - 1/25/2026
+## 1.6.0 - 2026-01-25
 
 ### Added
 
