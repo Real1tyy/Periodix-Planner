@@ -55,13 +55,17 @@ export class CategoriesSection implements SettingsSection {
 			cls: "setting-item-description",
 		});
 
-		const noticeEl = containerEl.createDiv({ cls: cls("category-restart-notice") });
+		const noticeEl = containerEl.createDiv({
+			cls: cls("category-restart-notice"),
+		});
 		noticeEl.createEl("strong", { text: "Note: " });
 		noticeEl.appendText("Restart Obsidian after renaming or deleting categories for changes to fully propagate.");
 
 		this.renderPeriodTypeSelector(containerEl);
 
-		this.categoriesContainer = containerEl.createDiv({ cls: cls("categories-list") });
+		this.categoriesContainer = containerEl.createDiv({
+			cls: cls("categories-list"),
+		});
 		this.renderCategories(this.categoriesContainer);
 
 		this.trackerSubscription = this.categoryTracker.events$.subscribe(() => {
@@ -112,7 +116,9 @@ export class CategoriesSection implements SettingsSection {
 			cls: "setting-item-description",
 		});
 
-		this.statisticsContainer = containerEl.createDiv({ cls: cls("global-statistics") });
+		this.statisticsContainer = containerEl.createDiv({
+			cls: cls("global-statistics"),
+		});
 
 		this.statsSubscription = this.globalStatsAggregator.events$.subscribe((event) => {
 			if (event.type === "statistics-updated") this.updateGlobalStatistics();
@@ -141,7 +147,9 @@ export class CategoriesSection implements SettingsSection {
 			return;
 		}
 
-		const chartContainer = this.statisticsContainer.createDiv({ cls: cls("statistics-chart") });
+		const chartContainer = this.statisticsContainer.createDiv({
+			cls: cls("statistics-chart"),
+		});
 		this.renderPieChart(chartContainer, statistics, this.settingsStore.currentSettings.categories);
 	}
 
@@ -249,7 +257,10 @@ export class CategoriesSection implements SettingsSection {
 		for (const [pt, stats] of byPeriodType) {
 			const catMap = new Map<string, CatPeriodStat>();
 			for (const c of stats.categoryStats) {
-				catMap.set(c.categoryName, { noteCount: c.noteCount, totalHours: c.totalHours });
+				catMap.set(c.categoryName, {
+					noteCount: c.noteCount,
+					totalHours: c.totalHours,
+				});
 			}
 			index.set(pt, catMap);
 		}
@@ -343,7 +354,10 @@ export class CategoriesSection implements SettingsSection {
 		await this.settingsStore.updateSettings((s) => {
 			const existing = s.categories.find((c) => c.name === name);
 			if (existing) {
-				return { ...s, categories: s.categories.map((c) => (c.name === name ? { ...c, color } : c)) };
+				return {
+					...s,
+					categories: s.categories.map((c) => (c.name === name ? { ...c, color } : c)),
+				};
 			}
 			return { ...s, categories: [...s.categories, { name, color }] };
 		});

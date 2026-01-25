@@ -1,4 +1,4 @@
-import { RegisteredEventsComponent } from "@real1ty-obsidian-plugins/utils";
+import { RegisteredEventsComponent } from "@real1ty-obsidian-plugins";
 import { type App, Component, MarkdownRenderer } from "obsidian";
 import type { Subscription } from "rxjs";
 import { PERIOD_TYPE_LABELS } from "../../constants";
@@ -75,7 +75,10 @@ export class PeriodBasesView extends RegisteredEventsComponent {
 			}
 
 			const title = `Tasks: ${PERIOD_TYPE_LABELS[periodNote.periodType]} - ${periodNote.noteName}`;
-			this.contentEl.createEl("h3", { text: title, cls: cls("period-bases-title") });
+			this.contentEl.createEl("h3", {
+				text: title,
+				cls: cls("period-bases-title"),
+			});
 
 			const markdownContainer = this.contentEl.createDiv({
 				cls: cls("bases-markdown-container"),

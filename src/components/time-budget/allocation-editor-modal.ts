@@ -156,7 +156,9 @@ export class AllocationEditorModal extends Modal {
 			() => !this.state.canUndo()
 		);
 
-		const summaryStats = summaryControls.createDiv({ cls: cls("summary-stats") });
+		const summaryStats = summaryControls.createDiv({
+			cls: cls("summary-stats"),
+		});
 
 		const allocatedItem = summaryStats.createDiv({ cls: cls("summary-item") });
 		allocatedItem.createSpan({ text: "Allocated:", cls: cls("summary-label") });
@@ -188,7 +190,9 @@ export class AllocationEditorModal extends Modal {
 		const shouldShowHideUnused = this.shouldShowHideUnusedCheckbox();
 
 		if (hasParentBudgets || shouldShowHideUnused) {
-			const secondaryControls = summary.createDiv({ cls: cls("summary-secondary-controls") });
+			const secondaryControls = summary.createDiv({
+				cls: cls("summary-secondary-controls"),
+			});
 
 			if (hasParentBudgets) {
 				const fillFromParentBtn = secondaryControls.createEl("button", {
@@ -203,7 +207,9 @@ export class AllocationEditorModal extends Modal {
 			}
 
 			if (shouldShowHideUnused) {
-				const hideUnusedContainer = secondaryControls.createDiv({ cls: cls("hide-unused-container") });
+				const hideUnusedContainer = secondaryControls.createDiv({
+					cls: cls("hide-unused-container"),
+				});
 
 				const hideUnusedCheckbox = hideUnusedContainer.createEl("input", {
 					type: "checkbox",
@@ -255,7 +261,9 @@ export class AllocationEditorModal extends Modal {
 		this.saveScrollPosition();
 
 		if (!this.allocationListEl) {
-			this.allocationListEl = this.contentEl.createDiv({ cls: cls("allocation-list") });
+			this.allocationListEl = this.contentEl.createDiv({
+				cls: cls("allocation-list"),
+			});
 		}
 
 		this.allocationListEl.empty();
@@ -279,18 +287,24 @@ export class AllocationEditorModal extends Modal {
 			const parentBudget = this.getReactiveParentBudget(categoryName);
 			const percentage = calculatePercentage(currentHours, this.totalHoursAvailable);
 
-			const item = this.allocationListEl.createDiv({ cls: cls("allocation-item") });
+			const item = this.allocationListEl.createDiv({
+				cls: cls("allocation-item"),
+			});
 			item.dataset.categoryId = categoryName;
 			item.id = `allocation-item-${categoryName}`;
 
 			const topRow = item.createDiv({ cls: cls("allocation-top-row") });
 
-			const colorDot = topRow.createSpan({ cls: cls("category-color-dot-large") });
+			const colorDot = topRow.createSpan({
+				cls: cls("category-color-dot-large"),
+			});
 			setCssVar(colorDot, "category-color", category.color);
 
 			topRow.createSpan({ text: categoryName, cls: cls("category-name") });
 
-			const budgetInfoContainer = topRow.createDiv({ cls: cls("budget-info-container") });
+			const budgetInfoContainer = topRow.createDiv({
+				cls: cls("budget-info-container"),
+			});
 			const parentBudgetInfo = parentBudget
 				? this.setupParentBudget(topRow, budgetInfoContainer, categoryName, parentBudget)
 				: null;
@@ -302,7 +316,9 @@ export class AllocationEditorModal extends Modal {
 
 			const inputRow = item.createDiv({ cls: cls("allocation-input-row") });
 
-			const inputContainer = inputRow.createDiv({ cls: cls("allocation-input-container") });
+			const inputContainer = inputRow.createDiv({
+				cls: cls("allocation-input-container"),
+			});
 
 			const input = inputContainer.createEl("input", {
 				type: "number",
@@ -351,13 +367,21 @@ export class AllocationEditorModal extends Modal {
 
 			inputContainer.createSpan({ text: "hours", cls: cls("input-suffix") });
 
-			const quickFillContainer = inputRow.createDiv({ cls: cls("quick-fill-container") });
+			const quickFillContainer = inputRow.createDiv({
+				cls: cls("quick-fill-container"),
+			});
 			this.createQuickFillButtons(quickFillContainer, categoryName, input);
 
-			const percentageContainer = inputRow.createDiv({ cls: cls("percentage-container") });
+			const percentageContainer = inputRow.createDiv({
+				cls: cls("percentage-container"),
+			});
 
-			const percentageBarWrapper = percentageContainer.createDiv({ cls: cls("percentage-bar-wrapper draggable") });
-			const percentageBar = percentageBarWrapper.createDiv({ cls: cls("percentage-bar") });
+			const percentageBarWrapper = percentageContainer.createDiv({
+				cls: cls("percentage-bar-wrapper draggable"),
+			});
+			const percentageBar = percentageBarWrapper.createDiv({
+				cls: cls("percentage-bar"),
+			});
 			setCssVar(percentageBar, "percentage-width", `${Math.min(percentage, 100)}%`);
 			setCssVar(percentageBar, "category-color", category.color);
 
@@ -395,7 +419,9 @@ export class AllocationEditorModal extends Modal {
 		categoryName: string,
 		parentBudget: CategoryBudgetInfo
 	): HTMLElement {
-		const parentBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("parent-budget-info") });
+		const parentBudgetInfo = budgetInfoContainer.createSpan({
+			cls: cls("parent-budget-info"),
+		});
 		const isOver = parentBudget.allocated > parentBudget.total + BUDGET_EPSILON && parentBudget.total > 0;
 		const parentPercentage = calculatePercentage(parentBudget.allocated, parentBudget.total);
 
@@ -410,7 +436,9 @@ export class AllocationEditorModal extends Modal {
 			);
 		}
 
-		const checkboxContainer = topRow.createDiv({ cls: cls("fill-from-parent-container") });
+		const checkboxContainer = topRow.createDiv({
+			cls: cls("fill-from-parent-container"),
+		});
 
 		const checkbox = checkboxContainer.createEl("input", {
 			type: "checkbox",
@@ -442,17 +470,23 @@ export class AllocationEditorModal extends Modal {
 		const allocated = childBudget.allocated ?? 0;
 		const total = childBudget.total ?? 0;
 		const percentage = calculatePercentage(allocated, total);
-		const childBudgetInfo = budgetInfoContainer.createSpan({ cls: cls("child-budget-info") });
+		const childBudgetInfo = budgetInfoContainer.createSpan({
+			cls: cls("child-budget-info"),
+		});
 		childBudgetInfo.setText(`Child allocated: ${formatHoursWithPercentage(allocated, percentage)}`);
 
 		return childBudgetInfo;
 	}
 
 	private renderActions(): void {
-		const actions = this.contentEl.createDiv({ cls: cls("allocation-actions") });
+		const actions = this.contentEl.createDiv({
+			cls: cls("allocation-actions"),
+		});
 
 		// Left side: Create new category
-		const leftActions = actions.createDiv({ cls: cls("allocation-actions-left") });
+		const leftActions = actions.createDiv({
+			cls: cls("allocation-actions-left"),
+		});
 		const createCategoryBtn = leftActions.createEl("button", {
 			text: "+ Create new category",
 			cls: cls("action-btn", "create-category-btn"),
@@ -462,7 +496,9 @@ export class AllocationEditorModal extends Modal {
 		});
 
 		// Right side: Cancel and Save
-		const rightActions = actions.createDiv({ cls: cls("allocation-actions-right") });
+		const rightActions = actions.createDiv({
+			cls: cls("allocation-actions-right"),
+		});
 		const cancelBtn = rightActions.createEl("button", {
 			text: "Cancel",
 			cls: cls("action-btn"),
@@ -585,7 +621,9 @@ export class AllocationEditorModal extends Modal {
 			});
 		}
 
-		const customContainer = container.createDiv({ cls: cls("custom-percentage-container") });
+		const customContainer = container.createDiv({
+			cls: cls("custom-percentage-container"),
+		});
 		const customInput = customContainer.createEl("input", {
 			type: "number",
 			cls: cls("custom-percentage-input"),
@@ -702,7 +740,9 @@ export class AllocationEditorModal extends Modal {
 					const total = childBudget.total ?? 0;
 					const percentage = calculatePercentage(allocated, total);
 					if (!refs.childBudgetInfo) {
-						refs.childBudgetInfo = refs.budgetInfoContainer.createSpan({ cls: cls("child-budget-info") });
+						refs.childBudgetInfo = refs.budgetInfoContainer.createSpan({
+							cls: cls("child-budget-info"),
+						});
 					}
 					refs.childBudgetInfo.textContent = `Child allocated: ${formatHoursWithPercentage(allocated, percentage)}`;
 				} else if (refs.childBudgetInfo) {
@@ -741,7 +781,9 @@ export class AllocationEditorModal extends Modal {
 			this.contentEl.insertBefore(inputWrapper, actionsEl);
 		}
 
-		const inputContainer = inputWrapper.createDiv({ cls: cls("create-category-input-container") });
+		const inputContainer = inputWrapper.createDiv({
+			cls: cls("create-category-input-container"),
+		});
 
 		const input = inputContainer.createEl("input", {
 			type: "text",
@@ -749,7 +791,9 @@ export class AllocationEditorModal extends Modal {
 			cls: cls("create-category-input"),
 		});
 
-		const buttonGroup = inputContainer.createDiv({ cls: cls("create-category-buttons") });
+		const buttonGroup = inputContainer.createDiv({
+			cls: cls("create-category-buttons"),
+		});
 
 		const confirmBtn = buttonGroup.createEl("button", {
 			text: "Add",

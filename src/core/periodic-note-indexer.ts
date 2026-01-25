@@ -202,7 +202,10 @@ export class PeriodicNoteIndexer {
 		return intents$.pipe(
 			switchMap((intent) => {
 				if (intent.kind === "deleted") {
-					return of<IndexerEvent>({ type: "note-deleted", filePath: intent.path });
+					return of<IndexerEvent>({
+						type: "note-deleted",
+						filePath: intent.path,
+					});
 				}
 				return from(this.buildEventsForFile(intent.file, intent.oldPath)).pipe(mergeMap((events) => events));
 			}),

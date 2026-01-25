@@ -138,6 +138,9 @@ export class GlobalStatisticsAggregator {
 		}
 
 		this.statistics = { byPeriodType };
-		this.eventsSubject.next({ type: "statistics-updated", statistics: this.statistics });
+		this.eventsSubject.next({
+			type: "statistics-updated",
+			statistics: this.statistics,
+		});
 	}
 }

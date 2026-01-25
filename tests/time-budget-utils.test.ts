@@ -193,7 +193,15 @@ describe("Time Budget Utilities", () => {
 		it("CRITICAL: should never exceed 100% even when parent is at 100%", () => {
 			// Real-world scenario: Parent has 40h allocated at 100%, child has 40h available
 			const parentBudgets = new Map([
-				["Development", { categoryName: "Development", total: 20, allocated: 20, remaining: 0 }],
+				[
+					"Development",
+					{
+						categoryName: "Development",
+						total: 20,
+						allocated: 20,
+						remaining: 0,
+					},
+				],
 				["Design", { categoryName: "Design", total: 10, allocated: 10, remaining: 0 }],
 				["Meetings", { categoryName: "Meetings", total: 10, allocated: 10, remaining: 0 }],
 			]);
@@ -217,9 +225,33 @@ describe("Time Budget Utilities", () => {
 		it("CRITICAL: should clamp total when rounding would cause overflow", () => {
 			// Scenario that commonly causes overflow due to rounding
 			const parentBudgets = new Map([
-				["cat1", { categoryName: "cat1", total: 13.33, allocated: 0, remaining: 13.33 }],
-				["cat2", { categoryName: "cat2", total: 13.33, allocated: 0, remaining: 13.33 }],
-				["cat3", { categoryName: "cat3", total: 13.34, allocated: 0, remaining: 13.34 }],
+				[
+					"cat1",
+					{
+						categoryName: "cat1",
+						total: 13.33,
+						allocated: 0,
+						remaining: 13.33,
+					},
+				],
+				[
+					"cat2",
+					{
+						categoryName: "cat2",
+						total: 13.33,
+						allocated: 0,
+						remaining: 13.33,
+					},
+				],
+				[
+					"cat3",
+					{
+						categoryName: "cat3",
+						total: 13.34,
+						allocated: 0,
+						remaining: 13.34,
+					},
+				],
 			]);
 
 			const childTotal = 40;
@@ -256,7 +288,15 @@ describe("Time Budget Utilities", () => {
 			const parentBudgets = new Map([
 				["Work", { categoryName: "Work", total: 6.5, allocated: 6.5, remaining: 0 }],
 				["Email", { categoryName: "Email", total: 1.5, allocated: 1.5, remaining: 0 }],
-				["Meetings", { categoryName: "Meetings", total: 2.0, allocated: 2.0, remaining: 0 }],
+				[
+					"Meetings",
+					{
+						categoryName: "Meetings",
+						total: 2.0,
+						allocated: 2.0,
+						remaining: 0,
+					},
+				],
 			]);
 
 			const childTotal = 10; // Weekly has 10h available
@@ -300,8 +340,24 @@ describe("Time Budget Utilities", () => {
 			// Simulating: parent has some allocation, child should be filled without exceeding
 			// This tests the specific case where "Fill from parent" causes red warning
 			const parentBudgets = new Map([
-				["Development", { categoryName: "Development", total: 16.67, allocated: 10, remaining: 6.67 }],
-				["Design", { categoryName: "Design", total: 8.33, allocated: 5, remaining: 3.33 }],
+				[
+					"Development",
+					{
+						categoryName: "Development",
+						total: 16.67,
+						allocated: 10,
+						remaining: 6.67,
+					},
+				],
+				[
+					"Design",
+					{
+						categoryName: "Design",
+						total: 8.33,
+						allocated: 5,
+						remaining: 3.33,
+					},
+				],
 				["Admin", { categoryName: "Admin", total: 5.0, allocated: 3, remaining: 2.0 }],
 			]);
 
@@ -336,7 +392,12 @@ describe("Time Budget Utilities", () => {
 				const categoryCount = Math.floor(Math.random() * 10) + 3; // 3-12 categories
 				const parentBudgets = new Map<
 					string,
-					{ categoryName: string; total: number; allocated: number; remaining: number }
+					{
+						categoryName: string;
+						total: number;
+						allocated: number;
+						remaining: number;
+					}
 				>();
 
 				for (let i = 0; i < categoryCount; i++) {
@@ -373,9 +434,33 @@ describe("Time Budget Utilities", () => {
 
 			for (const { parent, child } of problematicValues) {
 				const parentBudgets = new Map([
-					["cat1", { categoryName: "cat1", total: parent / 3, allocated: 0, remaining: parent / 3 }],
-					["cat2", { categoryName: "cat2", total: parent / 3, allocated: 0, remaining: parent / 3 }],
-					["cat3", { categoryName: "cat3", total: parent / 3, allocated: 0, remaining: parent / 3 }],
+					[
+						"cat1",
+						{
+							categoryName: "cat1",
+							total: parent / 3,
+							allocated: 0,
+							remaining: parent / 3,
+						},
+					],
+					[
+						"cat2",
+						{
+							categoryName: "cat2",
+							total: parent / 3,
+							allocated: 0,
+							remaining: parent / 3,
+						},
+					],
+					[
+						"cat3",
+						{
+							categoryName: "cat3",
+							total: parent / 3,
+							allocated: 0,
+							remaining: parent / 3,
+						},
+					],
 				]);
 
 				const result = fillAllocationsFromParent(parentBudgets, child);
@@ -512,7 +597,15 @@ describe("Time Budget Utilities", () => {
 		it("should exclude categories with zero hours after calculation", () => {
 			const parentBudgets = new Map([
 				["cat1", { categoryName: "cat1", total: 100, allocated: 0, remaining: 100 }],
-				["cat2", { categoryName: "cat2", total: 0.001, allocated: 0, remaining: 0.001 }], // Negligible amount
+				[
+					"cat2",
+					{
+						categoryName: "cat2",
+						total: 0.001,
+						allocated: 0,
+						remaining: 0.001,
+					},
+				], // Negligible amount
 			]);
 
 			const result = fillAllocationsFromParent(parentBudgets, 1);

@@ -1,4 +1,4 @@
-import type { SettingsUIBuilder } from "@real1ty-obsidian-plugins/utils";
+import type { SettingsUIBuilder } from "@real1ty-obsidian-plugins";
 import type { App } from "obsidian";
 import { Notice, Setting } from "obsidian";
 import { SETTINGS_DEFAULTS } from "../../constants";

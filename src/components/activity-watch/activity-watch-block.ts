@@ -69,7 +69,9 @@ export class ActivityWatchBlockRenderer extends MarkdownRenderChild {
 			this.renderHeader(el, data);
 			this.renderTable(el, data);
 
-			const pieChartContainer = el.createDiv({ cls: cls("pie-chart-container") });
+			const pieChartContainer = el.createDiv({
+				cls: cls("pie-chart-container"),
+			});
 			this.renderPieChart(pieChartContainer, data);
 			this.renderEnlargeButton(el);
 		} catch (error) {
@@ -140,7 +142,9 @@ export class ActivityWatchBlockRenderer extends MarkdownRenderChild {
 		const headerContent = th.createDiv({ cls: cls("sortable-header") });
 		headerContent.createSpan({ text: label });
 
-		const sortIndicator = headerContent.createSpan({ cls: cls("sort-indicator") });
+		const sortIndicator = headerContent.createSpan({
+			cls: cls("sort-indicator"),
+		});
 
 		if (this.sortColumn === column) {
 			addCls(headerContent, "sorted");
@@ -163,7 +167,9 @@ export class ActivityWatchBlockRenderer extends MarkdownRenderChild {
 				el.addClass(cls("activity-watch-block"));
 				this.renderHeader(el, this.data);
 				this.renderTable(el, this.data);
-				const pieChartContainer = el.createDiv({ cls: cls("pie-chart-container") });
+				const pieChartContainer = el.createDiv({
+					cls: cls("pie-chart-container"),
+				});
 				this.renderPieChart(pieChartContainer, this.data);
 				this.renderEnlargeButton(el);
 			}

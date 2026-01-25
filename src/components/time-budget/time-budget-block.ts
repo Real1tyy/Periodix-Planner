@@ -190,7 +190,9 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 			};
 			this.tableContainer = el;
 
-			const pieChartContainer = el.createDiv({ cls: cls("pie-chart-container") });
+			const pieChartContainer = el.createDiv({
+				cls: cls("pie-chart-container"),
+			});
 			this.tableInsertBefore = pieChartContainer;
 
 			this.renderAllocationTable();
@@ -262,8 +264,12 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 			);
 		}
 
-		const progressBar = summary.createDiv({ cls: cls("progress-bar-container") });
-		const progressFill = progressBar.createDiv({ cls: cls("progress-bar-fill") });
+		const progressBar = summary.createDiv({
+			cls: cls("progress-bar-container"),
+		});
+		const progressFill = progressBar.createDiv({
+			cls: cls("progress-bar-fill"),
+		});
 		progressFill.style.width = `${Math.min(percentage, 100)}%`;
 		if (percentage > overBudgetThreshold + EPSILON) {
 			addCls(progressFill, "over-budget");
@@ -297,7 +303,9 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		}
 
 		if (allocations.length === 0) {
-			const emptyEl = this.tableContainer.createDiv({ cls: cls("time-budget-empty") });
+			const emptyEl = this.tableContainer.createDiv({
+				cls: cls("time-budget-empty"),
+			});
 			emptyEl.setText("No time allocations yet. Click edit to add categories.");
 			if (this.tableInsertBefore) {
 				this.tableContainer.insertBefore(emptyEl, this.tableInsertBefore);
@@ -308,7 +316,9 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		const showParent = periodType !== "yearly";
 		const showChild = periodType !== "daily";
 
-		const table = this.tableContainer.createEl("table", { cls: cls("allocation-table") });
+		const table = this.tableContainer.createEl("table", {
+			cls: cls("allocation-table"),
+		});
 
 		if (this.tableInsertBefore) {
 			this.tableContainer.insertBefore(table, this.tableInsertBefore);
@@ -340,7 +350,9 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 			nameCell.createSpan({ text: category.name });
 
 			const percentage = totalHours > 0 ? (allocation.hours / totalHours) * 100 : 0;
-			row.createEl("td", { text: `${formatHours(allocation.hours)}h (${percentage.toFixed(1)}%)` });
+			row.createEl("td", {
+				text: `${formatHours(allocation.hours)}h (${percentage.toFixed(1)}%)`,
+			});
 
 			if (showParent) {
 				const parentBudget = parentBudgets.get(allocation.categoryName);
@@ -375,15 +387,24 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 
 			let hasIssue = false;
 			if (showParent && !parentBudget) {
-				statusCell.createSpan({ text: "⚠️ Parent category not set", cls: cls("status-over") });
+				statusCell.createSpan({
+					text: "⚠️ Parent category not set",
+					cls: cls("status-over"),
+				});
 				addCls(row, "over-budget-row");
 				hasIssue = true;
 			} else if (showParent && parentBudget && parentBudget.allocated > parentBudget.total + EPSILON) {
-				statusCell.createSpan({ text: "⚠️ Over parent", cls: cls("status-over") });
+				statusCell.createSpan({
+					text: "⚠️ Over parent",
+					cls: cls("status-over"),
+				});
 				addCls(row, "over-budget-row");
 				hasIssue = true;
 			} else if (showChild && childBudget && childBudget.allocated > childBudget.total + EPSILON) {
-				statusCell.createSpan({ text: "⚠️ Children over", cls: cls("status-over") });
+				statusCell.createSpan({
+					text: "⚠️ Children over",
+					cls: cls("status-over"),
+				});
 				addCls(row, "over-budget-row");
 				hasIssue = true;
 			}
@@ -399,7 +420,9 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		const headerContent = th.createDiv({ cls: cls("sortable-header") });
 		headerContent.createSpan({ text: label });
 
-		const sortIndicator = headerContent.createSpan({ cls: cls("sort-indicator") });
+		const sortIndicator = headerContent.createSpan({
+			cls: cls("sort-indicator"),
+		});
 
 		if (this.sortColumn === column) {
 			addCls(headerContent, "sorted");
@@ -479,8 +502,24 @@ export class TimeBudgetBlockRenderer extends MarkdownRenderChild {
 		periodType: PeriodType,
 		currentAllocations: TimeAllocation[],
 		totalHours: number,
-		parentBudgets: Map<string, { total: number; allocated: number; remaining: number; categoryName: string }>,
-		childBudgets: Map<string, { categoryName: string; total: number; allocated: number; remaining: number }>,
+		parentBudgets: Map<
+			string,
+			{
+				total: number;
+				allocated: number;
+				remaining: number;
+				categoryName: string;
+			}
+		>,
+		childBudgets: Map<
+			string,
+			{
+				categoryName: string;
+				total: number;
+				allocated: number;
+				remaining: number;
+			}
+		>,
 		categories: Category[]
 	): void {
 		const buttonContainer = el.createDiv({ cls: cls("edit-button-container") });

@@ -1,4 +1,4 @@
-import { WhatsNewModal, type WhatsNewModalConfig } from "@real1ty-obsidian-plugins/utils";
+import { WhatsNewModal, type WhatsNewModalConfig } from "@real1ty-obsidian-plugins";
 import { DateTime } from "luxon";
 import { Notice, Plugin, TFile } from "obsidian";
 import CHANGELOG_CONTENT from "../docs-site/docs/changelog.md";

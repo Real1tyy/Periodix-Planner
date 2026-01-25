@@ -168,7 +168,10 @@ export function fillAllocationsFromParent(
 			remaining -= 1;
 		});
 
-	const allocations = rows.map(({ categoryName, floor }) => ({ categoryName, hours: floor / 100 }));
+	const allocations = rows.map(({ categoryName, floor }) => ({
+		categoryName,
+		hours: floor / 100,
+	}));
 
 	// CRITICAL: Defensive clamping to ensure sum never exceeds childTotalHours
 	// This handles edge cases where floating point arithmetic might cause tiny overflows

@@ -1,4 +1,4 @@
-import type { SettingsUIBuilder } from "@real1ty-obsidian-plugins/utils";
+import type { SettingsUIBuilder } from "@real1ty-obsidian-plugins";
 import { Setting } from "obsidian";
 import { SETTINGS_DEFAULTS } from "../../constants";
 import type { PeriodicPlannerSettingsSchema } from "../../types";

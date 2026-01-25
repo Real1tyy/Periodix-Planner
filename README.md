@@ -48,7 +48,7 @@ Check out the [Screenshots Gallery](https://real1tyy.github.io/Periodix-Planner/
 
 Time is your scarcest resource. You can’t do everything — and most “planning” fails because it avoids the trade-offs.
 
-**Periodix-Planner** helps you plan *time*, not just tasks. It treats time like a finite investment portfolio:
+**Periodix-Planner** helps you plan _time_, not just tasks. It treats time like a finite investment portfolio:
 
 - You allocate hours into categories (work, learning, health, relationships, projects)
 - You observe where time actually goes over time
@@ -89,6 +89,7 @@ Year: "[[2025]]"
 ```
 
 **Navigation Links:**
+
 - `Previous` / `Next` → Navigate chronologically within the same period type
 - Hierarchical links → Jump from daily → weekly → monthly → quarterly → yearly
 
@@ -99,6 +100,7 @@ This creates a powerful **navigable web of time** that lets you zoom in and out 
 Define how many hours you have available and delegate them across categories (time investments), with budgets flowing down the hierarchy:
 
 #### Yearly Time Pool
+
 ```
 Total Hours/Year: 10,000 hours
 ├── YouTube:          2,000 hours (20%)
@@ -107,7 +109,9 @@ Total Hours/Year: 10,000 hours
 ```
 
 #### Cascading Allocation
+
 Time budgets flow down through the hierarchy:
+
 - **Yearly** → Define total category budgets
 - **Quarterly** → Allocate portions of yearly budgets (plugin tracks remaining)
 - **Monthly** → Allocate from quarterly budgets
@@ -115,6 +119,7 @@ Time budgets flow down through the hierarchy:
 - **Daily** → See available time and track actuals
 
 #### Smart Tracking
+
 - 🟢 **Within budget** → Green indicators
 - 🟡 **Approaching limit** → Yellow warnings
 - 🔴 **Over budget** → Red alerts with clear messaging
@@ -128,6 +133,7 @@ Time budgets flow down through the hierarchy:
 ### **Interactive Allocation Editor**
 
 Powerful modal for editing time allocations:
+
 - Drag-to-adjust percentage bars
 - Quick-fill buttons (10%, 25%, 50%, Max)
 - Custom percentage input
@@ -138,6 +144,7 @@ Powerful modal for editing time allocations:
 ### **ActivityWatch Integration**
 
 Automatically track and visualize your computer usage in daily notes:
+
 - **Automatic data collection** from ActivityWatch API
 - **Interactive visualizations** with pie charts and sortable tables
 - **Privacy-first** - all data stays local
@@ -163,16 +170,19 @@ See the [Installation Guide](https://real1tyy.github.io/Periodix-Planner/install
 ## Use Cases
 
 ### Personal Productivity
+
 - Plan your year with clear time investments
 - Track where your time actually goes
 - Balance work, health, and relationships
 
 ### Goal Achievement
+
 - Allocate dedicated hours to learning
 - Track progress toward time-based goals
 - Adjust allocations based on priorities
 
 ### Business Planning
+
 - Quarterly OKR time budgets
 - Project time allocation
 - Resource planning across time horizons

@@ -134,7 +134,11 @@ async function buildIndexedNote(
 	frontmatter: Record<string, unknown>,
 	vault: Vault,
 	settings: PeriodicPlannerSettings,
-	validatedData: { periodType: PeriodType; periodStart: DateTime; periodEnd: DateTime }
+	validatedData: {
+		periodType: PeriodType;
+		periodStart: DateTime;
+		periodEnd: DateTime;
+	}
 ): Promise<IndexedPeriodNote> {
 	const props = settings.properties;
 	const parentLinks = extractParentLinksFromFrontmatter(frontmatter, props);
@@ -210,7 +214,10 @@ export async function parseFileToNote(
 export function getParentFilePathsFromLinks(
 	note: IndexedPeriodNote
 ): Array<{ parentFilePath: string; childrenKey: keyof PeriodChildren }> {
-	const results: Array<{ parentFilePath: string; childrenKey: keyof PeriodChildren }> = [];
+	const results: Array<{
+		parentFilePath: string;
+		childrenKey: keyof PeriodChildren;
+	}> = [];
 	const childrenKey = PERIOD_CONFIG[note.periodType].childrenKey;
 	if (!childrenKey) return results;
 

@@ -1,4 +1,4 @@
-import { SettingsUIBuilder } from "@real1ty-obsidian-plugins/utils";
+import { SettingsUIBuilder } from "@real1ty-obsidian-plugins";
 import { type App, PluginSettingTab } from "obsidian";
 import type PeriodicPlannerPlugin from "../main";
 import type { PeriodicPlannerSettingsSchema } from "../types";
@@ -61,10 +61,14 @@ export class PeriodicPlannerSettingsTab extends PluginSettingTab {
 			});
 		}
 
-		this.sectionContainer = containerEl.createDiv({ cls: cls("settings-section-container") });
+		this.sectionContainer = containerEl.createDiv({
+			cls: cls("settings-section-container"),
+		});
 		this.renderSelectedSection();
 
-		const footerEl = containerEl.createDiv({ cls: `setting-item ${cls("settings-footer")}` });
+		const footerEl = containerEl.createDiv({
+			cls: `setting-item ${cls("settings-footer")}`,
+		});
 		const linksContainer = footerEl.createDiv(cls("settings-footer-links"));
 
 		linksContainer.createEl("a", {

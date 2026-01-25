@@ -1,4 +1,4 @@
-import type { SettingsUIBuilder } from "@real1ty-obsidian-plugins/utils";
+import type { SettingsUIBuilder } from "@real1ty-obsidian-plugins";
 import { Setting } from "obsidian";
 import { SETTINGS_DEFAULTS } from "../../constants";
 import type { SettingsStore } from "../../core/settings-store";
@@ -195,7 +195,9 @@ export class PeriodicSection implements SettingsSection {
 			yearly: weeklyHours * 52,
 		};
 
-		const infoEl = containerEl.createEl("div", { cls: cls("calculated-hours") });
+		const infoEl = containerEl.createEl("div", {
+			cls: cls("calculated-hours"),
+		});
 		infoEl.createEl("strong", { text: "Calculated hours from weekly budget:" });
 
 		const list = infoEl.createEl("ul");

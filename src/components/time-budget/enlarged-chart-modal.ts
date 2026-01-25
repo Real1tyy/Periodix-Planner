@@ -23,7 +23,9 @@ export class EnlargedChartModal extends Modal {
 		const header = contentEl.createDiv({ cls: cls("enlarged-chart-header") });
 		header.createEl("h2", { text: this.periodLabel });
 
-		const chartContainer = contentEl.createDiv({ cls: cls("enlarged-chart-container") });
+		const chartContainer = contentEl.createDiv({
+			cls: cls("enlarged-chart-container"),
+		});
 		this.pieChartRenderer = renderTimeBudgetPieChart(chartContainer, this.allocations, this.categories);
 	}
 

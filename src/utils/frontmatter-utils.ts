@@ -45,7 +45,13 @@ export function getActiveFileCache(app: App): { file: TFile; cache: CachedMetada
 export function extractParentLinksFromFrontmatter(
 	frontmatter: Record<string, unknown>,
 	props: PropertySettings
-): { parent?: string; week?: string; month?: string; quarter?: string; year?: string } {
+): {
+	parent?: string;
+	week?: string;
+	month?: string;
+	quarter?: string;
+	year?: string;
+} {
 	return {
 		parent: extractLinkTarget(frontmatter[props.parentProp]) ?? undefined,
 		week: extractLinkTarget(frontmatter[props.weekProp]) ?? undefined,

@@ -1,4 +1,4 @@
-import { createFromTemplate, isTemplaterAvailable } from "@real1ty-obsidian-plugins/utils";
+import { createFromTemplate, isTemplaterAvailable } from "@real1ty-obsidian-plugins";
 import type { App } from "obsidian";
 import { TFile } from "obsidian";
 import type { BehaviorSubject, Subscription } from "rxjs";

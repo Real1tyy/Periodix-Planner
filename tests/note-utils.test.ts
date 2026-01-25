@@ -703,11 +703,26 @@ describe("Note Utilities", () => {
 			const result = getParentFilePathsFromLinks(note);
 
 			expect(result).toHaveLength(5);
-			expect(result[0]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "days" });
-			expect(result[1]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "days" });
-			expect(result[2]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "days" });
-			expect(result[3]).toEqual({ parentFilePath: "2025-Q1.md", childrenKey: "days" });
-			expect(result[4]).toEqual({ parentFilePath: "2025.md", childrenKey: "days" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025-W01.md",
+				childrenKey: "days",
+			});
+			expect(result[1]).toEqual({
+				parentFilePath: "2025-W01.md",
+				childrenKey: "days",
+			});
+			expect(result[2]).toEqual({
+				parentFilePath: "2025-01.md",
+				childrenKey: "days",
+			});
+			expect(result[3]).toEqual({
+				parentFilePath: "2025-Q1.md",
+				childrenKey: "days",
+			});
+			expect(result[4]).toEqual({
+				parentFilePath: "2025.md",
+				childrenKey: "days",
+			});
 		});
 
 		it("should return parent links for weekly note with childrenKey 'weeks'", () => {
@@ -723,11 +738,26 @@ describe("Note Utilities", () => {
 
 			expect(result).toHaveLength(5);
 			expect(result.every((r) => r.childrenKey === "weeks")).toBe(true);
-			expect(result[0]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
-			expect(result[1]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "weeks" });
-			expect(result[2]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
-			expect(result[3]).toEqual({ parentFilePath: "2025-Q1.md", childrenKey: "weeks" });
-			expect(result[4]).toEqual({ parentFilePath: "2025.md", childrenKey: "weeks" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025-01.md",
+				childrenKey: "weeks",
+			});
+			expect(result[1]).toEqual({
+				parentFilePath: "2025-W01.md",
+				childrenKey: "weeks",
+			});
+			expect(result[2]).toEqual({
+				parentFilePath: "2025-01.md",
+				childrenKey: "weeks",
+			});
+			expect(result[3]).toEqual({
+				parentFilePath: "2025-Q1.md",
+				childrenKey: "weeks",
+			});
+			expect(result[4]).toEqual({
+				parentFilePath: "2025.md",
+				childrenKey: "weeks",
+			});
 		});
 
 		it("should return parent links for monthly note with childrenKey 'months'", () => {
@@ -743,7 +773,10 @@ describe("Note Utilities", () => {
 
 			expect(result).toHaveLength(5);
 			expect(result.every((r) => r.childrenKey === "months")).toBe(true);
-			expect(result[0]).toEqual({ parentFilePath: "2025-Q1.md", childrenKey: "months" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025-Q1.md",
+				childrenKey: "months",
+			});
 		});
 
 		it("should return parent links for quarterly note with childrenKey 'quarters'", () => {
@@ -759,7 +792,10 @@ describe("Note Utilities", () => {
 
 			expect(result).toHaveLength(5);
 			expect(result.every((r) => r.childrenKey === "quarters")).toBe(true);
-			expect(result[0]).toEqual({ parentFilePath: "2025.md", childrenKey: "quarters" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025.md",
+				childrenKey: "quarters",
+			});
 		});
 
 		it("should only return links that exist", () => {
@@ -771,8 +807,14 @@ describe("Note Utilities", () => {
 			const result = getParentFilePathsFromLinks(note);
 
 			expect(result).toHaveLength(2);
-			expect(result[0]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
-			expect(result[1]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025-01.md",
+				childrenKey: "weeks",
+			});
+			expect(result[1]).toEqual({
+				parentFilePath: "2025-01.md",
+				childrenKey: "weeks",
+			});
 		});
 
 		it("should return empty array when no parent links exist", () => {
@@ -819,7 +861,10 @@ describe("Note Utilities", () => {
 			const result = getParentFilePathsFromLinks(note);
 
 			expect(result).toHaveLength(1);
-			expect(result[0]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "days" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025-W01.md",
+				childrenKey: "days",
+			});
 		});
 
 		it("should handle only week link", () => {
@@ -830,7 +875,10 @@ describe("Note Utilities", () => {
 			const result = getParentFilePathsFromLinks(note);
 
 			expect(result).toHaveLength(1);
-			expect(result[0]).toEqual({ parentFilePath: "2025-W01.md", childrenKey: "days" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025-W01.md",
+				childrenKey: "days",
+			});
 		});
 
 		it("should handle only month link", () => {
@@ -841,7 +889,10 @@ describe("Note Utilities", () => {
 			const result = getParentFilePathsFromLinks(note);
 
 			expect(result).toHaveLength(1);
-			expect(result[0]).toEqual({ parentFilePath: "2025-01.md", childrenKey: "weeks" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025-01.md",
+				childrenKey: "weeks",
+			});
 		});
 
 		it("should handle only quarter link", () => {
@@ -852,7 +903,10 @@ describe("Note Utilities", () => {
 			const result = getParentFilePathsFromLinks(note);
 
 			expect(result).toHaveLength(1);
-			expect(result[0]).toEqual({ parentFilePath: "2025-Q1.md", childrenKey: "months" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025-Q1.md",
+				childrenKey: "months",
+			});
 		});
 
 		it("should handle only year link", () => {
@@ -863,7 +917,10 @@ describe("Note Utilities", () => {
 			const result = getParentFilePathsFromLinks(note);
 
 			expect(result).toHaveLength(1);
-			expect(result[0]).toEqual({ parentFilePath: "2025.md", childrenKey: "quarters" });
+			expect(result[0]).toEqual({
+				parentFilePath: "2025.md",
+				childrenKey: "quarters",
+			});
 		});
 
 		it("should handle duplicate parent links (same link in multiple fields)", () => {

@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+
+# Build outputs
+main.js
+dist/
+build/
+coverage/
+
+# Documentation site
+docs-site/build/
+docs-site/node_modules/
+docs-site/.docusaurus/
+docs-site/.cache/
+
+# Generated files
+*.d.ts
+.eslintcache
+
+# Obsidian
+.obsidian/
+
+# Misc
+.DS_Store
+*.log
