@@ -41,7 +41,13 @@ export default tseslint.config(
 			},
 			parserOptions: {
 				projectService: {
-					allowDefaultProject: ["eslint.config.mjs", ".prettierrc.mjs", "vitest.config.ts", "version-bump.mjs", "esbuild.config.mjs"],
+					allowDefaultProject: [
+						"eslint.config.mjs",
+						".prettierrc.mjs",
+						"vitest.config.ts",
+						"version-bump.mjs",
+						"esbuild.config.mjs",
+					],
 					defaultProject: "tsconfig.json",
 				},
 				tsconfigRootDir: import.meta.dirname,

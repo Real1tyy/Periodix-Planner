@@ -1,6 +1,5 @@
 import type { ItemView } from "obsidian";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AbstractCtor<T = Record<string, never>> = abstract new (...args: any[]) => T;
 
 export function MountableView<TBase extends AbstractCtor<ItemView>>(Base: TBase, prefix?: string) {

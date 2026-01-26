@@ -75,11 +75,11 @@ export function setupMockImplementation(
 ) {
 	if (mockName in mockFileOperations) {
 		const mock = mockFileOperations[mockName as keyof typeof mockFileOperations];
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		(mock as any).mockImplementation(implementation);
 	} else if (mockName in mockLinkParser) {
 		const mock = mockLinkParser[mockName as keyof typeof mockLinkParser];
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		(mock as any).mockImplementation(implementation);
 	}
 }
@@ -91,11 +91,11 @@ export function setupMockReturnValue(
 ) {
 	if (mockName in mockFileOperations) {
 		const mock = mockFileOperations[mockName as keyof typeof mockFileOperations];
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		(mock as any).mockReturnValue(value);
 	} else if (mockName in mockLinkParser) {
 		const mock = mockLinkParser[mockName as keyof typeof mockLinkParser];
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		(mock as any).mockReturnValue(value);
 	}
 }
