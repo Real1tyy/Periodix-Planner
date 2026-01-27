@@ -116,7 +116,7 @@ export default class PeriodicPlannerPlugin extends Plugin {
 			});
 		}
 
-		this.indexer = new PeriodicNoteIndexer(this.app, this.settingsStore.settings$);
+		this.indexer = new PeriodicNoteIndexer(this.app, this.settingsStore.settings$, this.syncStore);
 		this.templateService = new TemplateService(this.app, this.settingsStore.settings$);
 		this.autoGenerator = new AutoGenerator(
 			this.app,

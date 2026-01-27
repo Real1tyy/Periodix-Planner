@@ -1,3 +1,4 @@
+import { SyncStore } from "@real1ty-obsidian-plugins";
 import { type App, type MetadataCache, type TAbstractFile, TFile, type Vault } from "obsidian";
 import {
 	type BehaviorSubject,
@@ -14,6 +15,7 @@ import {
 import { debounceTime, filter, groupBy, map, mergeMap, switchMap, toArray } from "rxjs/operators";
 import { PERIOD_TYPES } from "../constants";
 import type { IndexedPeriodNote, PeriodicPlannerSettings } from "../types";
+import { PeriodixSyncDataSchema } from "../types";
 import { injectActivityWatchContent } from "../utils/activity-watch";
 import { parseFileToNote, updateHoursSpentInFrontmatter } from "../utils/note-utils";
 
@@ -47,7 +49,11 @@ export class PeriodicNoteIndexer {
 	public readonly events$: Observable<IndexerEvent>;
 	public readonly indexingComplete$: Observable<boolean>;
 
-	constructor(app: App, settingsStore: BehaviorSubject<PeriodicPlannerSettings>) {
+	constructor(
+		app: App,
+		settingsStore: BehaviorSubject<PeriodicPlannerSettings>,
+		private syncStore: SyncStore<typeof PeriodixSyncDataSchema>
+	) {
 		this.app = app;
 		this.vault = app.vault;
 		this.metadataCache = app.metadataCache;
@@ -220,7 +226,7 @@ export class PeriodicNoteIndexer {
 		const note = await parseFileToNote(file, frontmatter, this.vault, this.settings, this.app);
 		if (!note) return [];
 
-		if (!this.settings.generation.readOnly) {
+		if (!this.syncStore.data.readOnly) {
 			await updateHoursSpentInFrontmatter(this.app, file, note.hoursSpent, this.settings.properties.hoursSpentProp);
 
 			if (note.periodType === PERIOD_TYPES.DAILY) {

@@ -13,7 +13,6 @@ import {
 } from "../src/utils/period-navigation";
 
 const allEnabledSettings: GenerationSettings = {
-	readOnly: false,
 	autoGenerateOnLoad: false,
 	generatePeriodsAhead: 1,
 	startingPeriodDate: "",

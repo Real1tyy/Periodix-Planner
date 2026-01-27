@@ -44,7 +44,6 @@ export const createMockSettings = (overrides?: Partial<PeriodicPlannerSettings>)
 		periodEndProp: SETTINGS_DEFAULTS.PERIOD_END_PROP,
 	},
 	generation: {
-		readOnly: false,
 		autoGenerateOnLoad: false,
 		generatePeriodsAhead: 1,
 		startingPeriodDate: "",
