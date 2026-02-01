@@ -1,3 +1,7 @@
+// API gateway
+export * from "./api-gateway";
+// Command pattern
+export * from "./commands";
 // View component
 export * from "./mountable-view";
 // Async utilities

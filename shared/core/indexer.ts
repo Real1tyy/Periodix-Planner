@@ -5,13 +5,13 @@ import {
 	fromEventPattern,
 	lastValueFrom,
 	merge,
-	type Observable,
+	Observable,
 	of,
 	BehaviorSubject as RxBehaviorSubject,
 	Subject,
 	type Subscription,
 } from "rxjs";
-import { debounceTime, filter, groupBy, map, mergeMap, switchMap, toArray } from "rxjs/operators";
+import { debounceTime, filter, groupBy, map, mergeMap, toArray } from "rxjs/operators";
 import { compareFrontmatter, type FrontmatterDiff } from "../file/frontmatter-diff";
 
 /**
@@ -78,7 +78,7 @@ export interface IndexerEvent {
 	isRename?: boolean;
 }
 
-type VaultEvent = "create" | "modify" | "delete" | "rename";
+type VaultEvent = "create" | "delete" | "rename";
 
 type FileIntent =
 	| { kind: "changed"; file: TFile; path: string; oldPath?: string }
@@ -159,37 +159,37 @@ export class Indexer {
 	}
 
 	/**
-	 * Scan all markdown files in the configured directory
+	 * Scan all markdown files in the configured directory.
 	 */
 	private async scanAllFiles(): Promise<void> {
-		const allFiles = this.vault.getMarkdownFiles();
-		const relevantFiles = allFiles.filter((file) => this.config.includeFile(file.path));
-
-		const events$ = from(relevantFiles).pipe(
-			mergeMap(async (file) => {
-				try {
-					return await this.buildEvent(file);
-				} catch (error) {
-					console.error(`Error processing file ${file.path}:`, error);
-					return null;
-				}
-			}, this.config.scanConcurrency),
-			filter((event): event is IndexerEvent => event !== null),
-			toArray()
-		);
-
 		try {
-			const allEvents = await lastValueFrom(events$);
+			const allFiles = this.vault.getMarkdownFiles();
+			const files = allFiles.filter((file) => this.config.includeFile(file.path));
 
-			for (const event of allEvents) {
-				this.scanEventsSubject.next(event);
+			const results$ = from(files).pipe(
+				mergeMap(async (file) => {
+					try {
+						return await this.buildEvent(file);
+					} catch (error) {
+						console.error(`Error processing file ${file.path}:`, error);
+						return null;
+					}
+				}, this.config.scanConcurrency),
+				toArray()
+			);
+
+			const results = await lastValueFrom(results$, { defaultValue: [] });
+
+			for (const event of results) {
+				if (event) {
+					this.scanEventsSubject.next(event);
+				}
 			}
-
-			this.indexingCompleteSubject.next(true);
 		} catch (error) {
 			console.error("❌ Error during file scanning:", error);
-			this.indexingCompleteSubject.next(true);
 		}
+
+		this.indexingCompleteSubject.next(true);
 	}
 
 	/**
@@ -200,13 +200,6 @@ export class Indexer {
 			return fromEventPattern<TAbstractFile>(
 				(handler) => this.vault.on("create", handler),
 				(handler) => this.vault.off("create", handler)
-			);
-		}
-
-		if (eventName === "modify") {
-			return fromEventPattern<TAbstractFile>(
-				(handler) => this.vault.on("modify", handler),
-				(handler) => this.vault.off("modify", handler)
 			);
 		}
 
@@ -222,6 +215,22 @@ export class Indexer {
 			(handler) => this.vault.on("rename", handler),
 			(handler) => this.vault.off("rename", handler)
 		).pipe(map(([file]) => file));
+	}
+
+	/**
+	 * Create an observable from metadataCache "changed" events.
+	 * Unlike vault.on("modify"), this fires AFTER the metadata cache has been
+	 * updated for the file, guaranteeing that getFileCache() returns fresh frontmatter.
+	 */
+	private fromMetadataCacheChanged(): Observable<TFile> {
+		return new Observable<TFile>((subscriber) => {
+			const ref = this.metadataCache.on("changed", (file: TFile) => {
+				subscriber.next(file);
+			});
+			return () => {
+				this.metadataCache.offref(ref);
+			};
+		});
 	}
 
 	private static isMarkdownFile(f: TAbstractFile): f is TFile {
@@ -251,11 +260,19 @@ export class Indexer {
 	}
 
 	/**
-	 * Build the file system events observable stream
+	 * Build the file system events observable stream.
+	 *
+	 * Uses metadataCache "changed" instead of vault "modify" to detect file changes.
+	 * vault.on("modify") fires BEFORE the metadata cache updates, which causes stale
+	 * frontmatter reads during batch operations. metadataCache "changed" fires AFTER
+	 * the cache is updated, guaranteeing getFileCache() returns fresh data.
+	 *
+	 * vault.on("create") is kept as a safety net for new files (metadataCache "changed"
+	 * also covers these, and the debounce deduplicates).
 	 */
 	private buildFileSystemEvents$(): Observable<IndexerEvent> {
 		const created$ = this.fromVaultEvent("create").pipe(this.toRelevantFiles());
-		const modified$ = this.fromVaultEvent("modify").pipe(this.toRelevantFiles());
+		const metadataChanged$ = this.fromMetadataCacheChanged().pipe(this.toRelevantFiles());
 		const deleted$ = this.fromVaultEvent("delete").pipe(this.toRelevantFiles());
 
 		const renamed$ = fromEventPattern<[TAbstractFile, string]>(
@@ -263,7 +280,7 @@ export class Indexer {
 			(handler) => this.vault.off("rename", handler)
 		);
 
-		const changedIntents$ = merge(created$, modified$).pipe(
+		const changedIntents$ = merge(created$, metadataChanged$).pipe(
 			this.debounceByPath(this.config.debounceMs, (f) => f.path),
 			map((file): FileIntent => ({ kind: "changed", file, path: file.path }))
 		);
@@ -281,8 +298,11 @@ export class Indexer {
 
 		const intents$ = merge(changedIntents$, deletedIntents$, renamedIntents$);
 
+		// CRITICAL: Use mergeMap instead of switchMap to prevent cancellation
+		// switchMap would cancel in-flight buildEvent() when new intents arrive,
+		// causing events to be lost. mergeMap processes all intents concurrently.
 		return intents$.pipe(
-			switchMap((intent) => {
+			mergeMap((intent) => {
 				if (intent.kind === "deleted") {
 					this.frontmatterCache.delete(intent.path);
 					return of<IndexerEvent>({
@@ -293,7 +313,7 @@ export class Indexer {
 				}
 
 				return from(this.buildEvent(intent.file, intent.oldPath)).pipe(filter((e): e is IndexerEvent => e !== null));
-			})
+			}, this.config.scanConcurrency)
 		);
 	}
 
