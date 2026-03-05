@@ -116,8 +116,9 @@ views:
   name: Daily Tasks
   order: - file.name - Date
   filters:
-  and: - file.inFolder("Tasks") - Date > "2026-01-15" - Date < "2026-01-16"
-  sort: - Date: desc
+  and: - file.inFolder("Tasks") - note["Date"] > "2026-01-15" - note["Date"] < "2026-01-16"
+  sort: - property: note["Date"]
+  direction: DESC
   \`\`\`
 ```
 

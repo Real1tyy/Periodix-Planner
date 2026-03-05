@@ -82,6 +82,6 @@ ${hierarchyFilter}`;
 		const linkKey = PERIOD_CONFIG[this.parent.periodType].linkKey;
 		const propKey = linkKey ? (`${linkKey}Prop` as keyof PropertySettings) : null;
 		const hierarchyProp = propKey ? this.properties[propKey] : this.properties.parentProp;
-		return `    - ${hierarchyProp} == ["[[${filePath}|${noteName}]]"]`;
+		return `    - note["${hierarchyProp}"] == ["[[${filePath}|${noteName}]]"]`;
 	}
 }

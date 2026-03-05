@@ -8,6 +8,14 @@ All notable changes to this project will be documented here.
 
 ---
 
+## 1.8.0 - 2026-03-05
+
+### Fixed
+
+- **Bases property syntax**: All property references in Bases queries now use the `note["Property"]` bracket notation, which fixes filtering for multi-word property names (e.g., "Sort Date"). See [Bases Integration](/features/bases-integration).
+
+---
+
 ## 1.7.0 - 2026-01-27
 
 ### Changed

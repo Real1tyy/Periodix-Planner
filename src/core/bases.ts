@@ -16,6 +16,7 @@ export function generateBasesMarkdown(options: BasesMarkdownOptions): string {
 	const { periodType, periodStart, periodEnd, settings } = options;
 	const { tasksDirectory, dateProperty, propertiesToShow, dateColumnSize } = settings;
 
+	const noteProp = `note["${dateProperty}"]`;
 	const orderSection = buildOrderSection(propertiesToShow, dateProperty);
 
 	const { start: startDateWithoutTz, end: endDateWithoutTz } = formatPeriodIntervalForBases(periodStart, periodEnd);
@@ -28,13 +29,13 @@ views:
     filters:
       and:
         - file.inFolder("${tasksDirectory}")
-        - ${dateProperty} > "${startDateWithoutTz}"
-        - ${dateProperty} < "${endDateWithoutTz}"
+        - ${noteProp} > "${startDateWithoutTz}"
+        - ${noteProp} < "${endDateWithoutTz}"
     sort:
-      - property: ${dateProperty}
+      - property: ${noteProp}
         direction: DESC
     columnSize:
-      note.${dateProperty}: ${dateColumnSize}
+      ${noteProp}: ${dateColumnSize}
 \`\`\`
 `;
 }
