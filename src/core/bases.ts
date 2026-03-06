@@ -41,23 +41,19 @@ views:
 }
 
 function buildOrderSection(propertiesToShow: string, dateProperty: string): string {
-	const properties = new Set<string>();
+	const props = [
+		"file.name",
+		`note["${dateProperty}"]`,
+		...(propertiesToShow
+			? propertiesToShow
+					.split(",")
+					.map((p) => p.trim())
+					.filter(Boolean)
+					.map((p) => `note["${p}"]`)
+			: []),
+	];
 
-	properties.add("file.name");
-	properties.add(dateProperty);
-	if (propertiesToShow && propertiesToShow.trim() !== "") {
-		const userProperties = propertiesToShow
-			.split(",")
-			.map((p) => p.trim())
-			.filter((p) => p.length > 0);
-		for (const prop of userProperties) {
-			properties.add(prop);
-		}
-	}
-	const orderArray = Array.from(properties)
-		.map((prop) => `      - ${prop}`)
-		.join("\n");
 	return `
     order:
-${orderArray}`;
+${props.map((p) => `      - ${p}`).join("\n")}`;
 }

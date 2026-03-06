@@ -104,8 +104,7 @@ ${viewBlocks.join("\n")}
 					.filter((prop) => prop.length > 0)
 			: [];
 
-		const baseOrderProperties = [
-			"file.name",
+		const noteProps = [
 			...(includeAllPeriods ? [props.periodTypeProp] : []),
 			props.parentProp,
 			props.nextProp,
@@ -113,9 +112,11 @@ ${viewBlocks.join("\n")}
 			props.hoursAvailableProp,
 			props.hoursSpentProp,
 			...additionalProperties,
-		];
+		].map((prop) => `note["${prop}"]`);
 
-		return baseOrderProperties.map((prop) => `      - ${prop}`).join("\n");
+		const allProperties = ["file.name", ...noteProps];
+
+		return allProperties.map((prop) => `      - ${prop}`).join("\n");
 	}
 
 	protected abstract getModalCssClass(): string;
