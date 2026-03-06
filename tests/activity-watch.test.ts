@@ -3,12 +3,8 @@ import type { App, CachedMetadata, MetadataCache, TFile, Vault } from "obsidian"
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PERIOD_TYPES, SETTINGS_DEFAULTS } from "../src/constants";
 import { ActivityWatchService } from "../src/services/activity-watch";
-import {
-	hasActivityWatchHeading,
-	injectActivityWatchContent,
-	isInPast,
-	processAllDailyNotesForActivityWatch,
-} from "../src/utils/activity-watch";
+import { ActivityWatchInjector } from "../src/utils/activity-watch";
+import { hasHeading, isInPast } from "../src/utils/integration-shared";
 import { createMockSettings } from "./test-helpers";
 
 vi.mock("../src/services/activity-watch");
@@ -33,6 +29,7 @@ describe("ActivityWatch Utils", () => {
 				frontmatter: {
 					[SETTINGS_DEFAULTS.PERIOD_TYPE_PROP]: PERIOD_TYPES.DAILY,
 					[SETTINGS_DEFAULTS.PERIOD_START_PROP]: "2025-12-18T00:00:00.000Z",
+					[SETTINGS_DEFAULTS.PERIOD_END_PROP]: "2025-12-18T23:59:59.000Z",
 				},
 			} as CachedMetadata),
 		} as unknown as MetadataCache;
@@ -82,12 +79,12 @@ describe("ActivityWatch Utils", () => {
 		});
 	});
 
-	describe("hasActivityWatchHeading", () => {
+	describe("hasHeading", () => {
 		it("should return true when heading exists in file", async () => {
 			const app = createMockApp("# Daily Note\n\n## ActivityWatch\n\nSome content");
 			const file = createMockFile("Periodic/Daily/18-12-2025.md");
 
-			const result = await hasActivityWatchHeading(app, file, "## ActivityWatch");
+			const result = await hasHeading(app, file, "## ActivityWatch");
 
 			expect(result).toBe(true);
 			expect(app.vault.read).toHaveBeenCalledWith(file);
@@ -97,7 +94,7 @@ describe("ActivityWatch Utils", () => {
 			const app = createMockApp("# Daily Note\n\nSome content");
 			const file = createMockFile("Periodic/Daily/18-12-2025.md");
 
-			const result = await hasActivityWatchHeading(app, file, "## ActivityWatch");
+			const result = await hasHeading(app, file, "## ActivityWatch");
 
 			expect(result).toBe(false);
 		});
@@ -106,7 +103,7 @@ describe("ActivityWatch Utils", () => {
 			const app = createMockApp("");
 			const file = createMockFile("Periodic/Daily/18-12-2025.md");
 
-			const result = await hasActivityWatchHeading(app, file, "## ActivityWatch");
+			const result = await hasHeading(app, file, "## ActivityWatch");
 
 			expect(result).toBe(false);
 		});
@@ -115,7 +112,7 @@ describe("ActivityWatch Utils", () => {
 			const app = createMockApp("# Daily Note\n\n## activitywatch\n\nSome content");
 			const file = createMockFile("Periodic/Daily/18-12-2025.md");
 
-			const result = await hasActivityWatchHeading(app, file, "## ActivityWatch");
+			const result = await hasHeading(app, file, "## ActivityWatch");
 
 			expect(result).toBe(false);
 		});
@@ -124,13 +121,13 @@ describe("ActivityWatch Utils", () => {
 			const app = createMockApp("# Daily Note\n\n## Time Tracking\n\nSome content");
 			const file = createMockFile("Periodic/Daily/18-12-2025.md");
 
-			const result = await hasActivityWatchHeading(app, file, "## Time Tracking");
+			const result = await hasHeading(app, file, "## Time Tracking");
 
 			expect(result).toBe(true);
 		});
 	});
 
-	describe("injectActivityWatchContent", () => {
+	describe("ActivityWatchInjector.inject", () => {
 		beforeEach(() => {
 			vi.mocked(ActivityWatchService).mockClear();
 		});
@@ -141,41 +138,51 @@ describe("ActivityWatch Utils", () => {
 			const file = createMockFile("Periodic/Daily/18-12-2025.md");
 			const date = DateTime.fromISO("2025-12-18");
 
-			await injectActivityWatchContent(app, file, date, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.inject(file, date, date, PERIOD_TYPES.DAILY);
 
 			expect(app.vault.read).not.toHaveBeenCalled();
 			expect(app.vault.modify).not.toHaveBeenCalled();
 		});
 
 		it("should not inject when heading already exists", async () => {
-			const settings = createMockSettings();
+			const settings = createMockSettings({
+				activityWatch: enabledActivityWatchSettings,
+			});
 			const app = createMockApp("# Daily\n\n## ActivityWatch\n\nExisting content");
 			const file = createMockFile("Periodic/Daily/18-12-2025.md");
 			const date = DateTime.fromISO("2025-12-18");
 
-			await injectActivityWatchContent(app, file, date, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.inject(file, date, date, PERIOD_TYPES.DAILY);
 
 			expect(app.vault.modify).not.toHaveBeenCalled();
 		});
 
 		it("should not inject for today", async () => {
-			const settings = createMockSettings();
+			const settings = createMockSettings({
+				activityWatch: enabledActivityWatchSettings,
+			});
 			const app = createMockApp("# Daily");
 			const file = createMockFile("Periodic/Daily/today.md");
 			const today = DateTime.now().startOf("day");
 
-			await injectActivityWatchContent(app, file, today, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.inject(file, today, today, PERIOD_TYPES.DAILY);
 
 			expect(app.vault.modify).not.toHaveBeenCalled();
 		});
 
 		it("should not inject for future dates", async () => {
-			const settings = createMockSettings();
+			const settings = createMockSettings({
+				activityWatch: enabledActivityWatchSettings,
+			});
 			const app = createMockApp("# Daily");
 			const file = createMockFile("Periodic/Daily/future.md");
 			const future = DateTime.now().plus({ days: 1 }).startOf("day");
 
-			await injectActivityWatchContent(app, file, future, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.inject(file, future, future, PERIOD_TYPES.DAILY);
 
 			expect(app.vault.modify).not.toHaveBeenCalled();
 		});
@@ -201,7 +208,8 @@ describe("ActivityWatch Utils", () => {
 				"**Total Active Time:** 3.00 hours\n\n```\nobsidian    7200s\n```"
 			);
 
-			await injectActivityWatchContent(app, file, yesterday, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.inject(file, yesterday, yesterday, PERIOD_TYPES.DAILY);
 
 			expect(mockService.getDailyAppUsage).toHaveBeenCalledWith(yesterday);
 			expect(app.vault.modify).toHaveBeenCalledWith(file, expect.stringContaining("## ActivityWatch"));
@@ -224,7 +232,8 @@ describe("ActivityWatch Utils", () => {
 			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as unknown as ActivityWatchService);
 			vi.spyOn(ActivityWatchService, "generateActivityWatchCodeBlock").mockReturnValue("No data");
 
-			await injectActivityWatchContent(app, file, yesterday, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.inject(file, yesterday, yesterday, PERIOD_TYPES.DAILY);
 
 			expect(app.vault.modify).toHaveBeenCalledWith(file, expect.stringContaining("## My Custom Heading"));
 		});
@@ -243,7 +252,8 @@ describe("ActivityWatch Utils", () => {
 			};
 			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as unknown as ActivityWatchService);
 
-			await injectActivityWatchContent(app, file, yesterday, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.inject(file, yesterday, yesterday, PERIOD_TYPES.DAILY);
 
 			expect(app.vault.modify).not.toHaveBeenCalled();
 			expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -255,12 +265,13 @@ describe("ActivityWatch Utils", () => {
 		});
 	});
 
-	describe("processAllDailyNotesForActivityWatch", () => {
+	describe("ActivityWatchInjector.processAllNotes", () => {
 		it("should skip processing when ActivityWatch is disabled", async () => {
 			const settings = createMockSettings();
 			const app = createMockApp();
 
-			await processAllDailyNotesForActivityWatch(app, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.processAllNotes();
 
 			expect(app.vault.getMarkdownFiles).not.toHaveBeenCalled();
 		});
@@ -276,7 +287,8 @@ describe("ActivityWatch Utils", () => {
 			];
 			const app = createMockApp("# Note", files);
 
-			await processAllDailyNotesForActivityWatch(app, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.processAllNotes();
 
 			expect(app.metadataCache.getFileCache).toHaveBeenCalledTimes(1);
 			expect(app.metadataCache.getFileCache).toHaveBeenCalledWith(files[0]);
@@ -290,7 +302,8 @@ describe("ActivityWatch Utils", () => {
 			const app = createMockApp("# Note", files);
 			vi.mocked(app.metadataCache.getFileCache).mockReturnValue(null);
 
-			await processAllDailyNotesForActivityWatch(app, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.processAllNotes();
 
 			expect(app.vault.read).not.toHaveBeenCalled();
 		});
@@ -305,10 +318,12 @@ describe("ActivityWatch Utils", () => {
 				frontmatter: {
 					[SETTINGS_DEFAULTS.PERIOD_TYPE_PROP]: PERIOD_TYPES.WEEKLY,
 					[SETTINGS_DEFAULTS.PERIOD_START_PROP]: "2025-12-18T00:00:00.000Z",
+					[SETTINGS_DEFAULTS.PERIOD_END_PROP]: "2025-12-18T23:59:59.000Z",
 				},
 			} as CachedMetadata);
 
-			await processAllDailyNotesForActivityWatch(app, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.processAllNotes();
 
 			expect(app.vault.read).not.toHaveBeenCalled();
 		});
@@ -325,7 +340,8 @@ describe("ActivityWatch Utils", () => {
 				},
 			} as CachedMetadata);
 
-			await processAllDailyNotesForActivityWatch(app, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.processAllNotes();
 
 			expect(app.vault.read).not.toHaveBeenCalled();
 		});
@@ -340,10 +356,12 @@ describe("ActivityWatch Utils", () => {
 				frontmatter: {
 					[SETTINGS_DEFAULTS.PERIOD_TYPE_PROP]: PERIOD_TYPES.DAILY,
 					[SETTINGS_DEFAULTS.PERIOD_START_PROP]: "invalid-date",
+					[SETTINGS_DEFAULTS.PERIOD_END_PROP]: "invalid-date",
 				},
 			} as CachedMetadata);
 
-			await processAllDailyNotesForActivityWatch(app, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.processAllNotes();
 
 			expect(app.vault.read).not.toHaveBeenCalled();
 		});
@@ -354,12 +372,13 @@ describe("ActivityWatch Utils", () => {
 			});
 			const files = [createMockFile("Periodic/Daily/17-12-2025.md"), createMockFile("Periodic/Daily/16-12-2025.md")];
 			const app = createMockApp("# Note", files);
-			const yesterday = DateTime.now().minus({ days: 1 }).startOf("day").toISO();
+			const yesterday = DateTime.now().minus({ days: 1 }).startOf("day");
 
 			vi.mocked(app.metadataCache.getFileCache).mockReturnValue({
 				frontmatter: {
 					[SETTINGS_DEFAULTS.PERIOD_TYPE_PROP]: PERIOD_TYPES.DAILY,
-					[SETTINGS_DEFAULTS.PERIOD_START_PROP]: yesterday,
+					[SETTINGS_DEFAULTS.PERIOD_START_PROP]: yesterday.toISO(),
+					[SETTINGS_DEFAULTS.PERIOD_END_PROP]: yesterday.endOf("day").toISO(),
 				},
 			} as CachedMetadata);
 
@@ -369,9 +388,9 @@ describe("ActivityWatch Utils", () => {
 			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as unknown as ActivityWatchService);
 			vi.spyOn(ActivityWatchService, "generateActivityWatchCodeBlock").mockReturnValue("No data");
 
-			await processAllDailyNotesForActivityWatch(app, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.processAllNotes();
 
-			// Each file: read once for heading check, once for content before modification
 			expect(app.vault.read).toHaveBeenCalledTimes(4);
 		});
 
@@ -383,6 +402,7 @@ describe("ActivityWatch Utils", () => {
 			const app = createMockApp("# Note", files);
 			const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
+			const yesterday = DateTime.now().minus({ days: 1 });
 			let callCount = 0;
 			vi.mocked(app.metadataCache.getFileCache).mockImplementation(() => {
 				callCount++;
@@ -392,7 +412,8 @@ describe("ActivityWatch Utils", () => {
 				return {
 					frontmatter: {
 						[SETTINGS_DEFAULTS.PERIOD_TYPE_PROP]: PERIOD_TYPES.DAILY,
-						[SETTINGS_DEFAULTS.PERIOD_START_PROP]: DateTime.now().minus({ days: 1 }).toISO(),
+						[SETTINGS_DEFAULTS.PERIOD_START_PROP]: yesterday.toISO(),
+						[SETTINGS_DEFAULTS.PERIOD_END_PROP]: yesterday.endOf("day").toISO(),
 					},
 				} as CachedMetadata;
 			});
@@ -403,10 +424,10 @@ describe("ActivityWatch Utils", () => {
 			vi.mocked(ActivityWatchService).mockImplementation(() => mockService as unknown as ActivityWatchService);
 			vi.spyOn(ActivityWatchService, "generateActivityWatchCodeBlock").mockReturnValue("No data");
 
-			await processAllDailyNotesForActivityWatch(app, settings);
+			const injector = new ActivityWatchInjector(app, settings);
+			await injector.processAllNotes();
 
 			expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining("Error processing"), expect.any(Error));
-			// Second file processes successfully: read once for heading, once for content
 			expect(app.vault.read).toHaveBeenCalledTimes(2);
 
 			consoleErrorSpy.mockRestore();

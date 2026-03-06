@@ -27,6 +27,7 @@ const sidebars: SidebarsConfig = {
 				"features/time-budget-blocks",
 				"features/period-children",
 				"features/bases-integration",
+				"features/prisma-calendar-integration",
 			],
 		},
 		"configuration",

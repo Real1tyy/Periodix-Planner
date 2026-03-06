@@ -13,11 +13,12 @@ import {
 	type Subscription,
 } from "rxjs";
 import { debounceTime, filter, groupBy, map, mergeMap, switchMap, toArray } from "rxjs/operators";
-import { PERIOD_TYPES } from "../constants";
 import type { IndexedPeriodNote, PeriodicPlannerSettings } from "../types";
 import { PeriodixSyncDataSchema } from "../types";
-import { injectActivityWatchContent } from "../utils/activity-watch";
+import { ActivityWatchInjector } from "../utils/activity-watch";
+import type { IntegrationInjector } from "../utils/integration-shared";
 import { parseFileToNote, updateHoursSpentInFrontmatter } from "../utils/note-utils";
+import { PrismaCalendarInjector } from "../utils/prisma-calendar";
 
 const SCAN_CONCURRENCY = 10;
 
@@ -229,8 +230,13 @@ export class PeriodicNoteIndexer {
 		if (!this.syncStore.data.readOnly) {
 			await updateHoursSpentInFrontmatter(this.app, file, note.hoursSpent, this.settings.properties.hoursSpentProp);
 
-			if (note.periodType === PERIOD_TYPES.DAILY) {
-				await injectActivityWatchContent(this.app, file, note.periodStart, this.settings);
+			const injectors: IntegrationInjector[] = [
+				new ActivityWatchInjector(this.app, this.settings),
+				new PrismaCalendarInjector(this.app, this.settings),
+			];
+
+			for (const injector of injectors) {
+				await injector.inject(file, note.periodStart, note.periodEnd, note.periodType);
 			}
 		}
 

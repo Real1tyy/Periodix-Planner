@@ -1,8 +1,9 @@
 import { SyncStore, WhatsNewModal, type WhatsNewModalConfig } from "@real1ty-obsidian-plugins";
 import { DateTime } from "luxon";
-import { Notice, Plugin, TFile } from "obsidian";
+import { type App, type MarkdownRenderChild, Notice, Plugin, TFile } from "obsidian";
 import CHANGELOG_CONTENT from "../docs-site/docs/changelog.md";
 import { ActivityWatchBlockRenderer } from "./components/activity-watch/activity-watch-block";
+import { PrismaCalendarBlockRenderer } from "./components/prisma-calendar/prisma-calendar-block";
 import { PeriodBasesItemView, VIEW_TYPE_PERIOD_BASES } from "./components/period-bases/period-bases-item-view";
 import { PeriodChildrenBasesModal } from "./components/period-children/bases-modal";
 import { TimeBudgetBlockRenderer } from "./components/time-budget";
@@ -560,17 +561,29 @@ export default class PeriodicPlannerPlugin extends Plugin {
 			ctx.addChild(renderer);
 		});
 
-		const activityWatchCodeFence = this.settingsStore.currentSettings.activityWatch.codeFence;
-		this.registerMarkdownCodeBlockProcessor(activityWatchCodeFence, (source, el, ctx) => {
-			if (el.hasClass("periodic-planner-activity-watch-initialized")) {
-				return;
-			}
+		this.registerIntegrationBlock(
+			this.settingsStore.currentSettings.activityWatch.codeFence,
+			"periodic-planner-activity-watch-initialized",
+			ActivityWatchBlockRenderer
+		);
 
+		this.registerIntegrationBlock(
+			this.settingsStore.currentSettings.prismaCalendar.codeFence,
+			"periodic-planner-prisma-calendar-initialized",
+			PrismaCalendarBlockRenderer
+		);
+	}
+
+	private registerIntegrationBlock(
+		codeFence: string,
+		initClass: string,
+		RendererClass: new (el: HTMLElement, app: App, source: string) => MarkdownRenderChild
+	): void {
+		this.registerMarkdownCodeBlockProcessor(codeFence, (source, el, ctx) => {
+			if (el.hasClass(initClass)) return;
 			el.empty();
-			el.addClass("periodic-planner-activity-watch-initialized");
-
-			const renderer = new ActivityWatchBlockRenderer(el, this.app, source);
-			ctx.addChild(renderer);
+			el.addClass(initClass);
+			ctx.addChild(new RendererClass(el, this.app, source));
 		});
 	}
 

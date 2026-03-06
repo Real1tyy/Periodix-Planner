@@ -181,6 +181,18 @@ const TemplaterSettingsSchema = z
 
 export type TemplaterSettings = z.infer<typeof TemplaterSettingsSchema>;
 
+// ===== Prisma Calendar Settings Schema =====
+const PrismaCalendarSettingsSchema = z
+	.object({
+		enabled: z.boolean().catch(SETTINGS_DEFAULTS.ENABLE_PRISMA_CALENDAR),
+		heading: z.string().catch(SETTINGS_DEFAULTS.PRISMA_CALENDAR_HEADING),
+		codeFence: z.string().catch(SETTINGS_DEFAULTS.PRISMA_CALENDAR_CODE_FENCE),
+		mode: z.enum(["name", "category"]).catch(SETTINGS_DEFAULTS.PRISMA_CALENDAR_MODE),
+	})
+	.strip();
+
+export type PrismaCalendarSettings = z.infer<typeof PrismaCalendarSettingsSchema>;
+
 // ===== Bases View Settings Schema =====
 const BasesViewSettingsSchema = z
 	.object({
@@ -218,11 +230,17 @@ export const PeriodicPlannerSettingsSchema = z
 		// UI configuration
 		ui: UISettingsSchema.default(UISettingsSchema.parse({})),
 
+		// Integration concurrency
+		integrationConcurrency: z.number().int().min(1).max(100).catch(SETTINGS_DEFAULTS.INTEGRATION_CONCURRENCY),
+
 		// ActivityWatch integration
 		activityWatch: ActivityWatchSettingsSchema.default(ActivityWatchSettingsSchema.parse({})),
 
 		// Templater integration
 		templater: TemplaterSettingsSchema.default(TemplaterSettingsSchema.parse({})),
+
+		// Prisma Calendar integration
+		prismaCalendar: PrismaCalendarSettingsSchema.default(PrismaCalendarSettingsSchema.parse({})),
 
 		// Bases view configuration
 		basesView: BasesViewSettingsSchema.default(BasesViewSettingsSchema.parse({})),

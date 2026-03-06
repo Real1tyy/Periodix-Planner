@@ -68,6 +68,7 @@ export const createMockSettings = (overrides?: Partial<PeriodicPlannerSettings>)
 		warningThresholdPercent: 80,
 		overBudgetThresholdPercent: 100,
 	},
+	integrationConcurrency: SETTINGS_DEFAULTS.INTEGRATION_CONCURRENCY,
 	activityWatch: {
 		enabled: false,
 		apiUrl: "http://localhost:5600",
@@ -81,6 +82,12 @@ export const createMockSettings = (overrides?: Partial<PeriodicPlannerSettings>)
 		monthlyTemplate: "",
 		quarterlyTemplate: "",
 		yearlyTemplate: "",
+	},
+	prismaCalendar: {
+		enabled: false,
+		heading: SETTINGS_DEFAULTS.PRISMA_CALENDAR_HEADING,
+		codeFence: SETTINGS_DEFAULTS.PRISMA_CALENDAR_CODE_FENCE,
+		mode: SETTINGS_DEFAULTS.PRISMA_CALENDAR_MODE,
 	},
 	basesView: {
 		tasksDirectory: SETTINGS_DEFAULTS.BASES_TASKS_DIRECTORY,

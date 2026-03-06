@@ -91,11 +91,20 @@ export const SETTINGS_DEFAULTS = {
 	// ===== Allocation Editor Settings =====
 	HIDE_UNUSED_CATEGORIES_IN_EDITOR: true,
 
+	// ===== Integration Settings =====
+	INTEGRATION_CONCURRENCY: 20,
+
 	// ===== ActivityWatch Settings =====
 	ENABLE_ACTIVITY_WATCH: false,
 	ACTIVITY_WATCH_URL: "http://localhost:5600",
 	ACTIVITY_WATCH_HEADING: "## ActivityWatch",
 	ACTIVITY_WATCH_CODE_FENCE: "periodic-planner-activity-watch",
+
+	// ===== Prisma Calendar Settings =====
+	ENABLE_PRISMA_CALENDAR: false,
+	PRISMA_CALENDAR_HEADING: "## Prisma Calendar",
+	PRISMA_CALENDAR_CODE_FENCE: "periodic-planner-prisma-calendar",
+	PRISMA_CALENDAR_MODE: "category" as "name" | "category",
 
 	// ===== Time Budget Code Fence =====
 	TIME_BUDGET_CODE_FENCE: "periodic-planner",

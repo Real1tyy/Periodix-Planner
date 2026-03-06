@@ -5,7 +5,9 @@ import { SETTINGS_DEFAULTS } from "../../constants";
 import type { SettingsStore } from "../../core/settings-store";
 import type { PeriodicPlannerSettingsSchema } from "../../types";
 import type { SettingsSection } from "../../types/settings";
-import { processAllDailyNotesForActivityWatch } from "../../utils/activity-watch";
+import { ActivityWatchInjector } from "../../utils/activity-watch";
+import { IntegrationInjector } from "../../utils/integration-shared";
+import { PrismaCalendarInjector } from "../../utils/prisma-calendar";
 
 export class IntegrationsSection implements SettingsSection {
 	readonly id = "integrations";
@@ -23,6 +25,15 @@ export class IntegrationsSection implements SettingsSection {
 		containerEl.createEl("p", {
 			text: "Configure third-party integrations to enhance your periodic planning workflow.",
 			cls: "setting-item-description",
+		});
+
+		this.uiBuilder.addSlider(containerEl, {
+			key: "integrationConcurrency",
+			name: "Batch processing concurrency",
+			desc: "Maximum number of notes to process in parallel when running batch operations",
+			min: 1,
+			max: 100,
+			step: 1,
 		});
 
 		new Setting(containerEl).setName("ActivityWatch").setHeading();
@@ -57,6 +68,50 @@ export class IntegrationsSection implements SettingsSection {
 			name: "Code fence name",
 			desc: "The code fence language identifier for ActivityWatch blocks (requires plugin reload to take effect)",
 			placeholder: SETTINGS_DEFAULTS.ACTIVITY_WATCH_CODE_FENCE,
+		});
+
+		new Setting(containerEl).setName("Prisma Calendar").setHeading();
+
+		const prismaDesc = containerEl.createEl("p", {
+			cls: "setting-item-description",
+		});
+		prismaDesc.appendText("Connect to ");
+		prismaDesc.createEl("a", {
+			text: "Prisma Calendar",
+			href: "https://github.com/Real1tyy/Prisma-Calendar",
+		});
+		prismaDesc.appendText(
+			" to automatically embed event statistics in periodic notes. Statistics are only added to past periodic notes."
+		);
+
+		this.uiBuilder.addToggle(containerEl, {
+			key: "prismaCalendar.enabled",
+			name: "Enable Prisma Calendar",
+			desc: "Enable Prisma Calendar integration for periodic notes",
+		});
+
+		this.uiBuilder.addText(containerEl, {
+			key: "prismaCalendar.heading",
+			name: "Prisma Calendar heading",
+			desc: "The heading to use for Prisma Calendar sections in periodic notes",
+			placeholder: SETTINGS_DEFAULTS.PRISMA_CALENDAR_HEADING,
+		});
+
+		this.uiBuilder.addText(containerEl, {
+			key: "prismaCalendar.codeFence",
+			name: "Code fence name",
+			desc: "The code fence language identifier for Prisma Calendar blocks (requires plugin reload to take effect)",
+			placeholder: SETTINGS_DEFAULTS.PRISMA_CALENDAR_CODE_FENCE,
+		});
+
+		this.uiBuilder.addDropdown(containerEl, {
+			key: "prismaCalendar.mode",
+			name: "Aggregation mode",
+			desc: "How to aggregate event statistics: by category or by event name",
+			options: {
+				category: "Category",
+				name: "Event name",
+			},
 		});
 
 		new Setting(containerEl).setName("Templater").setHeading();
@@ -109,17 +164,40 @@ export class IntegrationsSection implements SettingsSection {
 
 		new Setting(containerEl).setName("Actions").setHeading();
 
+		this.renderProcessButton(containerEl, {
+			name: "Process all daily notes (ActivityWatch)",
+			desc: "Scan all past daily notes and add ActivityWatch data to notes that don't have it yet. This will not affect today's note or future notes.",
+			InjectorClass: ActivityWatchInjector,
+			integrationLabel: "ActivityWatch",
+		});
+
+		this.renderProcessButton(containerEl, {
+			name: "Process all periodic notes (Prisma Calendar)",
+			desc: "Scan all past periodic notes and add Prisma Calendar statistics to notes that don't have them yet. This will not affect today's note or future notes.",
+			InjectorClass: PrismaCalendarInjector,
+			integrationLabel: "Prisma Calendar",
+		});
+	}
+
+	private renderProcessButton(
+		containerEl: HTMLElement,
+		config: {
+			name: string;
+			desc: string;
+			InjectorClass: new (...args: ConstructorParameters<typeof IntegrationInjector>) => IntegrationInjector;
+			integrationLabel: string;
+		}
+	): void {
 		new Setting(containerEl)
-			.setName("Process all daily notes")
-			.setDesc(
-				"Scan all past daily notes and add ActivityWatch data to notes that don't have it yet. This will not affect today's note or future notes."
-			)
+			.setName(config.name)
+			.setDesc(config.desc)
 			.addButton((button) => {
 				button.setButtonText("Process now").onClick(async () => {
 					const settings = this.settingsStore.currentSettings;
+					const injector = new config.InjectorClass(this.app, settings);
 
-					if (!settings.activityWatch.enabled) {
-						new Notice("ActivityWatch integration is disabled. Enable it first.");
+					if (!injector.checkEnabled()) {
+						new Notice(`${config.integrationLabel} integration is disabled. Enable it first.`);
 						return;
 					}
 
@@ -127,10 +205,10 @@ export class IntegrationsSection implements SettingsSection {
 					button.setButtonText("Processing...");
 
 					try {
-						await processAllDailyNotesForActivityWatch(this.app, settings);
-						new Notice("ActivityWatch data processing complete!");
+						await injector.processAllNotes();
+						new Notice(`${config.integrationLabel} data processing complete!`);
 					} catch (error) {
-						console.error("Error processing daily notes:", error);
+						console.error(`Error processing notes:`, error);
 						new Notice(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
 					} finally {
 						button.setDisabled(false);
