@@ -16,7 +16,7 @@ export function generateBasesMarkdown(options: BasesMarkdownOptions): string {
 	const { periodType, periodStart, periodEnd, settings } = options;
 	const { tasksDirectory, dateProperty, propertiesToShow, dateColumnSize } = settings;
 
-	const noteProp = `note["${dateProperty}"]`;
+	const notePropFilter = `note["${dateProperty}"]`;
 	const orderSection = buildOrderSection(propertiesToShow, dateProperty);
 
 	const { start: startDateWithoutTz, end: endDateWithoutTz } = formatPeriodIntervalForBases(periodStart, periodEnd);
@@ -29,31 +29,35 @@ views:
     filters:
       and:
         - file.inFolder("${tasksDirectory}")
-        - ${noteProp} > "${startDateWithoutTz}"
-        - ${noteProp} < "${endDateWithoutTz}"
+        - ${notePropFilter} > "${startDateWithoutTz}"
+        - ${notePropFilter} < "${endDateWithoutTz}"
     sort:
-      - property: ${noteProp}
+      - property: ${dateProperty}
         direction: DESC
     columnSize:
-      ${noteProp}: ${dateColumnSize}
+      note.${dateProperty}: ${dateColumnSize}
 \`\`\`
 `;
 }
 
 function buildOrderSection(propertiesToShow: string, dateProperty: string): string {
-	const props = [
-		"file.name",
-		`note["${dateProperty}"]`,
-		...(propertiesToShow
-			? propertiesToShow
-					.split(",")
-					.map((p) => p.trim())
-					.filter(Boolean)
-					.map((p) => `note["${p}"]`)
-			: []),
-	];
+	const properties = new Set<string>();
 
+	properties.add("file.name");
+	properties.add(dateProperty);
+	if (propertiesToShow && propertiesToShow.trim() !== "") {
+		const userProperties = propertiesToShow
+			.split(",")
+			.map((p) => p.trim())
+			.filter((p) => p.length > 0);
+		for (const prop of userProperties) {
+			properties.add(prop);
+		}
+	}
+	const orderArray = Array.from(properties)
+		.map((prop) => `      - ${prop}`)
+		.join("\n");
 	return `
     order:
-${props.map((p) => `      - ${p}`).join("\n")}`;
+${orderArray}`;
 }
