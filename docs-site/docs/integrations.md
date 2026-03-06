@@ -65,8 +65,8 @@ Track and visualize your computer usage automatically in daily notes with intera
 
 1. **Install ActivityWatch**
    - Download from [activitywatch.net](https://activitywatch.net)
-   - Install and start the ActivityWatch server
-   - Verify it's running at `http://localhost:5600`
+   - Make sure you are running **aw-server-rust** (not the legacy Python `aw-server`) — this is required for the API to work correctly
+   - Verify the server is running at `http://localhost:5600`
 
 2. **Enable in Periodix-Planner**
    - Go to **Settings** → **Periodix-Planner** → **Integrations** → **ActivityWatch**
@@ -126,13 +126,14 @@ This renders as an interactive block with:
 ### Requirements
 
 - **Desktop Only**: ActivityWatch integration only works with desktop Obsidian (not mobile)
-- **ActivityWatch Server**: Requires a running ActivityWatch server - by default runs locally on `http://localhost:5600`
+- **aw-server-rust**: Requires the Rust version of the ActivityWatch server (`aw-server-rust`). The legacy Python `aw-server` is not supported. Recent ActivityWatch releases bundle `aw-server-rust` by default
 - **Past Dates Only**: Data is only added to past daily notes (not today or future dates)
 
 ### Troubleshooting
 
 **Data not appearing?**
 
+- Make sure you are running **aw-server-rust**, not the legacy Python `aw-server`. The Python server uses a different API format that is not compatible with this integration. If you installed ActivityWatch recently, you likely already have `aw-server-rust` — but if you upgraded from an older version, you may still be running the Python server
 - Verify ActivityWatch is running and accessible at the configured API URL
 - Check that you have ActivityWatch watchers enabled (window tracker and AFK tracker)
 - Ensure the daily note is from a past date (not today or future)
