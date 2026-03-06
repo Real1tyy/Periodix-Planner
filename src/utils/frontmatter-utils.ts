@@ -47,6 +47,7 @@ export function extractParentLinksFromFrontmatter(
 	props: PropertySettings
 ): {
 	parent?: string;
+	secondaryParent?: string;
 	week?: string;
 	month?: string;
 	quarter?: string;

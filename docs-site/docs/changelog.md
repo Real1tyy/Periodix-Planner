@@ -8,11 +8,12 @@ All notable changes to this project will be documented here.
 
 ---
 
-## 1.8.0 - 2026-03-05
+## 1.8.0 - 2026-03-06
 
 ### Added
 
 - **Prisma Calendar integration**: Automatically embed Prisma Calendar event statistics in periodic notes. Works for all period types (daily, weekly, monthly, quarterly, yearly). Configure in Settings → Integrations → Prisma Calendar. See [Prisma Calendar Integration](/features/prisma-calendar-integration).
+- **Proportional cross-month budget splitting**: When a week spans two months, its time allocations are automatically split proportionally between both months based on the number of overlapping days. See [Time Budgeting](/features/time-budgeting#hierarchical-budget-flow).
 
 ### Fixed
 

@@ -14,6 +14,7 @@ import {
 	resolveFilePath,
 } from "./frontmatter-utils";
 import { getEnabledAncestorPeriodTypes, getEnabledParentPeriodType } from "./period-navigation";
+import { getSecondaryMonthPath, weekSpansTwoMonths } from "./period-overlap";
 import { getHoursForPeriodType } from "./time-budget-utils";
 
 const TIME_BUDGET_CODE_FENCE = "periodic-planner";
@@ -143,6 +144,14 @@ async function buildIndexedNote(
 	const props = settings.properties;
 	const parentLinks = extractParentLinksFromFrontmatter(frontmatter, props);
 
+	if (validatedData.periodType === "weekly" && weekSpansTwoMonths(validatedData.periodStart, validatedData.periodEnd)) {
+		parentLinks.secondaryParent = getSecondaryMonthPath(
+			validatedData.periodEnd,
+			settings.directories.monthlyFolder,
+			settings.naming.monthlyFormat
+		);
+	}
+
 	const rawHours: unknown = frontmatter[props.hoursAvailableProp];
 	const hoursAvailable =
 		typeof rawHours === "number" ? rawHours : getHoursForPeriodType(settings.timeBudget, validatedData.periodType);
@@ -222,7 +231,7 @@ export function getParentFilePathsFromLinks(
 	if (!childrenKey) return results;
 
 	const links = note.parentLinks;
-	const parentLinkKeys = ["parent", "week", "month", "quarter", "year"] as const;
+	const parentLinkKeys = ["parent", "secondaryParent", "week", "month", "quarter", "year"] as const;
 
 	for (const linkKey of parentLinkKeys) {
 		const linkValue = links[linkKey];

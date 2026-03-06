@@ -14,6 +14,7 @@ export interface IndexedPeriodNote {
 	hoursSpent: number;
 	parentLinks: {
 		parent?: string;
+		secondaryParent?: string;
 		week?: string;
 		month?: string;
 		quarter?: string;

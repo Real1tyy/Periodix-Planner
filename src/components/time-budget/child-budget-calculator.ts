@@ -3,6 +3,7 @@ import type { PeriodType } from "../../constants";
 import type { PeriodIndex } from "../../core/period-index";
 import type { GenerationSettings, TimeAllocation } from "../../types";
 import { getEnabledChildrenKey } from "../../utils/period-navigation";
+import { getChildWeight } from "../../utils/period-overlap";
 import type { CategoryBudgetInfo } from "./parent-budget-tracker";
 
 interface ChildBudgetResult {
@@ -35,6 +36,8 @@ export function calculateChildAllocatedForNode(
 
 	const directChildren = children[directChildrenKey] ?? [];
 
+	const parentNote = periodIndex.getEntryForFile(file);
+
 	for (const allocation of allocations) {
 		budgets.set(allocation.categoryName, {
 			categoryName: allocation.categoryName,
@@ -45,10 +48,11 @@ export function calculateChildAllocatedForNode(
 	}
 
 	for (const child of directChildren) {
+		const weight = parentNote ? getChildWeight(child, parentNote) : 1;
 		for (const [categoryName, hours] of child.categoryAllocations) {
 			const budget = budgets.get(categoryName);
 			if (budget) {
-				budget.allocated += hours;
+				budget.allocated += hours * weight;
 			}
 		}
 	}

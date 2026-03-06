@@ -63,6 +63,8 @@ Time budgets cascade through the hierarchy:
 3. **Monthly → Weekly:** Weekly allocations tracked against monthly limits
 4. **Weekly → Daily:** Daily allocations tracked against weekly limits
 
+When a week spans two months (e.g., Jan 28 - Feb 3), its allocations are split proportionally between both months. For example, a week with 14 hours allocated to Work contributes 8 hours (4/7) to January and 6 hours (3/7) to February. This happens automatically — no configuration needed.
+
 Warnings appear when child allocations exceed parent budgets.
 
 ## Visual Statistics
