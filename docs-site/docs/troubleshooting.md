@@ -8,7 +8,8 @@ Solutions to common issues with Periodix-Planner.
 
 ## 🔍 General Troubleshooting
 
-### Check Developer Console
+<details>
+<summary>Check Developer Console</summary>
 
 The Developer Console shows errors and warnings:
 
@@ -17,14 +18,20 @@ The Developer Console shows errors and warnings:
 3. Note error messages for reference
 4. Check if errors occur during specific actions
 
-### Verify Plugin is Enabled
+</details>
+
+<details>
+<summary>Verify Plugin is Enabled</summary>
 
 1. Go to **Settings** → **Community plugins**
 2. Verify **Periodix-Planner** is listed
 3. Ensure it's **enabled** (toggle is on)
 4. If not enabled, enable it and restart Obsidian
 
-### Restart Obsidian
+</details>
+
+<details>
+<summary>Restart Obsidian</summary>
 
 Many issues are resolved by restarting:
 
@@ -33,7 +40,10 @@ Many issues are resolved by restarting:
 3. Reopen Obsidian
 4. Check if issue persists
 
-### Get Help
+</details>
+
+<details>
+<summary>Get Help</summary>
 
 If issues persist:
 
@@ -52,6 +62,8 @@ If issues persist:
    - Include error messages
    - Share relevant settings
    - Include steps to reproduce
+
+</details>
 
 ---
 

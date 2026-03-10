@@ -8,7 +8,8 @@ Common questions about Periodix-Planner and their answers.
 
 ## 📦 Installation
 
-### How do I install Periodix-Planner?
+<details>
+<summary>How do I install Periodix-Planner?</summary>
 
 See the [Installation Guide](/installation) for detailed instructions. The plugin can be installed via:
 
@@ -16,17 +17,28 @@ See the [Installation Guide](/installation) for detailed instructions. The plugi
 - BRAT (for beta versions)
 - Manual installation from GitHub releases
 
-### Is Periodix-Planner available in Community Plugins?
+</details>
+
+<details>
+<summary>Is Periodix-Planner available in Community Plugins?</summary>
 
 Periodix-Planner is currently in development. Once ready, it will be submitted for Community Plugins approval. For now, use BRAT or manual installation.
 
-### Can I use BRAT to install?
+</details>
+
+<details>
+<summary>Can I use BRAT to install?</summary>
 
 Yes! BRAT is the recommended method for early access. See the [Installation Guide](/installation) for BRAT setup instructions.
 
+</details>
+
+---
+
 ## ⚙️ Configuration
 
-### Where are my notes stored?
+<details>
+<summary>Where are my notes stored?</summary>
 
 Notes are stored in folders you configure in **Settings** → **Periodix-Planner** → **Folders** tab. Default folders are:
 
@@ -36,25 +48,42 @@ Notes are stored in folders you configure in **Settings** → **Periodix-Planner
 - `Periodic/Quarterly`
 - `Periodic/Yearly`
 
-### Can I change the note naming format?
+</details>
+
+<details>
+<summary>Can I change the note naming format?</summary>
 
 Yes! Go to **Settings** → **Periodix-Planner** → **Naming** tab to customize format strings for each period type.
 
-### How do I set up categories?
+</details>
+
+<details>
+<summary>How do I set up categories?</summary>
 
 Go to **Settings** → **Periodix-Planner** → **Categories** tab, then click **Add Category** to create new categories with custom names and colors.
 
-### Can I customize frontmatter property names?
+</details>
+
+<details>
+<summary>Can I customize frontmatter property names?</summary>
 
 Yes! Go to **Settings** → **Periodix-Planner** → **Properties** tab to customize all property names.
 
+</details>
+
+---
+
 ## 📅 Note Generation
 
-### How does auto-generation work?
+<details>
+<summary>How does auto-generation work?</summary>
 
 When enabled, the plugin automatically generates periodic notes when you open Obsidian. It creates the current period and next period for each type (daily, weekly, monthly, quarterly, yearly).
 
-### Will the plugin overwrite my existing notes?
+</details>
+
+<details>
+<summary>Will the plugin overwrite my existing notes?</summary>
 
 No! The plugin never overwrites existing notes. It only:
 
@@ -62,30 +91,49 @@ No! The plugin never overwrites existing notes. It only:
 - Updates frontmatter if properties are missing
 - Adds time budget blocks if missing
 
-### Can I disable auto-generation?
+</details>
+
+<details>
+<summary>Can I disable auto-generation?</summary>
 
 Yes! Go to **Settings** → **Periodix-Planner** → **Generation** tab and disable **Auto-generate future periods**.
 
-### How do I generate notes manually?
+</details>
+
+<details>
+<summary>How do I generate notes manually?</summary>
 
 Use the command **"Generate all periods for today"** from the command palette (Ctrl/Cmd + P).
 
+</details>
+
+---
+
 ## ⏱️ Time Budgeting
 
-### What happens if I exceed the available hours?
+<details>
+<summary>What happens if I exceed the available hours?</summary>
 
 The plugin shows warnings:
 
 - **Red** when over budget
 - **Parent budget warnings** when exceeding parent allocation
 
-### How does parent budget tracking work?
+</details>
+
+<details>
+<summary>How does parent budget tracking work?</summary>
 
 When you allocate time in a child period (e.g., weekly), the plugin tracks it against the parent period's budget (e.g., monthly). If you exceed the parent budget, warnings appear.
 
+</details>
+
+---
+
 ## 🔗 Navigation
 
-### How do I navigate between periods?
+<details>
+<summary>How do I navigate between periods?</summary>
 
 Use commands from the command palette:
 
@@ -94,36 +142,55 @@ Use commands from the command palette:
 - **Go to parent period**
 - **Open current [period] note**
 
-### Can I assign hotkeys to navigation commands?
+</details>
+
+<details>
+<summary>Can I assign hotkeys to navigation commands?</summary>
 
 Yes! Go to **Settings** → **Hotkeys**, search for "Periodix-Planner", and assign hotkeys to any command.
 
-### Do links work if notes don't exist?
+</details>
+
+<details>
+<summary>Do links work if notes don't exist?</summary>
 
 Yes! When you click a link or use a navigation command, the plugin automatically creates the target note if it doesn't exist.
 
+</details>
+
+---
+
 ## 🤝 Support
 
-### Where can I get help?
+<details>
+<summary>Where can I get help?</summary>
 
 - **Documentation**: Check this documentation site
 - **GitHub Issues**: [Open an issue](https://github.com/Real1tyy/Periodix-Planner/issues)
 - **Troubleshooting**: See the [Troubleshooting Guide](/troubleshooting)
 
-### How do I report a bug?
+</details>
+
+<details>
+<summary>How do I report a bug?</summary>
 
 1. Go to [GitHub Issues](https://github.com/Real1tyy/Periodix-Planner/issues)
 2. Click **New Issue**
 3. Select **Bug Report**
 4. Provide details about the issue
 
-### Can I request a feature?
+</details>
+
+<details>
+<summary>Can I request a feature?</summary>
 
 Yes! Open a [feature request](https://github.com/Real1tyy/Periodix-Planner/issues) on GitHub with:
 
 - Clear description
 - Use case
 - Examples if applicable
+
+</details>
 
 ---
 
