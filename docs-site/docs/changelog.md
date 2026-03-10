@@ -9,11 +9,6 @@ All notable changes to this project will be documented here.
 ---
 
 ## 1.8.0 - 2026-03-06
-
-:::tip Check out Prisma Calendar
-The ultimate calendar plugin for Obsidian — now with AI chat (Claude & GPT), CalDAV sync, scriptable API, and more. [Learn more →](https://matejvavroproductivity.com/tools/prisma-calendar/)
-:::
-
 ### Added
 
 - **Prisma Calendar integration**: Automatically embed Prisma Calendar event statistics in periodic notes. Works for all period types (daily, weekly, monthly, quarterly, yearly). Configure in Settings → Integrations → Prisma Calendar. See [Prisma Calendar Integration](/features/prisma-calendar-integration).
