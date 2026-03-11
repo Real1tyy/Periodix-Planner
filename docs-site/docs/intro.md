@@ -141,7 +141,7 @@ We welcome contributions! See our [Contributing Guide](/contributing) for how to
 
 ## 📄 License
 
-MIT License - see the [LICENSE](https://github.com/Real1tyy/Periodix-Planner/blob/main/LICENSE) file for details.
+AGPL-3.0 License - see the [LICENSE](https://github.com/Real1tyy/Periodix-Planner/blob/main/LICENSE) file for details.
 
 ---
 

@@ -208,7 +208,7 @@ Contributions are welcome! Please see our [Contributing Guide](https://real1tyy.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+AGPL-3.0 License - see [LICENSE](LICENSE) for details.
 
 ## Support & Sponsorship
 
