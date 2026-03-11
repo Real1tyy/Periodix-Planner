@@ -1,4 +1,5 @@
 import type { DateTime } from "luxon";
+
 import type { PeriodType } from "../constants";
 import { PERIOD_TYPE_LABELS } from "../constants";
 import type { BasesViewSettings } from "../types/schemas";
@@ -41,23 +42,18 @@ views:
 }
 
 function buildOrderSection(propertiesToShow: string, dateProperty: string): string {
-	const properties = new Set<string>();
+	const props = [
+		"file.name",
+		dateProperty,
+		...(propertiesToShow
+			? propertiesToShow
+					.split(",")
+					.map((p) => p.trim())
+					.filter(Boolean)
+			: []),
+	];
 
-	properties.add("file.name");
-	properties.add(dateProperty);
-	if (propertiesToShow && propertiesToShow.trim() !== "") {
-		const userProperties = propertiesToShow
-			.split(",")
-			.map((p) => p.trim())
-			.filter((p) => p.length > 0);
-		for (const prop of userProperties) {
-			properties.add(prop);
-		}
-	}
-	const orderArray = Array.from(properties)
-		.map((prop) => `      - ${prop}`)
-		.join("\n");
 	return `
     order:
-${orderArray}`;
+${props.map((p) => `      - ${p}`).join("\n")}`;
 }

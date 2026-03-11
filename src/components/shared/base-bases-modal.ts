@@ -1,4 +1,5 @@
 import { type App, Component, MarkdownRenderer, Modal } from "obsidian";
+
 import { PERIOD_TYPE_LABELS, type PeriodType } from "../../constants";
 import type { SettingsStore } from "../../core/settings-store";
 import { cls } from "../../utils/css";
@@ -112,7 +113,7 @@ ${viewBlocks.join("\n")}
 			props.hoursAvailableProp,
 			props.hoursSpentProp,
 			...additionalProperties,
-		].map((prop) => `note["${prop}"]`);
+		];
 
 		const allProperties = ["file.name", ...noteProps];
 

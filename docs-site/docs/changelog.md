@@ -10,10 +10,6 @@ All notable changes to this project will be documented here.
 
 ## 1.8.0 - 2026-03-11
 
-:::tip Check out Prisma Calendar
-The ultimate calendar plugin for Obsidian — now with AI chat (Claude & GPT), CalDAV sync, scriptable API, and more. [Learn more →](https://matejvavroproductivity.com/tools/prisma-calendar/)
-:::
-
 ### Added
 
 - **Prisma Calendar integration**: Automatically embed Prisma Calendar event statistics in periodic notes. Requires [Prisma Calendar Pro](https://matejvavroproductivity.com/tools/prisma-calendar/). Works for all period types (daily, weekly, monthly, quarterly, yearly). Configure in Settings → Integrations → Prisma Calendar. See [Prisma Calendar Integration](/features/prisma-calendar-integration).
@@ -21,7 +17,7 @@ The ultimate calendar plugin for Obsidian — now with AI chat (Claude & GPT), C
 
 ### Fixed
 
-- **Bases property syntax**: All property references in Bases queries now use the `note["Property"]` bracket notation, including column order sections. This fixes display issues with multi-word property names (e.g., "Sort Date"). See [Bases Integration](/features/bases-integration).
+- **Bases property syntax**: Property names in Bases filter sections now use `note["Sort Date"]`. This fixes display issues with multi-word property names in table columns. See [Bases Integration](/features/bases-integration).
 
 ---
 
