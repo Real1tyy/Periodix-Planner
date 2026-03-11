@@ -72,5 +72,5 @@ This scans all periodic notes across all period types and adds statistics to not
 
 ## Related Features
 
-- **[ActivityWatch Integration](/features/activity-watch)** — Similar integration for computer usage tracking (daily notes only)
+- **[ActivityWatch Integration](/integrations#activitywatch)** — Similar integration for computer usage tracking (daily notes only)
 - **[Bases Integration](/features/bases-integration)** — View tasks filtered by period
