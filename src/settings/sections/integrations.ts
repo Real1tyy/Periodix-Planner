@@ -1,8 +1,10 @@
 import type { SettingsUIBuilder } from "@real1ty-obsidian-plugins";
 import type { App } from "obsidian";
 import { Notice, Setting } from "obsidian";
+
 import { SETTINGS_DEFAULTS } from "../../constants";
 import type { SettingsStore } from "../../core/settings-store";
+import { PrismaCalendarService } from "../../services/prisma-calendar";
 import type { PeriodicPlannerSettingsSchema } from "../../types";
 import type { SettingsSection } from "../../types/settings";
 import { ActivityWatchInjector } from "../../utils/activity-watch";
@@ -87,7 +89,23 @@ export class IntegrationsSection implements SettingsSection {
 		this.uiBuilder.addToggle(containerEl, {
 			key: "prismaCalendar.enabled",
 			name: "Enable Prisma Calendar",
-			desc: "Enable Prisma Calendar integration for periodic notes",
+			desc: "Enable Prisma Calendar integration for periodic notes. Requires Prisma Calendar Pro.",
+			onChanged: () => {
+				const enabled = this.settingsStore.currentSettings.prismaCalendar.enabled;
+				if (!enabled) return;
+
+				if (!PrismaCalendarService.isPrismaAvailable()) {
+					new Notice("Prisma Calendar plugin is not installed or not enabled.");
+					return;
+				}
+
+				if (!PrismaCalendarService.isPrismaPro()) {
+					new Notice(
+						"Prisma Calendar integration requires Prisma Calendar Pro. " +
+							"Visit matejvavroproductivity.com/tools/prisma-calendar/ to upgrade."
+					);
+				}
+			},
 		});
 
 		this.uiBuilder.addText(containerEl, {
@@ -173,9 +191,10 @@ export class IntegrationsSection implements SettingsSection {
 
 		this.renderProcessButton(containerEl, {
 			name: "Process all periodic notes (Prisma Calendar)",
-			desc: "Scan all past periodic notes and add Prisma Calendar statistics to notes that don't have them yet. This will not affect today's note or future notes.",
+			desc: "Scan all past periodic notes and add Prisma Calendar statistics to notes that don't have them yet. This will not affect today's note or future notes. Requires Prisma Calendar Pro.",
 			InjectorClass: PrismaCalendarInjector,
 			integrationLabel: "Prisma Calendar",
+			requiresPrismaPro: true,
 		});
 	}
 
@@ -186,6 +205,7 @@ export class IntegrationsSection implements SettingsSection {
 			desc: string;
 			InjectorClass: new (...args: ConstructorParameters<typeof IntegrationInjector>) => IntegrationInjector;
 			integrationLabel: string;
+			requiresPrismaPro?: boolean;
 		}
 	): void {
 		new Setting(containerEl)
@@ -193,6 +213,14 @@ export class IntegrationsSection implements SettingsSection {
 			.setDesc(config.desc)
 			.addButton((button) => {
 				button.setButtonText("Process now").onClick(async () => {
+					if (config.requiresPrismaPro && !PrismaCalendarService.isPrismaPro()) {
+						new Notice(
+							"Prisma Calendar integration requires Prisma Calendar Pro. " +
+								"Visit matejvavroproductivity.com/tools/prisma-calendar/ to upgrade."
+						);
+						return;
+					}
+
 					const settings = this.settingsStore.currentSettings;
 					const injector = new config.InjectorClass(this.app, settings);
 

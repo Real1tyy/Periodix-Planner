@@ -6,17 +6,22 @@ sidebar_position: 12
 
 Periodix-Planner integrates with [Prisma Calendar](https://github.com/Real1tyy/Prisma-Calendar) to automatically embed event statistics in your periodic notes.
 
+:::info Requires Prisma Calendar Pro
+This integration uses Prisma Calendar's [Programmatic API](https://matejvavroproductivity.com/tools/prisma-calendar/), which is a **Pro-only** feature. If Prisma Calendar is on the free tier, the integration will not be able to fetch statistics and will notify you to upgrade. Visit [matejvavroproductivity.com/tools/prisma-calendar](https://matejvavroproductivity.com/tools/prisma-calendar/) to start a 30-day free trial or upgrade.
+:::
+
 ## Overview
 
-When enabled, the plugin queries Prisma Calendar's API to get event statistics for each period and embeds them as a code block in the note. The data is rendered as an interactive summary with a table, pie chart, and event counts.
+When enabled, the plugin queries Prisma Calendar's Programmatic API to get event statistics for each period and embeds them as a code block in the note. The data is rendered as an interactive summary with a table, pie chart, and event counts.
 
 Statistics are only added to **past** periodic notes — today's note and future notes are not affected. This works for all period types: daily, weekly, monthly, quarterly, and yearly.
 
 ## Setup
 
 1. Install and enable the [Prisma Calendar](https://github.com/Real1tyy/Prisma-Calendar) plugin
-2. Open **Settings** → **Periodix-Planner** → **Integrations**
-3. Enable **Prisma Calendar** integration
+2. **Activate Prisma Calendar Pro** — the Programmatic API is a Pro feature
+3. Open **Settings** → **Periodix-Planner** → **Integrations**
+4. Enable **Prisma Calendar** integration
 
 ### Configuration
 

@@ -1,4 +1,5 @@
 import type { DateTime } from "luxon";
+
 import type { PeriodType } from "../constants";
 import type { PrismaCalendarData } from "../types/prisma-calendar";
 import { generateCodeBlock } from "../utils/integration-shared";
@@ -30,6 +31,7 @@ interface PrismaStatisticsOutput {
 }
 
 interface PrismaCalendarApi {
+	isPro?: () => boolean;
 	getStatistics(input?: {
 		date?: string;
 		interval?: "day" | "week" | "month";
@@ -49,10 +51,21 @@ export class PrismaCalendarService {
 	private getApi(): PrismaCalendarApi | null {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const api = (window as any).PrismaCalendar as PrismaCalendarApi | undefined;
-		if (!api || typeof api.getStatistics !== "function") {
+		if (!api) {
 			return null;
 		}
 		return api;
+	}
+
+	static isPrismaAvailable(): boolean {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		return !!(window as any).PrismaCalendar;
+	}
+
+	static isPrismaPro(): boolean {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const api = (window as any).PrismaCalendar as PrismaCalendarApi | undefined;
+		return !!api?.isPro?.();
 	}
 
 	async getStatisticsForPeriod(
@@ -63,7 +76,13 @@ export class PrismaCalendarService {
 	): Promise<PrismaCalendarData | null> {
 		const api = this.getApi();
 		if (!api) {
-			throw new Error("Prisma Calendar plugin is not available");
+			throw new Error("Prisma Calendar plugin is not installed or not enabled");
+		}
+
+		if (typeof api.getStatistics !== "function") {
+			throw new Error(
+				"Prisma Calendar integration requires Prisma Calendar Pro. Visit https://matejvavroproductivity.com/tools/prisma-calendar/ to upgrade."
+			);
 		}
 
 		const interval = PERIOD_TYPE_TO_INTERVAL[periodType];
