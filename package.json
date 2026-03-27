@@ -72,7 +72,7 @@
 		"luxon": "^3.7.2",
 		"nanoid": "^5.1.6",
 		"rxjs": "^7.8.2",
-		"yaml": "^2.7.0",
+		"yaml": "^2.8.3",
 		"zod": "^4.3.5",
 		"@real1ty-obsidian-plugins": "file:./shared"
 	}
